@@ -1,15 +1,19 @@
 package localcpu
 
 import (
-	"encoding/binary"
 	"github.com/hacash/core/blocks"
 	"github.com/hacash/core/interfaces"
-	"github.com/hacash/mint/coinbase"
 	"github.com/hacash/mint/difficulty"
 	"github.com/hacash/x16rs"
 	"sync/atomic"
 	"time"
 )
+
+type successBlockReturn struct {
+	coinbaseMsgNum uint32
+	nonceBytes     []byte
+	blockHeadMeta  interfaces.Block
+}
 
 type CPUWorker struct {
 	stopMark *byte
@@ -18,10 +22,10 @@ type CPUWorker struct {
 
 	successMiningMark *uint32
 
-	successBlockCh chan interfaces.Block
+	successBlockCh chan successBlockReturn
 }
 
-func NewCPUWorker(successMiningMark *uint32, successBlockCh chan interfaces.Block, coinbaseMsgNum uint32, stopMark *byte) *CPUWorker {
+func NewCPUWorker(successMiningMark *uint32, successBlockCh chan successBlockReturn, coinbaseMsgNum uint32, stopMark *byte) *CPUWorker {
 	worker := &CPUWorker{
 		successMiningMark: successMiningMark,
 		successBlockCh:    successBlockCh,
@@ -31,13 +35,13 @@ func NewCPUWorker(successMiningMark *uint32, successBlockCh chan interfaces.Bloc
 	return worker
 }
 
-func (c *CPUWorker) RunMining(newblock interfaces.Block, startNonce uint32, endNonce uint32) bool {
-	loopnum := int(newblock.GetHeight()/50000) + 1
+func (c *CPUWorker) RunMining(newblockheadmeta interfaces.Block, startNonce uint32, endNonce uint32) bool {
+	loopnum := int(newblockheadmeta.GetHeight()/50000) + 1
 	if loopnum > 16 {
 		loopnum = 16
 	}
-	workStuff := blocks.CalculateBlockHashBaseStuff(newblock)
-	targethashdiff := difficulty.Uint32ToHash(newblock.GetHeight(), newblock.GetDifficulty())
+	workStuff := blocks.CalculateBlockHashBaseStuff(newblockheadmeta)
+	targethashdiff := difficulty.Uint32ToHash(newblockheadmeta.GetHeight(), newblockheadmeta.GetDifficulty())
 	// run
 	//fmt.Println( "targethashdiff:", hex.EncodeToString(targethashdiff) )
 	// ========= test start =========
@@ -46,15 +50,13 @@ func (c *CPUWorker) RunMining(newblock interfaces.Block, startNonce uint32, endN
 	issuccess, noncebytes, _ := x16rs.MinerNonceHashX16RS(loopnum, false, c.stopMark, startNonce, endNonce, targethashdiff, workStuff)
 	//fmt.Println("x16rs.MinerNonceHashX16RS finish")
 	if issuccess && atomic.CompareAndSwapUint32(c.successMiningMark, 0, 1) {
-		if c.coinbaseMsgNum > 0 {
-			coinbase.UpdateBlockCoinbaseMessageForMiner(newblock, c.coinbaseMsgNum)
-		}
-		newblock.SetNonce(binary.BigEndian.Uint32(noncebytes))
-		newblock.SetMrklRoot(blocks.CalculateMrklRoot(newblock.GetTransactions())) // update mrkl
-		newblock.Fresh()
 		// return success block
 		//fmt.Println("start c.successBlockCh <- newblock")
-		c.successBlockCh <- newblock
+		c.successBlockCh <- successBlockReturn{
+			c.coinbaseMsgNum,
+			noncebytes,
+			newblockheadmeta,
+		}
 		//fmt.Println("end ... c.successBlockCh <- newblock")
 		return true
 	}

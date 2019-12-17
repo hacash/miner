@@ -7,6 +7,8 @@ import (
 type LocalCPUPowMaster struct {
 	config *LocalCPUPowMasterConfig
 
+	coinbaseMsgNum uint32
+
 	//currentWorkers mapset.Set
 	stopMarks sync.Map
 
@@ -17,7 +19,11 @@ func NewLocalCPUPowMaster(cnf *LocalCPUPowMasterConfig) *LocalCPUPowMaster {
 
 	miner := &LocalCPUPowMaster{
 		config: cnf,
-		//currentWorkers: mapset.NewSet(),
 	}
+
 	return miner
+}
+
+func (l *LocalCPUPowMaster) SetCoinbaseMsgNum(coinbaseMsgNum uint32) {
+	l.coinbaseMsgNum = coinbaseMsgNum
 }

@@ -45,15 +45,15 @@ func main() {
 	txpool := memtxpool.NewMemTxPool(0, 1024*1024*50)
 	txpool.SetBlockChain(hnode.GetBlockChain())
 
-	lccnf := localcpu.NewLocalCPUPowMasterConfig(hinicnf)
-	powmaster := localcpu.NewLocalCPUPowMaster(lccnf)
+	lccnf := localcpu.NewPowWrapConfig(hinicnf)
+	powwrap := localcpu.NewPowWrap(lccnf)
 
 	mcnf := miner.NewMinerConfig(hinicnf)
 	miner := miner.NewMiner(mcnf)
 
 	miner.SetBlockChain(hnode.GetBlockChain())
 	miner.SetTxPool(txpool)
-	miner.SetPowMaster(powmaster)
+	miner.SetPowServer(powwrap)
 
 	miner.Start()
 

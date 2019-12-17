@@ -12,7 +12,7 @@ type Miner struct {
 
 	txpool interfaces.TxPool
 
-	powmaster interfaces.PowMaster
+	powserver interfaces.PowServer
 
 	isMiningStatus     *uint32
 	stopSignCh         chan bool
@@ -35,8 +35,8 @@ func (m *Miner) Start() {
 }
 
 func (m *Miner) StartMining() {
-	if m.powmaster == nil {
-		panic("[Miner] powmaster is not be set.")
+	if m.powserver == nil {
+		panic("[Miner] powserver is not be set.")
 	}
 	if atomic.CompareAndSwapUint32(m.isMiningStatus, 0, 1) {
 		go m.doStartMining()
@@ -46,7 +46,7 @@ func (m *Miner) StartMining() {
 func (m *Miner) StopMining() {
 	if atomic.CompareAndSwapUint32(m.isMiningStatus, 1, 0) {
 		go m.doStopMining()
-		m.powmaster.StopMining()
+		m.powserver.StopMining()
 	}
 }
 
@@ -55,8 +55,8 @@ func (m *Miner) SetBlockChain(bc interfaces.BlockChain) {
 	bc.SubscribeValidatedBlockOnInsert(m.newBlockOnInsertCh)
 }
 
-func (m *Miner) SetPowMaster(pm interfaces.PowMaster) {
-	m.powmaster = pm
+func (m *Miner) SetPowServer(pm interfaces.PowServer) {
+	m.powserver = pm
 }
 
 func (m *Miner) SetTxPool(tp interfaces.TxPool) {

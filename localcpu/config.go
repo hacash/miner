@@ -4,7 +4,6 @@ import "github.com/hacash/core/sys"
 
 type LocalCPUPowMasterConfig struct {
 	Concurrent uint32 // 并发挖矿
-
 }
 
 func NewEmptyLocalCPUPowMasterConfig() *LocalCPUPowMasterConfig {

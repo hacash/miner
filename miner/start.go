@@ -62,9 +62,9 @@ func (m *Miner) doStartMining() {
 
 	// excavate block
 	backBlockCh := make(chan interfaces.Block, 1)
-	m.powmaster.Excavate(nextblock, backBlockCh)
+	m.powserver.Excavate(nextblock, backBlockCh)
 
-	//fmt.Println("finifsh m.powmaster.Excavate nextblock")
+	//fmt.Println("finifsh m.powserver.Excavate nextblock")
 
 	var miningSuccessBlock interfaces.Block = nil
 	select {
