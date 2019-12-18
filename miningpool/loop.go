@@ -3,7 +3,11 @@ package miningpool
 func (p *MinerPool) loop() {
 
 	for {
-		select {}
+		select {
+
+		case arriveNewBlock := <-p.newBlockOnInsertFeedCh:
+
+		}
 	}
 
 }

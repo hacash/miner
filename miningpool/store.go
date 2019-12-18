@@ -18,12 +18,24 @@ func (p *MinerPool) saveFoundBlockHash(height uint64, hash fields.Hash) error {
 }
 
 // 保存账户
-func (p *MinerPool) saveAccount(account *Account) error {
-	return nil
+func (p *MinerPool) saveAccountStoreData(account *Account) error {
+	valuebts, e := account.storeData.Serialize()
+	if e != nil {
+		return e
+	}
+	// save
+	stokey := []byte("accstodts" + string(account.address))
+	return p.storedb.Put(stokey, valuebts, nil)
 }
 
 // 读取账户
-func (p *MinerPool) readAccount(address fields.Address) *Account {
-
-	return nil
+func (p *MinerPool) loadAccountStoreData(address fields.Address) *AccountStoreData {
+	stoobject := NewEmptyAccountStoreData()
+	value, err := p.storedb.Get([]byte("accstodts"+string(address)), nil)
+	if value == nil && err != nil {
+		return stoobject
+	}
+	// parse
+	stoobject.Parse(value, 0)
+	return stoobject
 }

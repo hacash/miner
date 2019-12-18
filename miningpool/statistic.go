@@ -1,9 +1,21 @@
 package miningpool
 
 import (
+	"github.com/hacash/core/fields"
 	"github.com/hacash/mint/difficulty"
 	"math/big"
 )
+
+// 统计算力
+func (a *Account) addPowWorth(hash fields.Hash) {
+	a.change.Lock()
+	defer a.change.Unlock()
+
+	val := CalculateHashWorth(hash)
+	a.realtimePowWorth = new(big.Int).Add(a.realtimePowWorth, val)
+}
+
+///////////////////////////////////////////
 
 // 计算哈希价值
 func CalculateHashWorth(hash []byte) *big.Int {

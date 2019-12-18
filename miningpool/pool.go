@@ -2,30 +2,40 @@ package miningpool
 
 import (
 	"github.com/hacash/chain/leveldb"
-	"github.com/hacash/core/fields"
-	"math/big"
+	"github.com/hacash/core/interfaces"
+	"sync"
 )
 
 type MinerPool struct {
 	config *MinerPoolConfig
 
-	realtimeAccounts      map[string]*Account // [*Account]
-	realtimeTotalPowWorth big.Int             // 周期内算力总统计
+	currentTcpConnectingCount uint32 // 当前连接tcp数量
+
+	blockchain interfaces.BlockChain
 
 	storedb *leveldb.DB
 
+	prevRealtimePeriod    *RealtimePeriod
+	currentRealtimePeriod *RealtimePeriod
+
 	/////////////////////////////////////
 
-	FindBlocks fields.VarInt4 // 挖出的区块数量
-	FindCoins  fields.VarInt4 // 挖出的币数量
+	status *MinerPoolStatus
 
+	periodChange sync.Mutex
 }
 
 func NewMinerPool(cnf *MinerPoolConfig) *MinerPool {
+
+	db, err := leveldb.OpenFile(cnf.Datadir, nil)
+	if err != nil {
+		panic(err)
+	}
+
 	pool := &MinerPool{
-		config:                cnf,
-		realtimeAccounts:      make(map[string]*Account),
-		realtimeTotalPowWorth: big.Int{},
+		config:                    cnf,
+		currentTcpConnectingCount: 0,
+		storedb:                   db,
 	}
 
 	return pool
@@ -33,6 +43,21 @@ func NewMinerPool(cnf *MinerPoolConfig) *MinerPool {
 }
 
 func (p *MinerPool) Start() {
+	if p.blockchain == nil {
+		panic("p.blockchain not be set yet.")
+	}
+
+	err := p.startServerListen()
+	if err != nil {
+		panic(err)
+	}
 
 	go p.loop()
+}
+
+func (p *MinerPool) SetBlockChain(blockchain interfaces.BlockChain) {
+	if p.blockchain != nil {
+		panic("p.blockchain already be set.")
+	}
+	p.blockchain = blockchain
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/hacash/core/blocks"
 	"github.com/hacash/core/interfaces"
 	"github.com/hacash/core/sys"
+	"github.com/hacash/miner/message"
 	"github.com/hacash/mint/coinbase"
 )
 
@@ -32,7 +33,7 @@ func NewPowWrapConfig(cnffile *sys.Inicnf) *PowWrapConfig {
 type PowWrap struct {
 	config *PowWrapConfig
 
-	master interfaces.PowMaster
+	master *LocalCPUPowMaster
 }
 
 func NewPowWrap(cnf *PowWrapConfig) *PowWrap {
@@ -65,19 +66,19 @@ func (p *PowWrap) Excavate(inputBlock interfaces.Block, outputBlockCh chan inter
 			inputBlock.SetMrklRoot(blocks.CalculateMrklRoot(inputBlock.GetTransactions())) // update mrkl
 		}
 		p.master.SetCoinbaseMsgNum(coinbaseMsgNum)
-		var outputCh = make(chan interfaces.PowMasterResultsReturn, 1)
+		var outputCh = make(chan message.PowMasterMsg, 1)
 		p.master.Excavate(inputBlock, outputCh)
 		output := <-outputCh
-		if output.Status == interfaces.PowMasterResultsReturnStatusContinue {
+		if output.Status == message.PowMasterMsgStatusContinue {
 			// continue next
 			coinbaseMsgNum++
 			//fmt.Println( "output.Status == Continue  coinbaseMsgNum ++ ", coinbaseMsgNum)
 			continue
 		}
-		if output.Status == interfaces.PowMasterResultsReturnStatusStop {
+		if output.Status == message.PowMasterMsgStatusStop {
 			return // do nothing
 		}
-		if output.Status == interfaces.PowMasterResultsReturnStatusSuccess {
+		if output.Status == message.PowMasterMsgStatusSuccess {
 			output.BlockHeadMeta.SetNonce(binary.BigEndian.Uint32(output.NonceBytes))
 			output.BlockHeadMeta.Fresh()
 			outputBlockCh <- output.BlockHeadMeta

@@ -1,12 +1,14 @@
 package localcpu
 
 import (
+	"github.com/hacash/core/fields"
 	"github.com/hacash/core/interfaces"
+	"github.com/hacash/miner/message"
 	"sync"
 )
 
 // do mining
-func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, outputCh chan interfaces.PowMasterResultsReturn) {
+func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, outputCh chan message.PowMasterMsg) {
 
 	//fmt.Println(" --------------------  (l *LocalCPUPowMaster) Excavate")
 
@@ -61,17 +63,17 @@ func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 
 		if *stopmark == 1 {
 			// stop
-			outputCh <- interfaces.PowMasterResultsReturn{
-				Status: interfaces.PowMasterResultsReturnStatusStop,
+			outputCh <- message.PowMasterMsg{
+				Status: message.PowMasterMsgStatusStop,
 			}
 			return
 		}
 
 		if successFindBlock == false {
 			// continue
-			outputCh <- interfaces.PowMasterResultsReturn{
-				Status:         interfaces.PowMasterResultsReturnStatusContinue,
-				CoinbaseMsgNum: l.coinbaseMsgNum,
+			outputCh <- message.PowMasterMsg{
+				Status:         message.PowMasterMsgStatusContinue,
+				CoinbaseMsgNum: fields.VarInt4(l.coinbaseMsgNum),
 				BlockHeadMeta:  inputblockheadmeta,
 			}
 			return
@@ -79,9 +81,9 @@ func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 
 		// success
 		success := <-successBlockCh
-		outputCh <- interfaces.PowMasterResultsReturn{
-			Status:         interfaces.PowMasterResultsReturnStatusSuccess,
-			CoinbaseMsgNum: success.coinbaseMsgNum,
+		outputCh <- message.PowMasterMsg{
+			Status:         message.PowMasterMsgStatusSuccess,
+			CoinbaseMsgNum: fields.VarInt4(success.coinbaseMsgNum),
 			NonceBytes:     success.nonceBytes,
 			BlockHeadMeta:  inputblockheadmeta,
 		}
