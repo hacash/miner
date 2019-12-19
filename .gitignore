@@ -15,3 +15,7 @@
 .idea/
 
 testdata/
+
+.hacash_minerpool/
+
+test.ini

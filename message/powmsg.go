@@ -9,12 +9,12 @@ import (
 )
 
 const (
-	PowMasterMsgSize = blocks.BlockHeadSize + blocks.BlockMetaSizeV1
+	PowMasterMsgSize = blocks.BlockHeadSize + blocks.BlockMetaSizeV1 + 1 + 4 + 4
 
-	PowMasterMsgStatusContinue fields.VarInt1 = 0
-	PowMasterMsgStatusSuccess  fields.VarInt1 = 1
-	PowMasterMsgStatusStop     fields.VarInt1 = 2
-	PowMasterMsgStatusError    fields.VarInt1 = 3
+	PowMasterMsgStatusContinue      fields.VarInt1 = 0
+	PowMasterMsgStatusSuccess       fields.VarInt1 = 1
+	PowMasterMsgStatusStop          fields.VarInt1 = 2
+	PowMasterMsgStatusMostPowerHash fields.VarInt1 = 3
 )
 
 type PowMasterMsg struct {
@@ -50,7 +50,7 @@ func (p *PowMasterMsg) Parse(buf []byte, seek uint32) (uint32, error) {
 	seek, _ = p.Status.Parse(buf, seek)
 	seek, _ = p.CoinbaseMsgNum.Parse(buf, seek)
 	seek, _ = p.NonceBytes.Parse(buf, seek)
-	seek, _ = p.BlockHeadMeta.ParseExcludeTransactions(buf, seek)
+	p.BlockHeadMeta, seek, _ = blocks.ParseExcludeTransactions(buf, seek)
 	return seek, nil
 }
 

@@ -1,4 +1,4 @@
-package miningpool
+package minerpool
 
 import (
 	"bytes"

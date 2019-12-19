@@ -20,7 +20,7 @@ func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 	maxuint32 := uint32(4294967295)
 	supervene := uint32(l.config.Concurrent) // 并发线程
 	// -------- test start --------
-	//maxuint32 := uint32(2294900)
+	maxuint32 = uint32(2294900)
 	//supervene := uint32(6)
 	// -------- test end   --------
 	nonceSpace := maxuint32 / supervene
@@ -36,19 +36,25 @@ func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 		var successMiningMark uint32 = 0
 		var successFindBlock bool = false
 
-		var successBlockCh = make(chan successBlockReturn, 1)
-
+		var miningBlockCh = make(chan miningBlockReturn, 1)
+		if l.config.ReturnPowerHash {
+			miningBlockCh = make(chan miningBlockReturn, supervene)
+		}
 		var syncWait = sync.WaitGroup{}
 		syncWait.Add(int(supervene))
 
 		for i := uint32(0); i < supervene; i++ {
 			//fmt.Println("worker := NewCPUWorker ", i)
-			worker := NewCPUWorker(&successMiningMark, successBlockCh, 0, stopmark)
+			worker := NewCPUWorker(&successMiningMark, miningBlockCh, 0, stopmark)
+			if l.config.ReturnPowerHash {
+				worker.returnPowerHash = true
+			}
 			worker.coinbaseMsgNum = l.coinbaseMsgNum
 			//l.currentWorkers.Add( worker )
 			go func(startNonce, endNonce uint32) {
 				//fmt.Println( "start worker.RunMining" )
 				success := worker.RunMining(inputblockheadmeta, startNonce, endNonce)
+				//fmt.Println( "end worker.RunMining", success )
 				if success {
 					successFindBlock = true
 				}
@@ -57,37 +63,89 @@ func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 			}(nonceSpace*i, nonceSpace*i+nonceSpace)
 		}
 
-		//fmt.Println("syncWait.Wait()  start ")
+		//fmt.Println("syncWait.Wait()  start ", supervene)
 		// wait
 		syncWait.Wait()
 
-		if *stopmark == 1 {
-			// stop
-			outputCh <- message.PowMasterMsg{
-				Status: message.PowMasterMsgStatusStop,
-			}
-			return
-		}
+		//fmt.Println("syncWait.Wait()  end ")
 
-		if successFindBlock == false {
-			// continue
+		//fmt.Println(successFindBlock)
+
+		if successFindBlock == true {
+
+			// success
+			success := <-miningBlockCh
 			outputCh <- message.PowMasterMsg{
-				Status:         message.PowMasterMsgStatusContinue,
-				CoinbaseMsgNum: fields.VarInt4(l.coinbaseMsgNum),
+				Status:         message.PowMasterMsgStatusSuccess,
+				CoinbaseMsgNum: fields.VarInt4(success.coinbaseMsgNum),
+				NonceBytes:     success.nonceBytes,
 				BlockHeadMeta:  inputblockheadmeta,
 			}
-			return
+			return // ok end
+
 		}
 
-		// success
-		success := <-successBlockCh
-		outputCh <- message.PowMasterMsg{
-			Status:         message.PowMasterMsgStatusSuccess,
-			CoinbaseMsgNum: fields.VarInt4(success.coinbaseMsgNum),
-			NonceBytes:     success.nonceBytes,
-			BlockHeadMeta:  inputblockheadmeta,
+		if l.config.ReturnPowerHash == false {
+
+			if *stopmark == 1 {
+				// stop
+				outputCh <- message.PowMasterMsg{
+					Status: message.PowMasterMsgStatusStop,
+				}
+				return
+			}
+
+			if successFindBlock == false {
+				// continue
+				outputCh <- message.PowMasterMsg{
+					Status:         message.PowMasterMsgStatusContinue,
+					CoinbaseMsgNum: fields.VarInt4(l.coinbaseMsgNum),
+					BlockHeadMeta:  inputblockheadmeta,
+				}
+				return
+			}
+
+		} else {
+
+			// 统计并对比挖矿哈希结果
+			var mostPowerHashNonceBytes []byte = nil
+			var mostPowerHash []byte = nil
+			var mostCoinbaseNum uint32 = 0
+			for i := 0; i < int(supervene); i++ {
+				msg := <-miningBlockCh
+				if mostPowerHash == nil {
+					mostPowerHashNonceBytes = msg.nonceBytes
+					mostPowerHash = msg.powerHash
+					mostCoinbaseNum = msg.coinbaseMsgNum
+					continue
+				}
+				ismorepower := false
+				for k := 0; k < 32; k++ {
+					if msg.powerHash[k] < mostPowerHash[k] {
+						ismorepower = true
+						break
+					} else if msg.powerHash[k] > mostPowerHash[k] {
+						break
+					}
+				}
+				if ismorepower {
+					mostPowerHashNonceBytes = msg.nonceBytes
+					mostPowerHash = msg.powerHash
+					mostCoinbaseNum = msg.coinbaseMsgNum
+				}
+			}
+
+			// 上报最大哈希结果
+			outputCh <- message.PowMasterMsg{
+				Status:         message.PowMasterMsgStatusMostPowerHash,
+				CoinbaseMsgNum: fields.VarInt4(mostCoinbaseNum),
+				NonceBytes:     mostPowerHashNonceBytes,
+				BlockHeadMeta:  inputblockheadmeta,
+			}
+
+			return
+
 		}
-		return // ok end
 
 	}(&nextstop)
 

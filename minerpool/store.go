@@ -1,6 +1,9 @@
-package miningpool
+package minerpool
 
-import "github.com/hacash/core/fields"
+import (
+	"encoding/binary"
+	"github.com/hacash/core/fields"
+)
 
 // 保存状态
 func (p *MinerPool) saveStatus() error {
@@ -14,7 +17,21 @@ func (p *MinerPool) readStatus() error {
 
 // 通过height为key保存挖出的区块hash
 func (p *MinerPool) saveFoundBlockHash(height uint64, hash fields.Hash) error {
-	return nil
+	key := make([]byte, 4)
+	binary.BigEndian.PutUint32(key, uint32(height))
+	stokey := []byte("fdblkhx" + string(key))
+	return p.storedb.Put(stokey, hash, nil)
+}
+
+func (p *MinerPool) readFoundBlockHash(height uint64) fields.Hash {
+	key := make([]byte, 4)
+	binary.BigEndian.PutUint32(key, uint32(height))
+	stokey := []byte("fdblkhx" + string(key))
+	value, err := p.storedb.Get(stokey, nil)
+	if value != nil && err == nil {
+		return fields.Hash(value)
+	}
+	return nil // not find
 }
 
 // 保存账户

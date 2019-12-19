@@ -1,9 +1,11 @@
-package miningpool
+package minerpool
 
 import (
+	"github.com/hacash/core/blocks"
 	"github.com/hacash/core/fields"
 	"github.com/hacash/core/interfaces"
 	"github.com/hacash/miner/message"
+	"github.com/hacash/mint/coinbase"
 	"net"
 	"sync"
 )
@@ -11,7 +13,10 @@ import (
 type RealtimePeriod struct {
 	minerpool *MinerPool
 
-	targetBlock      interfaces.Block
+	miningSuccessBlock interfaces.Block
+
+	targetBlock interfaces.Block
+
 	realtimeAccounts map[string]*Account // [*Account]
 
 	autoIncrementCoinbaseMsgNum uint32
@@ -23,6 +28,7 @@ type RealtimePeriod struct {
 
 func NewRealtimePeriod(minerpool *MinerPool, block interfaces.Block) *RealtimePeriod {
 	per := &RealtimePeriod{
+		miningSuccessBlock:          nil,
 		minerpool:                   minerpool,
 		targetBlock:                 block,
 		realtimeAccounts:            make(map[string]*Account),
@@ -32,17 +38,27 @@ func NewRealtimePeriod(minerpool *MinerPool, block interfaces.Block) *RealtimePe
 	return per
 }
 
-func (r *RealtimePeriod) getAutoIncrementCoinbaseMsgNum() uint32 {
-	r.changeLock.Lock()
-	defer r.changeLock.Unlock()
+func (r *RealtimePeriod) getAutoIncrementCoinbaseMsgNum(unlock bool) uint32 {
+	if !unlock {
+		r.changeLock.Lock()
+		defer r.changeLock.Unlock()
+	}
 
 	r.autoIncrementCoinbaseMsgNum += 1
 	return r.autoIncrementCoinbaseMsgNum
 }
 
 func (r *RealtimePeriod) sendMiningStuffMsg(conn net.Conn) {
+
+	r.changeLock.Lock()
+	defer r.changeLock.Unlock()
+
 	msgobj := message.NewPowMasterMsg()
-	msgobj.CoinbaseMsgNum = fields.VarInt4(r.getAutoIncrementCoinbaseMsgNum())
+	msgobj.CoinbaseMsgNum = fields.VarInt4(r.getAutoIncrementCoinbaseMsgNum(true))
+	//fmt.Println("sendMiningStuffMsg", uint32(msgobj.CoinbaseMsgNum) )
+	coinbase.UpdateBlockCoinbaseMessageForMiner(r.targetBlock, uint32(msgobj.CoinbaseMsgNum))
+	r.targetBlock.SetMrklRoot(blocks.CalculateMrklRoot(r.targetBlock.GetTransactions()))
+	msgobj.BlockHeadMeta = r.targetBlock
 	// send data
 	data, _ := msgobj.Serialize()
 	conn.Write(data)
@@ -62,6 +78,7 @@ func (r *RealtimePeriod) endCurrentMining() {
 		for _, cli := range clients {
 			client := cli.(*Client)
 			client.conn.Write([]byte("end_current_mining"))
+			// 不能结束连接，等待上传算力统计
 		}
 	}
 }

@@ -1,4 +1,4 @@
-package miningpool
+package minerpool
 
 import (
 	"github.com/hacash/core/fields"
@@ -10,6 +10,8 @@ import (
 func (a *Account) addPowWorth(hash fields.Hash) {
 	a.change.Lock()
 	defer a.change.Unlock()
+
+	//fmt.Println("addPowWorth", a, hash.ToHex())
 
 	val := CalculateHashWorth(hash)
 	a.realtimePowWorth = new(big.Int).Add(a.realtimePowWorth, val)

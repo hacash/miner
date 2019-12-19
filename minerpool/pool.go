@@ -1,4 +1,4 @@
-package miningpool
+package minerpool
 
 import (
 	"github.com/hacash/chain/leveldb"
@@ -9,7 +9,7 @@ import (
 type MinerPool struct {
 	config *MinerPoolConfig
 
-	currentTcpConnectingCount uint32 // 当前连接tcp数量
+	currentTcpConnectingCount int32 // 当前连接tcp数量
 
 	blockchain interfaces.BlockChain
 

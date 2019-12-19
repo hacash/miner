@@ -1,6 +1,8 @@
-package miningpool
+package minerpool
 
-import "github.com/hacash/core/interfaces"
+import (
+	"github.com/hacash/core/interfaces"
+)
 
 // stop all
 func (p *MinerPool) StopMining() {
