@@ -3,6 +3,7 @@ package memtxpool
 import (
 	"github.com/hacash/core/interfaces"
 	"github.com/hacash/core/stores"
+	"github.com/hacash/mint/event"
 	"sync"
 )
 
@@ -15,6 +16,10 @@ type MemTxPool struct {
 	newDiamondCreateCh chan *stores.DiamondSmelt
 
 	changeLock sync.Mutex
+
+	////////////////////////////////
+
+	addTxSuccess event.Feed
 
 	////////////////////////////////
 

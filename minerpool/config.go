@@ -27,7 +27,7 @@ func NewMinerPoolConfig(cnffile *sys.Inicnf) *MinerPoolConfig {
 	cnf := NewEmptyMinerPoolConfig()
 	cnfsection := cnffile.Section("minerpool")
 	defdir := path.Join(path.Dir(cnffile.MustDataDir()), ".hacash_minerpool")
-	cnf.Datadir = cnfsection.Key("data_dir").MustString(defdir)
+	cnf.Datadir = sys.AbsDir(cnfsection.Key("data_dir").MustString(defdir))
 	cnf.TcpListenPort = cnfsection.Key("listen_port").MustInt(3339)
 	cnf.TcpConnectMaxSize = cnfsection.Key("max_connect").MustUint(200)
 	cnf.FeePercentage = cnfsection.Key("fee_percentage").MustFloat64(0.2)

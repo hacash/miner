@@ -15,7 +15,19 @@
 .idea/
 
 testdata/
+testdata*/
 
 .hacash_minerpool/
+.hacash_minerpool*/
 
 test.ini
+test*.ini
+
+test
+test*
+
+worker
+worker*
+
+main
+main*

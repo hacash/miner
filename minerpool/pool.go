@@ -1,6 +1,7 @@
 package minerpool
 
 import (
+	"fmt"
 	"github.com/hacash/chain/leveldb"
 	"github.com/hacash/core/interfaces"
 	"sync"
@@ -29,6 +30,7 @@ func NewMinerPool(cnf *MinerPoolConfig) *MinerPool {
 
 	db, err := leveldb.OpenFile(cnf.Datadir, nil)
 	if err != nil {
+		fmt.Println("cnf.Datadir: ", cnf.Datadir)
 		panic(err)
 	}
 

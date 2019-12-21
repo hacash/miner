@@ -1,15 +1,23 @@
 package memtxpool
 
-import "github.com/hacash/core/interfaces"
+import (
+	"github.com/hacash/core/fields"
+	"github.com/hacash/core/interfaces"
+)
 
 func (p *MemTxPool) CheckTxExist(tx interfaces.Transaction) bool {
-	if _, ok := p.diamondCreateTxGroup.Items[string(tx.Hash())]; ok {
+	return p.CheckTxExistByHash(tx.Hash())
+}
+
+func (p *MemTxPool) CheckTxExistByHash(txhash fields.Hash) bool {
+	if _, ok := p.diamondCreateTxGroup.Items[string(txhash)]; ok {
 		return true
 	}
-	if _, ok := p.simpleTxGroup.Items[string(tx.Hash())]; ok {
+	if _, ok := p.simpleTxGroup.Items[string(txhash)]; ok {
 		return true
 	}
 	return false
+
 }
 
 func (p *MemTxPool) CopyTxsOrderByFeePurity(targetblockheight uint64, maxcount uint32, maxsize uint32) []interfaces.Transaction {

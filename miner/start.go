@@ -3,6 +3,7 @@ package miner
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/hacash/core/blocks"
 	"github.com/hacash/core/interfaces"
 	"github.com/hacash/mint"
 	"github.com/hacash/mint/coinbase"
@@ -30,6 +31,13 @@ func (m *Miner) doStartMining() {
 	if e1 != nil {
 		panic(e1)
 	}
+
+	// update set coinbase reward address
+	coinbase.UpdateBlockCoinbaseAddress(nextblock, m.config.Rewards)
+
+	// update mkrl root
+	nextblock.SetMrklRoot(blocks.CalculateMrklRoot(nextblock.GetTransactions()))
+
 	nextblockHeight := nextblock.GetHeight()
 
 	if nextblockHeight%mint.AdjustTargetDifficultyNumberOfBlocks == 0 {
@@ -60,6 +68,7 @@ func (m *Miner) doStartMining() {
 		time.Unix(int64(nextblock.GetTimestamp()), 0).Format("01/02 15:04:05"),
 	)
 
+	//fmt.Println("m.powserver.Excavate(nextblock, backBlockCh) MrklRoot:", nextblock.GetMrklRoot().ToHex())
 	// excavate block
 	backBlockCh := make(chan interfaces.Block, 1)
 	m.powserver.Excavate(nextblock, backBlockCh)
@@ -75,9 +84,14 @@ func (m *Miner) doStartMining() {
 	}
 	// mark stop
 	atomic.StoreUint32(m.isMiningStatus, 0)
-
 	//fmt.Println("select miningSuccessBlock ok", miningSuccessBlock)
-
+	/*
+		dddd, _ := miningSuccessBlock.Serialize()
+		fmt.Println(dddd)
+		fmt.Println(miningSuccessBlock.GetTransactions()[0].Serialize())
+		miningSuccessBlock, _, _ = blocks.ParseBlock(dddd, 0)
+		fmt.Println(miningSuccessBlock.GetTransactions()[0].Serialize())
+	*/
 	// mining success
 	if miningSuccessBlock != nil {
 		miningSuccessBlock.SetOriginMark("mining")

@@ -34,6 +34,7 @@ func (a *Account) successFindNewBlock(msg *message.PowMasterMsg) {
 	a.miningSuccessBlock = copyblock
 	a.realtimePeriod.miningSuccessBlock = copyblock
 	// insert new block
+	//fmt.Println("a.realtimePeriod.successFindNewBlock MrklRoot:", copyblock.GetMrklRoot().ToHex())
 	a.realtimePeriod.successFindNewBlock(copyblock)
 	// store success
 	minerpool.saveFoundBlockHash(copyblock.GetHeight(), copyblock.Hash())

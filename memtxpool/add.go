@@ -23,10 +23,10 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 	}
 
 	// check pool max
-	if p.txTotalCount+1 > p.maxcount {
+	if p.maxcount > 0 && p.txTotalCount+1 > p.maxcount {
 		return fmt.Errorf("Tx pool max count %d and too mach.", p.maxcount)
 	}
-	if p.txTotalSize+uint64(txitem.size) > p.maxsize {
+	if p.maxsize > 0 && p.txTotalSize+uint64(txitem.size) > p.maxsize {
 		return fmt.Errorf("Tx pool max size %d and overflow size.", p.maxsize)
 	}
 
@@ -69,5 +69,9 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 	// add count
 	p.txTotalCount += 1
 	p.txTotalSize += uint64(txitem.size)
+
+	// feed send
+	p.addTxSuccess.Send(tx)
+
 	return nil // add successfully !
 }

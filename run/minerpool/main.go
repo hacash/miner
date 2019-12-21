@@ -19,20 +19,27 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, os.Kill)
 
-	test_ini := "/home/shiqiujie/Desktop/Hacash/go/src/github.com/hacash/miner/run/minerpool/test.ini"
-	//test_ini := ""
+	target_ini_file := "hacash_config.ini"
+	//target_ini_file := "/home/shiqiujie/Desktop/Hacash/go/src/github.com/hacash/miner/run/minerpool/test.ini"
+	//target_ini_file := ""
 	if len(os.Args) >= 2 {
-		test_ini = os.Args[1]
+		target_ini_file = os.Args[1]
 	}
 
-	if test_ini != "" {
-		fmt.Println("Load ini config file: \"" + test_ini + "\" at time:" + time.Now().Format("01/02 15:04:05"))
+	target_ini_file = sys.AbsDir(target_ini_file)
+
+	if target_ini_file != "" {
+		fmt.Println("Load ini config file: \"" + target_ini_file + "\" at time:" + time.Now().Format("01/02 15:04:05"))
 	}
 
-	hinicnf, _ := sys.LoadInicnf(test_ini)
+	hinicnf, err := sys.LoadInicnf(target_ini_file)
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(0)
+	}
 
-	test_data_dir := "/home/shiqiujie/Desktop/Hacash/go/src/github.com/hacash/miner/run/minerpool/testdata"
-	hinicnf.SetMustDataDir(test_data_dir)
+	//test_data_dir := "/home/shiqiujie/Desktop/Hacash/go/src/github.com/hacash/miner/run/minerpool/testdata"
+	//hinicnf.SetMustDataDir(test_data_dir)
 
 	hcnf := backend.NewBackendConfig(hinicnf)
 	hnode, err := backend.NewBackend(hcnf)
@@ -46,6 +53,9 @@ func main() {
 
 	txpool := memtxpool.NewMemTxPool(0, 1024*1024*50)
 	txpool.SetBlockChain(hnode.GetBlockChain())
+
+	// hnode set tx pool
+	hnode.SetTxPool(txpool)
 
 	//lccnf := localcpu.NewPowWrapConfig(hinicnf)
 	//powwrap := localcpu.NewPowWrap(lccnf)

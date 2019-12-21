@@ -17,7 +17,7 @@ func NewMinerConsoleConfig(cnffile *sys.Inicnf) *MinerConsoleConfig {
 	cnf := NewEmptyMinerConsoleConfig()
 
 	mpsec := cnffile.Section("minerpool")
-	cnf.HttpListenPort = mpsec.Key("http_port").MustInt(3340)
+	cnf.HttpListenPort = mpsec.Key("console_http_port").MustInt(3340)
 
 	return cnf
 }
