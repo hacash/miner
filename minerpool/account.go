@@ -42,10 +42,10 @@ func NewAccountByPeriod(address fields.Address, period *RealtimePeriod) *Account
 	return acc
 }
 
-func (a *Account) CopyByPeriod(period *RealtimePeriod) *Account {
+func (a Account) CopyByPeriod(period *RealtimePeriod) *Account {
 	acc := &Account{
 		realtimePeriod:   period,
-		address:          a.address,
+		address:          append([]byte{}, a.address...),
 		workBlock:        period.targetBlock,
 		activeClients:    mapset.NewSet(),
 		realtimePowWorth: new(big.Int),
@@ -54,19 +54,37 @@ func (a *Account) CopyByPeriod(period *RealtimePeriod) *Account {
 	return acc
 }
 
+func (a *Account) GetAddress() fields.Address {
+	return a.address
+}
+
+func (a *Account) GetStoreData() *AccountStoreData {
+	return a.storeData
+}
+
+func (a *Account) GetClientCount() int {
+	return a.activeClients.Cardinality()
+}
+
+func (a *Account) GetRealtimePowWorth() *big.Int {
+	return big.NewInt(0).Set(a.realtimePowWorth)
+}
+
+/////////////////////////////
+
 type AccountStoreData struct {
 	//
-	FindBlocks              fields.VarInt4 // 挖出的区块数量
-	FindCoins               fields.VarInt4 // 挖出的币数量
-	CompleteRewards         fields.VarInt8 // 已完成并打币的奖励     单位：铢 ㄜ240  （10^8）
-	DeservedRewards         fields.VarInt8 // 应得但还没有打币的奖励  单位：铢 ㄜ240  （10^8）
-	UnconfirmedRewards      fields.VarInt8 // 挖出还没经过确认的奖励  单位：铢 ㄜ240  （10^8）
-	PrevTransferBlockHeight fields.VarInt4 // 上一次打币时的区块
+	findBlocks              fields.VarInt4 // 挖出的区块数量
+	findCoins               fields.VarInt4 // 挖出的币数量
+	completeRewards         fields.VarInt8 // 已完成并打币的奖励     单位：铢 ㄜ240  （10^8）
+	deservedRewards         fields.VarInt8 // 应得但还没有打币的奖励  单位：铢 ㄜ240  （10^8）
+	unconfirmedRewards      fields.VarInt8 // 挖出还没经过确认的奖励  单位：铢 ㄜ240  （10^8）
+	prevTransferBlockHeight fields.VarInt4 // 上一次打币时的区块
 	//
-	UnconfirmedRewardListCount fields.VarInt4
-	UnconfirmedRewardList      []fields.Bytes12 // 4 + 8 : blockHeight + reward
+	unconfirmedRewardListCount fields.VarInt4
+	unconfirmedRewardList      []fields.Bytes12 // 4 + 8 : blockHeight + reward
 	//
-	Others fields.Bytes16 // 备用扩展字段
+	others fields.Bytes16 // 备用扩展字段
 }
 
 func NewEmptyAccountStoreData() *AccountStoreData {
@@ -83,52 +101,60 @@ func NewEmptyAccountStoreData() *AccountStoreData {
 	}
 }
 
+func (s *AccountStoreData) GetFinds() (int, int) {
+	return int(s.findBlocks), int(s.findCoins)
+}
+
+func (s *AccountStoreData) GetRewards() (int64, int64, int64) {
+	return int64(s.completeRewards), int64(s.deservedRewards), int64(s.unconfirmedRewards)
+}
+
 func (s *AccountStoreData) Serialize() ([]byte, error) {
 	buf := bytes.NewBuffer([]byte{})
-	b1, _ := s.FindBlocks.Serialize()
+	b1, _ := s.findBlocks.Serialize()
 	buf.Write(b1)
-	b2, _ := s.FindCoins.Serialize()
+	b2, _ := s.findCoins.Serialize()
 	buf.Write(b2)
-	b3, _ := s.CompleteRewards.Serialize()
+	b3, _ := s.completeRewards.Serialize()
 	buf.Write(b3)
-	b4, _ := s.DeservedRewards.Serialize()
+	b4, _ := s.deservedRewards.Serialize()
 	buf.Write(b4)
-	b5, _ := s.UnconfirmedRewards.Serialize()
+	b5, _ := s.unconfirmedRewards.Serialize()
 	buf.Write(b5)
-	b6, _ := s.PrevTransferBlockHeight.Serialize()
+	b6, _ := s.prevTransferBlockHeight.Serialize()
 	buf.Write(b6)
-	b7, _ := s.UnconfirmedRewards.Serialize()
+	b7, _ := s.unconfirmedRewards.Serialize()
 	buf.Write(b7)
-	for i := 0; i < int(s.UnconfirmedRewardListCount); i++ {
-		b, _ := s.UnconfirmedRewardList[i].Serialize()
+	for i := 0; i < int(s.unconfirmedRewardListCount); i++ {
+		b, _ := s.unconfirmedRewardList[i].Serialize()
 		buf.Write(b)
 	}
 	///
-	b8, _ := s.Others.Serialize()
+	b8, _ := s.others.Serialize()
 	buf.Write(b8)
 	return buf.Bytes(), nil
 }
 
 func (s *AccountStoreData) Parse(buf []byte, seek uint32) (uint32, error) {
-	seek, _ = s.FindBlocks.Parse(buf, seek)
-	seek, _ = s.FindCoins.Parse(buf, seek)
-	seek, _ = s.CompleteRewards.Parse(buf, seek)
-	seek, _ = s.DeservedRewards.Parse(buf, seek)
-	seek, _ = s.UnconfirmedRewards.Parse(buf, seek)
-	seek, _ = s.PrevTransferBlockHeight.Parse(buf, seek)
-	seek, _ = s.UnconfirmedRewardListCount.Parse(buf, seek)
-	s.UnconfirmedRewardList = make([]fields.Bytes12, s.UnconfirmedRewardListCount)
-	for i := 0; i < int(s.UnconfirmedRewardListCount); i++ {
-		_, _ = s.UnconfirmedRewardList[i].Parse(buf, seek)
+	seek, _ = s.findBlocks.Parse(buf, seek)
+	seek, _ = s.findCoins.Parse(buf, seek)
+	seek, _ = s.completeRewards.Parse(buf, seek)
+	seek, _ = s.deservedRewards.Parse(buf, seek)
+	seek, _ = s.unconfirmedRewards.Parse(buf, seek)
+	seek, _ = s.prevTransferBlockHeight.Parse(buf, seek)
+	seek, _ = s.unconfirmedRewardListCount.Parse(buf, seek)
+	s.unconfirmedRewardList = make([]fields.Bytes12, s.unconfirmedRewardListCount)
+	for i := 0; i < int(s.unconfirmedRewardListCount); i++ {
+		_, _ = s.unconfirmedRewardList[i].Parse(buf, seek)
 		seek += 12
 	}
-	seek, _ = s.Others.Parse(buf, seek)
+	seek, _ = s.others.Parse(buf, seek)
 	return seek, nil
 }
 
 func (s *AccountStoreData) Size() uint32 {
 	return 4 + 4 + 8 + 8 + 8 + 4 +
-		4 + uint32(s.UnconfirmedRewardListCount*12) +
+		4 + uint32(s.unconfirmedRewardListCount*12) +
 		16
 }
 
@@ -159,7 +185,9 @@ func (p *MinerPool) loadAccountAndAddPeriodByAddress(address fields.Address) *Ac
 	if p.currentRealtimePeriod != nil {
 		accstodts := p.loadAccountStoreData(address)
 		newacc := NewAccountByPeriod(address, p.currentRealtimePeriod)
+		//fmt.Println("newacc.storeData = accstodts  ", newacc.address.ToReadable())
 		newacc.storeData = accstodts
+		//fmt.Println("p.currentRealtimePeriod.realtimeAccounts[string(address)] = newacc")
 		p.currentRealtimePeriod.realtimeAccounts[string(address)] = newacc
 		return newacc
 	}

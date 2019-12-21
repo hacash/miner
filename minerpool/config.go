@@ -16,7 +16,7 @@ func NewEmptyMinerPoolConfig() *MinerPoolConfig {
 	cnf := &MinerPoolConfig{
 		TcpListenPort:     3339,
 		TcpConnectMaxSize: 200,
-		FeePercentage:     0.01,
+		FeePercentage:     0.2,
 	}
 	return cnf
 }
@@ -30,7 +30,7 @@ func NewMinerPoolConfig(cnffile *sys.Inicnf) *MinerPoolConfig {
 	cnf.Datadir = cnfsection.Key("data_dir").MustString(defdir)
 	cnf.TcpListenPort = cnfsection.Key("listen_port").MustInt(3339)
 	cnf.TcpConnectMaxSize = cnfsection.Key("max_connect").MustUint(200)
-	cnf.FeePercentage = cnfsection.Key("fee_percentage").MustFloat64(0.01)
+	cnf.FeePercentage = cnfsection.Key("fee_percentage").MustFloat64(0.2)
 	if cnf.FeePercentage >= 1 || cnf.FeePercentage < 0 {
 		panic("fee_percentage value error.")
 	}

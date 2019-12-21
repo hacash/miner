@@ -7,7 +7,7 @@ import (
 )
 
 type MinerPool struct {
-	config *MinerPoolConfig
+	Config *MinerPoolConfig
 
 	currentTcpConnectingCount int32 // 当前连接tcp数量
 
@@ -33,7 +33,7 @@ func NewMinerPool(cnf *MinerPoolConfig) *MinerPool {
 	}
 
 	pool := &MinerPool{
-		config:                    cnf,
+		Config:                    cnf,
 		currentTcpConnectingCount: 0,
 		storedb:                   db,
 	}
@@ -60,4 +60,11 @@ func (p *MinerPool) SetBlockChain(blockchain interfaces.BlockChain) {
 		panic("p.blockchain already be set.")
 	}
 	p.blockchain = blockchain
+}
+
+func (p *MinerPool) GetCurrentTcpConnectingCount() int32 {
+	return p.currentTcpConnectingCount
+}
+func (p *MinerPool) GetCurrentRealtimePeriod() *RealtimePeriod {
+	return p.currentRealtimePeriod
 }

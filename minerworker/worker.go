@@ -16,16 +16,19 @@ type MinerWorker struct {
 	miningOutputCh          chan message.PowMasterMsg
 	immediateStartConnectCh chan bool
 
+	currentMiningStatusSuccess bool
+
 	conn *net.TCPConn
 }
 
 func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
 
 	pool := &MinerWorker{
-		config:                  cnf,
-		conn:                    nil,
-		miningOutputCh:          make(chan message.PowMasterMsg, 2),
-		immediateStartConnectCh: make(chan bool, 2),
+		currentMiningStatusSuccess: false,
+		config:                     cnf,
+		conn:                       nil,
+		miningOutputCh:             make(chan message.PowMasterMsg, 2),
+		immediateStartConnectCh:    make(chan bool, 2),
 	}
 
 	wkcnf := localcpu.NewEmptyLocalCPUPowMasterConfig()

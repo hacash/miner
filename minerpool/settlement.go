@@ -2,6 +2,7 @@ package minerpool
 
 import (
 	"encoding/binary"
+	"fmt"
 	"github.com/hacash/core/fields"
 	"github.com/hacash/mint/coinbase"
 	"math/big"
@@ -54,7 +55,7 @@ func (p *MinerPool) settleOnePeriod(period *RealtimePeriod) {
 	pernum := big.NewInt(10000 * 10000)
 	rwdcoin := coinbase.BlockCoinBaseRewardNumber(blockHeight)
 	totalReward := int64(rwdcoin) * 10000 * 10000 // 单位：铢
-	totalReward = totalReward * int64((1-p.config.FeePercentage)*10000) / 10000
+	totalReward = totalReward * int64((1-p.Config.FeePercentage)*10000) / 10000
 	partReward := totalReward / 2
 	var rwdAccounts = make([]*Account, 0)
 	for _, acc := range otherAccounts {
@@ -63,27 +64,30 @@ func (p *MinerPool) settleOnePeriod(period *RealtimePeriod) {
 		reward := num2.Int64() * partReward
 		if reward > 0 {
 			rwdAccounts = append(rwdAccounts, acc)
-			acc.storeData.UnconfirmedRewards += fields.VarInt8(reward)
-			acc.storeData.UnconfirmedRewardListCount += 1
+			acc.storeData.unconfirmedRewards += fields.VarInt8(reward)
+			acc.storeData.unconfirmedRewardListCount += 1
 			rwdlstdts := make([]byte, 12)
 			binary.BigEndian.PutUint32(rwdlstdts[0:4], uint32(blockHeight))
 			binary.BigEndian.PutUint64(rwdlstdts[4:12], uint64(reward))
-			acc.storeData.UnconfirmedRewardList = append(acc.storeData.UnconfirmedRewardList, rwdlstdts)
+			acc.storeData.unconfirmedRewardList = append(acc.storeData.unconfirmedRewardList, rwdlstdts)
 		}
 	}
 	// 保存收益
-	minerAccount.storeData.FindBlocks += 1
-	minerAccount.storeData.FindCoins += fields.VarInt4(rwdcoin)
-	minerAccount.storeData.UnconfirmedRewards += fields.VarInt8(partReward)
+	minerAccount.storeData.findBlocks += 1
+	minerAccount.storeData.findCoins += fields.VarInt4(rwdcoin)
+	minerAccount.storeData.unconfirmedRewards += fields.VarInt8(partReward)
 	rwdlstdts := make([]byte, 12)
 	binary.BigEndian.PutUint32(rwdlstdts[0:4], uint32(blockHeight))
 	binary.BigEndian.PutUint64(rwdlstdts[4:12], uint64(partReward))
-	minerAccount.storeData.UnconfirmedRewardListCount += 1
-	minerAccount.storeData.UnconfirmedRewardList = append(minerAccount.storeData.UnconfirmedRewardList, rwdlstdts)
-	p.saveAccountStoreData(minerAccount)
+	minerAccount.storeData.unconfirmedRewardListCount += 1
+	minerAccount.storeData.unconfirmedRewardList = append(minerAccount.storeData.unconfirmedRewardList, rwdlstdts)
+	err = p.saveAccountStoreData(minerAccount)
 	for _, acc := range rwdAccounts {
-		p.saveAccountStoreData(acc)
+		err = p.saveAccountStoreData(acc)
 	}
 	// ok 结算完成
+	if err != nil {
+		fmt.Println(err)
+	}
 
 }

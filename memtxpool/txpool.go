@@ -44,6 +44,18 @@ func (p *MemTxPool) Start() {
 	go p.loop()
 }
 
+func (p *MemTxPool) GetTotalCount() (uint64, uint64) {
+	return p.txTotalCount, p.txTotalSize
+}
+
+func (p *MemTxPool) GetSimpleTxGroup() *TxGroup {
+	return p.simpleTxGroup
+}
+
+func (p *MemTxPool) GetDiamondCreateTxGroup() *TxGroup {
+	return p.diamondCreateTxGroup
+}
+
 func (p *MemTxPool) SetBlockChain(bc interfaces.BlockChain) {
 
 	p.blockchain = bc

@@ -11,7 +11,7 @@ import (
 
 // 监听端口
 func (p *MinerPool) startServerListen() error {
-	port := p.config.TcpListenPort
+	port := p.Config.TcpListenPort
 	listen := net.TCPAddr{IP: net.IPv4zero, Port: port, Zone: ""}
 	server, err := net.ListenTCP("tcp", &listen)
 	if err != nil {
@@ -35,7 +35,7 @@ func (p *MinerPool) startServerListen() error {
 
 func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 
-	if p.currentTcpConnectingCount > int32(p.config.TcpConnectMaxSize) {
+	if p.currentTcpConnectingCount > int32(p.Config.TcpConnectMaxSize) {
 		conn.Write([]byte("too_many_connect"))
 		conn.Close() // 连接最大值
 		return
@@ -72,12 +72,16 @@ func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 			break
 		}
 
+		newbytes := make([]byte, rn)
+		copy(newbytes, segdata[0:rn])
 		//fmt.Println("MinerPool: rn, err := conn.Read(segdata)", segdata[0:rn])
 
 		if rn == 21 && client.address == nil { // post address
 
-			client.address = fields.Address(segdata[0:21])
+			//fmt.Println(segdata[0:21])
+			client.address = fields.Address(newbytes[0:21])
 			account := p.loadAccountAndAddPeriodByAddress(client.address)
+			//fmt.Println("account.activeClients.Add(client) // add")
 			account.activeClients.Add(client) // add
 			client.belongAccount = account    // set belong
 			// send mining stuff
@@ -88,13 +92,14 @@ func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 			//fmt.Println( "message.PowMasterMsgSize", segdata[0:rn] )
 
 			powresult := message.NewPowMasterMsg()
-			powresult.Parse(segdata[0:rn], 0)
+			powresult.Parse(newbytes, 0)
 			client.postPowResult(powresult) // return pow results
 
 		}
 	}
 
 	// end
+	//fmt.Println("client.belongAccount.activeClients.Remove(client)")
 	client.belongAccount.activeClients.Remove(client) // remove
 	conn.Close()
 

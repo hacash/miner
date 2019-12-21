@@ -17,3 +17,11 @@ type TxItem struct {
 
 	diamond *actions.Action_4_DiamondCreate
 }
+
+func (p *TxItem) GetTx() interfaces.Transaction {
+	return p.tx
+}
+
+func (p *TxItem) GetNext() *TxItem {
+	return p.next
+}

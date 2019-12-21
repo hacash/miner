@@ -2,6 +2,7 @@ package minerworker
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"github.com/hacash/miner/message"
 	"time"
@@ -9,7 +10,7 @@ import (
 
 func (p *MinerWorker) loop() {
 
-	restartTick := time.NewTicker(time.Second * 7)
+	restartTick := time.NewTicker(time.Second * 13)
 
 	for {
 		select {
@@ -28,16 +29,15 @@ func (p *MinerWorker) loop() {
 				}
 			}
 			if msg.Status == message.PowMasterMsgStatusSuccess {
-				fmt.Print("\n== ⬤ == Successfully mining block height: ", msg.BlockHeadMeta.GetHeight(), ", hash: ", msg.BlockHeadMeta.Hash().ToHex(), ", rewards: ", p.config.Rewards.ToReadable())
+				p.currentMiningStatusSuccess = true // set mining status
+				fmt.Print("OK.\n\n== ⬤ == Successfully mining block height: ", msg.BlockHeadMeta.GetHeight(), ", hash: ", msg.BlockHeadMeta.Hash().ToHex(), ", rewards: ", p.config.Rewards.ToReadable(), "\n")
 			}
 			if msg.Status == message.PowMasterMsgStatusMostPowerHash {
-				fmt.Print("upload power hash:", msg.BlockHeadMeta.Hash().ToHex())
+				fmt.Print("upload power hash: ", hex.EncodeToString(msg.BlockHeadMeta.Hash()[0:12]), " ok.")
 				if p.conn != nil {
 					p.conn.Close() // next mining
 				}
 			}
-
-			fmt.Println("")
 
 		case <-p.immediateStartConnectCh:
 			err := p.startConnect()

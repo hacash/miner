@@ -11,9 +11,6 @@ import (
 func (a *Account) successFindNewBlock(msg *message.PowMasterMsg) {
 	minerpool := a.realtimePeriod.minerpool
 
-	// cache
-	minerpool.prevRealtimePeriod = minerpool.currentRealtimePeriod
-
 	// copy data
 	copyblock := a.workBlock.CopyForMining()
 
@@ -36,8 +33,6 @@ func (a *Account) successFindNewBlock(msg *message.PowMasterMsg) {
 	// mark success account
 	a.miningSuccessBlock = copyblock
 	a.realtimePeriod.miningSuccessBlock = copyblock
-	// create next period
-	minerpool.currentRealtimePeriod = NewRealtimePeriod(minerpool, a.realtimePeriod.targetBlock)
 	// insert new block
 	a.realtimePeriod.successFindNewBlock(copyblock)
 	// store success

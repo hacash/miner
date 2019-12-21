@@ -73,12 +73,27 @@ func (r *RealtimePeriod) successFindNewBlock(block interfaces.Block) {
 
 // 结束当前挖矿
 func (r *RealtimePeriod) endCurrentMining() {
+
+	//fmt.Println("+++++++++++++++++++++ endCurrentMining ")
+
 	for _, acc := range r.realtimeAccounts {
 		clients := acc.activeClients.ToSlice()
 		for _, cli := range clients {
 			client := cli.(*Client)
+			//fmt.Println(" -client.conn.Write([]byte(end_current_mining) ")
 			client.conn.Write([]byte("end_current_mining"))
 			// 不能结束连接，等待上传算力统计
 		}
 	}
+}
+
+///////////////////////////
+
+func (r *RealtimePeriod) GetAccounts() []*Account {
+	res := make([]*Account, 0)
+	for _, acc := range r.realtimeAccounts {
+		//fmt.Println("-----", acc.address.ToReadable())
+		res = append(res, acc)
+	}
+	return res
 }

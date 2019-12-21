@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"github.com/hacash/core/sys"
+	"github.com/hacash/miner/console"
 	"github.com/hacash/miner/memtxpool"
 	"github.com/hacash/miner/miner"
 	"github.com/hacash/miner/minerpool"
 	"github.com/hacash/node/backend"
+	rpc "github.com/hacash/service/deprecated"
 	"os"
 	"os/signal"
 	"time"
@@ -61,6 +63,19 @@ func main() {
 	miner.SetPowServer(miner_pool)
 
 	miner.Start()
+
+	cscnf := console.NewMinerConsoleConfig(hinicnf)
+	console_service := console.NewMinerConsole(cscnf)
+	console_service.SetMiningPool(miner_pool)
+
+	console_service.Start() // http service
+
+	// http api service
+	svcnf := rpc.NewDeprecatedApiServiceConfig(hinicnf)
+	deprecatedApi := rpc.NewDeprecatedApiService(svcnf)
+	deprecatedApi.SetBlockChain(hnode.GetBlockChain())
+	deprecatedApi.SetTxPool(txpool)
+	deprecatedApi.Start()
 
 	// do mining
 	miner.StartMining()

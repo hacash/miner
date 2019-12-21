@@ -20,7 +20,7 @@ func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 	maxuint32 := uint32(4294967295)
 	supervene := uint32(l.config.Concurrent) // 并发线程
 	// -------- test start --------
-	maxuint32 = uint32(2294900)
+	//maxuint32 = uint32(2294900)
 	//supervene := uint32(6)
 	// -------- test end   --------
 	nonceSpace := maxuint32 / supervene
@@ -32,6 +32,11 @@ func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 	//fmt.Println("	go func(stopmark *byte) {   ")
 
 	go func(stopmark *byte) {
+
+		defer func() {
+			//fmt.Println("	l.stopMarks.Delete(&nextstop) // clean  ")
+			l.stopMarks.Delete(&nextstop) // clean
+		}()
 
 		var successMiningMark uint32 = 0
 		var successFindBlock bool = false

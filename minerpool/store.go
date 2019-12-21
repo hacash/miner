@@ -42,7 +42,8 @@ func (p *MinerPool) saveAccountStoreData(account *Account) error {
 	}
 	// save
 	stokey := []byte("accstodts" + string(account.address))
-	return p.storedb.Put(stokey, valuebts, nil)
+	err := p.storedb.Put(stokey, valuebts, nil)
+	return err
 }
 
 // 读取账户
