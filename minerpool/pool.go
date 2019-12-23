@@ -4,8 +4,14 @@ import (
 	"fmt"
 	"github.com/hacash/chain/leveldb"
 	"github.com/hacash/core/interfaces"
+	"github.com/hacash/miner/message"
 	"sync"
 )
+
+type findBlockMsg struct {
+	msg     *message.PowMasterMsg
+	account *Account
+}
 
 type MinerPool struct {
 	Config *MinerPoolConfig
@@ -13,11 +19,18 @@ type MinerPool struct {
 	currentTcpConnectingCount int32 // 当前连接tcp数量
 
 	blockchain interfaces.BlockChain
+	txpool     interfaces.TxPool
 
 	storedb *leveldb.DB
 
 	prevRealtimePeriod    *RealtimePeriod
 	currentRealtimePeriod *RealtimePeriod
+
+	/////////////////////////////////////
+
+	checkBlockHeightMiningDict    map[uint64]bool
+	currentSuccessFindBlockHeight uint64
+	successFindBlockCh            chan *findBlockMsg
 
 	/////////////////////////////////////
 
@@ -35,10 +48,17 @@ func NewMinerPool(cnf *MinerPoolConfig) *MinerPool {
 	}
 
 	pool := &MinerPool{
-		Config:                    cnf,
-		currentTcpConnectingCount: 0,
-		storedb:                   db,
+		Config:                        cnf,
+		currentTcpConnectingCount:     0,
+		checkBlockHeightMiningDict:    make(map[uint64]bool),
+		currentSuccessFindBlockHeight: 0,
+		successFindBlockCh:            make(chan *findBlockMsg, 4),
+		storedb:                       db,
+		txpool:                        nil,
 	}
+
+	// read status
+	pool.status = pool.readStatus()
 
 	return pool
 
@@ -62,6 +82,10 @@ func (p *MinerPool) SetBlockChain(blockchain interfaces.BlockChain) {
 		panic("p.blockchain already be set.")
 	}
 	p.blockchain = blockchain
+}
+
+func (p *MinerPool) SetTxPool(tp interfaces.TxPool) {
+	p.txpool = tp
 }
 
 func (p *MinerPool) GetCurrentTcpConnectingCount() int32 {

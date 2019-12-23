@@ -1,7 +1,6 @@
 package minerpool
 
 import (
-	"encoding/binary"
 	"fmt"
 	"github.com/hacash/core/fields"
 	"github.com/hacash/mint/coinbase"
@@ -12,8 +11,6 @@ import (
 func (p *MinerPool) settleOnePeriod(period *RealtimePeriod) {
 	p.periodChange.Lock()
 	defer p.periodChange.Unlock()
-
-	// TODO: settleOnePeriod
 
 	successBlock := period.miningSuccessBlock
 	if successBlock == nil {
@@ -59,28 +56,26 @@ func (p *MinerPool) settleOnePeriod(period *RealtimePeriod) {
 	partReward := totalReward / 2
 	var rwdAccounts = make([]*Account, 0)
 	for _, acc := range otherAccounts {
+		if totalPowWorth.Cmp(big.NewInt(0)) == 0 {
+			continue
+		}
 		num1 := new(big.Int).Mul(addressPowWorth[string(acc.address)], pernum)
 		num2 := new(big.Int).Div(num1, totalPowWorth)
-		reward := num2.Int64() * partReward
+		reward := num2.Int64() * partReward / pernum.Int64()
 		if reward > 0 {
 			rwdAccounts = append(rwdAccounts, acc)
-			acc.storeData.unconfirmedRewards += fields.VarInt8(reward)
-			acc.storeData.unconfirmedRewardListCount += 1
-			rwdlstdts := make([]byte, 12)
-			binary.BigEndian.PutUint32(rwdlstdts[0:4], uint32(blockHeight))
-			binary.BigEndian.PutUint64(rwdlstdts[4:12], uint64(reward))
-			acc.storeData.unconfirmedRewardList = append(acc.storeData.unconfirmedRewardList, rwdlstdts)
+			acc.storeData.appendUnconfirmedRewards(uint32(blockHeight), uint64(reward))
 		}
 	}
 	// 保存收益
 	minerAccount.storeData.findBlocks += 1
 	minerAccount.storeData.findCoins += fields.VarInt4(rwdcoin)
-	minerAccount.storeData.unconfirmedRewards += fields.VarInt8(partReward)
-	rwdlstdts := make([]byte, 12)
-	binary.BigEndian.PutUint32(rwdlstdts[0:4], uint32(blockHeight))
-	binary.BigEndian.PutUint64(rwdlstdts[4:12], uint64(partReward))
-	minerAccount.storeData.unconfirmedRewardListCount += 1
-	minerAccount.storeData.unconfirmedRewardList = append(minerAccount.storeData.unconfirmedRewardList, rwdlstdts)
+	if len(rwdAccounts) == 0 {
+		// 如果只有一个账户挖矿，则拿到全部奖励
+		minerAccount.storeData.appendUnconfirmedRewards(uint32(blockHeight), uint64(totalReward))
+	} else {
+		minerAccount.storeData.appendUnconfirmedRewards(uint32(blockHeight), uint64(partReward))
+	}
 	err = p.saveAccountStoreData(minerAccount)
 	for _, acc := range rwdAccounts {
 		err = p.saveAccountStoreData(acc)

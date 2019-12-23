@@ -52,6 +52,8 @@ func (c *Client) postPowResult(msg *message.PowMasterMsg) {
 
 	//fmt.Println( "  -  1  -   postPowResult(msg *message.PowMasterMsg)" )
 
+	minerpool := c.belongAccount.realtimePeriod.minerpool
+
 	// 添加算力统计
 	if msg.Status != message.PowMasterMsgStatusSuccess {
 		c.belongAccount.addPowWorth(blkhash)
@@ -73,7 +75,10 @@ func (c *Client) postPowResult(msg *message.PowMasterMsg) {
 			return
 		}
 		// success find block
-		c.belongAccount.successFindNewBlock(msg)
+		minerpool.successFindBlockCh <- &findBlockMsg{
+			msg:     msg,
+			account: c.belongAccount,
+		}
 		return
 	}
 }

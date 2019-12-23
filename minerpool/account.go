@@ -2,6 +2,7 @@ package minerpool
 
 import (
 	"bytes"
+	"encoding/binary"
 	"github.com/hacash/chain/mapset"
 	"github.com/hacash/core/fields"
 	"github.com/hacash/core/interfaces"
@@ -87,18 +88,63 @@ type AccountStoreData struct {
 	others fields.Bytes16 // 备用扩展字段
 }
 
-func NewEmptyAccountStoreData() *AccountStoreData {
+func NewEmptyAccountStoreData(curhei uint64) *AccountStoreData {
 	return &AccountStoreData{
 		0,
 		0,
 		0,
 		0,
 		0,
-		0,
+		fields.VarInt4(uint32(curhei)),
 		0,
 		[]fields.Bytes12{},
 		fields.Bytes16{},
 	}
+}
+
+func (s *AccountStoreData) moveRewards(target string, rewards uint64) bool {
+	if target == "deserved" {
+		if uint64(s.unconfirmedRewards) < rewards {
+			return false
+		}
+		s.unconfirmedRewards = fields.VarInt8(uint64(s.unconfirmedRewards) - rewards)
+		s.deservedRewards = fields.VarInt8(uint64(s.deservedRewards) + rewards)
+		return true
+	} else if target == "complete" {
+		if uint64(s.deservedRewards) < rewards {
+			return false
+		}
+		s.deservedRewards = fields.VarInt8(uint64(s.deservedRewards) - rewards)
+		s.completeRewards = fields.VarInt8(uint64(s.completeRewards) + rewards)
+		return true
+	}
+	return false
+}
+
+func (s *AccountStoreData) unshiftUnconfirmedRewards(lessthanblkhei uint64) (uint32, uint64, bool) {
+	if s.unconfirmedRewardListCount == 0 {
+		return 0, 0, false
+	}
+	valdts := s.unconfirmedRewardList[0]
+	blockhei := binary.BigEndian.Uint32(valdts[0:4])
+	if lessthanblkhei > 0 && uint64(blockhei) > lessthanblkhei {
+		return 0, 0, false
+	}
+	s.unconfirmedRewardListCount -= 1
+	s.unconfirmedRewardList = s.unconfirmedRewardList[1:]
+	// ok return
+	return blockhei,
+		binary.BigEndian.Uint64(valdts[4:12]),
+		true
+}
+
+func (s *AccountStoreData) appendUnconfirmedRewards(blockHeight uint32, rewards uint64) {
+	s.unconfirmedRewards += fields.VarInt8(rewards)
+	s.unconfirmedRewardListCount += 1
+	rwdlstdts := make([]byte, 12)
+	binary.BigEndian.PutUint32(rwdlstdts[0:4], uint32(blockHeight))
+	binary.BigEndian.PutUint64(rwdlstdts[4:12], uint64(rewards))
+	s.unconfirmedRewardList = append(s.unconfirmedRewardList, rwdlstdts)
 }
 
 func (s *AccountStoreData) GetFinds() (int, int) {
@@ -125,13 +171,15 @@ func (s *AccountStoreData) Serialize() ([]byte, error) {
 	buf.Write(b6)
 	b7, _ := s.unconfirmedRewards.Serialize()
 	buf.Write(b7)
+	b8, _ := s.unconfirmedRewardListCount.Serialize()
+	buf.Write(b8)
 	for i := 0; i < int(s.unconfirmedRewardListCount); i++ {
 		b, _ := s.unconfirmedRewardList[i].Serialize()
 		buf.Write(b)
 	}
 	///
-	b8, _ := s.others.Serialize()
-	buf.Write(b8)
+	b9, _ := s.others.Serialize()
+	buf.Write(b9)
 	return buf.Bytes(), nil
 }
 
@@ -183,7 +231,11 @@ func (p *MinerPool) loadAccountAndAddPeriodByAddress(address fields.Address) *Ac
 	}
 	// create
 	if p.currentRealtimePeriod != nil {
-		accstodts := p.loadAccountStoreData(address)
+		curblkhei := uint64(0)
+		if p.currentRealtimePeriod.targetBlock != nil {
+			curblkhei = p.currentRealtimePeriod.targetBlock.GetHeight()
+		}
+		accstodts := p.loadAccountStoreData(curblkhei, address)
 		newacc := NewAccountByPeriod(address, p.currentRealtimePeriod)
 		//fmt.Println("newacc.storeData = accstodts  ", newacc.address.ToReadable())
 		newacc.storeData = accstodts

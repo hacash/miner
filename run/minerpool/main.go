@@ -47,12 +47,13 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+	blockchainobj := hnode.BlockChain()
 
 	// start
 	hnode.Start()
 
 	txpool := memtxpool.NewMemTxPool(0, 1024*1024*50)
-	txpool.SetBlockChain(hnode.GetBlockChain())
+	txpool.SetBlockChain(blockchainobj)
 
 	// hnode set tx pool
 	hnode.SetTxPool(txpool)
@@ -62,16 +63,24 @@ func main() {
 
 	mpcnf := minerpool.NewMinerPoolConfig(hinicnf)
 	miner_pool := minerpool.NewMinerPool(mpcnf)
-	miner_pool.SetBlockChain(hnode.GetBlockChain())
-	miner_pool.Start()
+	miner_pool.SetBlockChain(blockchainobj)
+	miner_pool.SetTxPool(txpool)
 
 	mcnf := miner.NewMinerConfig(hinicnf)
 	miner := miner.NewMiner(mcnf)
 
-	miner.SetBlockChain(hnode.GetBlockChain())
+	miner.SetBlockChain(blockchainobj)
 	miner.SetTxPool(txpool)
 	miner.SetPowServer(miner_pool)
 
+	// check reward address and password
+	if !mcnf.Rewards.Equal(mpcnf.RewardAccount.Address) {
+		fmt.Println("[Config Error] miner rewards address must equal to miner pool rewards passward address.")
+		fmt.Printf("[配置错误] 矿池自动发送奖励的地址的密码应该是地址 %s 而不是地址 %s 的密码。\n", mcnf.Rewards.ToReadable(), mpcnf.RewardAccount.AddressReadable)
+		os.Exit(0)
+	}
+
+	miner_pool.Start()
 	miner.Start()
 
 	cscnf := console.NewMinerConsoleConfig(hinicnf)
@@ -83,8 +92,9 @@ func main() {
 	// http api service
 	svcnf := rpc.NewDeprecatedApiServiceConfig(hinicnf)
 	deprecatedApi := rpc.NewDeprecatedApiService(svcnf)
-	deprecatedApi.SetBlockChain(hnode.GetBlockChain())
+	deprecatedApi.SetBlockChain(blockchainobj)
 	deprecatedApi.SetTxPool(txpool)
+	deprecatedApi.SetBackend(hnode)
 	deprecatedApi.Start()
 
 	// do mining

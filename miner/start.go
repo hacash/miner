@@ -59,12 +59,12 @@ func (m *Miner) doStartMining() {
 		)
 	}
 
-	fmt.Printf("do mining... block height: %d, txs: %d, size: %fkb, prev hash: %s..., difficulty: %d, time: %s\n",
+	fmt.Printf("do mining... block height: %d, txs: %d, prev: %s..., difficulty: %d, size: %fkb, time: %s\n",
 		nextblockHeight,
 		nextblock.GetTransactionCount()-1,
-		float64(totaltxsize)/1024,
 		string([]byte(nextblock.GetPrevHash().ToHex())[0:20]),
 		nextblock.GetDifficulty(),
+		float64(totaltxsize)/1024,
 		time.Unix(int64(nextblock.GetTimestamp()), 0).Format("01/02 15:04:05"),
 	)
 
