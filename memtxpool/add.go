@@ -56,6 +56,10 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 			}
 			txitem.diamond = dcact // diamond mark
 			p.diamondCreateTxGroup.Add(txitem)
+			// feed send
+			if p.isBanEventSubscribe == false {
+				p.addTxSuccess.Send(tx)
+			}
 			return nil // add successfully !
 		}
 	}
