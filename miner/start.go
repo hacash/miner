@@ -8,6 +8,7 @@ import (
 	"github.com/hacash/mint"
 	"github.com/hacash/mint/coinbase"
 	"github.com/hacash/mint/difficulty"
+	"strings"
 	"sync/atomic"
 	"time"
 )
@@ -33,6 +34,7 @@ func (m *Miner) doStartMining() {
 	}
 
 	// update set coinbase reward address
+	coinbase.UpdateBlockCoinbaseMessage(nextblock, m.config.CoinbaseMessage)
 	coinbase.UpdateBlockCoinbaseAddress(nextblock, m.config.Rewards)
 
 	// update mkrl root
@@ -50,19 +52,19 @@ func (m *Miner) doStartMining() {
 			costtime = nextblock.GetTimestamp() - costtime
 		}
 		targettime := mint.AdjustTargetDifficultyNumberOfBlocks * mint.EachBlockRequiredTargetTime
-		fmt.Printf("== %d == -> == (%ds/%ds) == target difficulty change: %d -> %d , %s -> %s \n",
+		fmt.Printf("\n== target difficulty change == %d == -> == (%ds/%ds) == %d -> %d == %s -> %s \n\n",
 			nextblockHeight,
 			costtime, targettime,
 			diff1, diff2,
-			string([]byte(tarhx1)[0:26]),
-			string([]byte(tarhx2)[0:26]),
+			strings.TrimRight(string([]byte(tarhx1)[0:32]), "0"),
+			strings.TrimRight(string([]byte(tarhx2)[0:32]), "0"),
 		)
 	}
 
 	fmt.Printf("do mining... block height: %d, txs: %d, prev: %s..., difficulty: %d, size: %fkb, time: %s\n",
 		nextblockHeight,
 		nextblock.GetTransactionCount()-1,
-		string([]byte(nextblock.GetPrevHash().ToHex())[0:20]),
+		string([]byte(nextblock.GetPrevHash().ToHex())[0:32]),
 		nextblock.GetDifficulty(),
 		float64(totaltxsize)/1024,
 		time.Unix(int64(nextblock.GetTimestamp()), 0).Format("01/02 15:04:05"),
@@ -102,11 +104,10 @@ func (m *Miner) doStartMining() {
 			coinbaseStr += coinbasetx.GetAddress().ToReadable()
 			coinbaseStr += " + " + coinbase.BlockCoinBaseReward(miningSuccessBlock.GetHeight()).ToFinString()
 			// show success
-			fmt.Printf("⬤ mining new block successfully! height: %d, txs: %d, hash: %s, prev hash: %s..., coinbase: %s\n",
+			fmt.Printf("⬤ mining new block height: %d, txs: %d, hash: %s, coinbase: %s, successfully!\n",
 				miningSuccessBlock.GetHeight(),
 				miningSuccessBlock.GetTransactionCount()-1,
 				miningSuccessBlock.Hash().ToHex(),
-				string([]byte(miningSuccessBlock.GetPrevHash().ToHex())[0:20]),
 				coinbaseStr,
 			)
 		} else {

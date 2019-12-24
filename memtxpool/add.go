@@ -71,7 +71,9 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 	p.txTotalSize += uint64(txitem.size)
 
 	// feed send
-	p.addTxSuccess.Send(tx)
+	if p.isBanEventSubscribe == false {
+		p.addTxSuccess.Send(tx)
+	}
 
 	return nil // add successfully !
 }

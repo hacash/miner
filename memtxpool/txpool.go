@@ -19,7 +19,8 @@ type MemTxPool struct {
 
 	////////////////////////////////
 
-	addTxSuccess event.Feed
+	isBanEventSubscribe bool
+	addTxSuccess        event.Feed
 
 	////////////////////////////////
 
@@ -40,6 +41,7 @@ func NewMemTxPool(maxcount, maxsize uint64) *MemTxPool {
 		txTotalSize:          0,
 		maxcount:             maxcount,
 		maxsize:              maxsize,
+		isBanEventSubscribe:  false,
 	}
 
 	return pool

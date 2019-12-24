@@ -13,9 +13,10 @@ func (p *MinerPool) startDoTransfer(curblkheight uint64, period *RealtimePeriod)
 	p.periodChange.Lock()
 	defer p.periodChange.Unlock()
 
-	if curblkheight%5 != 0 {
+	if curblkheight%uint64(p.Config.DoTransferRewardPeriodHeight) != 0 {
 		return
 	}
+
 	trsAccounts := filterOutCanBeTransferred(curblkheight, period)
 	if len(trsAccounts) == 0 {
 		return // empty
@@ -78,7 +79,7 @@ func (p *MinerPool) startDoTransfer(curblkheight uint64, period *RealtimePeriod)
 		p.saveAccountStoreData(acc)
 	}
 	// ok
-	fmt.Printf(" --> --> --> --> miner pool transfer to %d address cost amount %s fee %s .\n", len(tx.GetActions()), totalAmount.ToFinString(), totalFee.ToFinString())
+	fmt.Printf(" --> --> --> --> miner pool transfer to %d address cost amount: %s, fee: %s.\n", len(tx.GetActions()), totalAmount.ToFinString(), totalFee.ToFinString())
 }
 
 func filterOutCanBeTransferred(curblkheight uint64, period *RealtimePeriod) []*Account {

@@ -14,15 +14,19 @@ type MinerPoolConfig struct {
 	TcpListenPort     int
 	TcpConnectMaxSize uint
 	FeePercentage     float64
-
-	RewardAccount *account.Account
+	RewardAccount     *account.Account
+	///////////////////////////////
+	DelayedConfirmRewardHeight   int
+	DoTransferRewardPeriodHeight int
 }
 
 func NewEmptyMinerPoolConfig() *MinerPoolConfig {
 	cnf := &MinerPoolConfig{
-		TcpListenPort:     3339,
-		TcpConnectMaxSize: 200,
-		FeePercentage:     0.2,
+		TcpListenPort:                3339,
+		TcpConnectMaxSize:            200,
+		FeePercentage:                0.2,
+		DelayedConfirmRewardHeight:   6 * 4,
+		DoTransferRewardPeriodHeight: 9,
 	}
 	return cnf
 }

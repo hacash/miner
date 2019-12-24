@@ -28,9 +28,9 @@ type MinerPool struct {
 
 	/////////////////////////////////////
 
-	checkBlockHeightMiningDict    map[uint64]bool
-	currentSuccessFindBlockHeight uint64
-	successFindBlockCh            chan *findBlockMsg
+	checkBlockHeightMiningDict map[uint64]bool
+	successFindNewBlockOnce    bool
+	successFindBlockCh         chan *findBlockMsg
 
 	/////////////////////////////////////
 
@@ -48,13 +48,13 @@ func NewMinerPool(cnf *MinerPoolConfig) *MinerPool {
 	}
 
 	pool := &MinerPool{
-		Config:                        cnf,
-		currentTcpConnectingCount:     0,
-		checkBlockHeightMiningDict:    make(map[uint64]bool),
-		currentSuccessFindBlockHeight: 0,
-		successFindBlockCh:            make(chan *findBlockMsg, 4),
-		storedb:                       db,
-		txpool:                        nil,
+		Config:                     cnf,
+		currentTcpConnectingCount:  0,
+		checkBlockHeightMiningDict: make(map[uint64]bool),
+		successFindNewBlockOnce:    false,
+		successFindBlockCh:         make(chan *findBlockMsg, 4),
+		storedb:                    db,
+		txpool:                     nil,
 	}
 
 	// read status

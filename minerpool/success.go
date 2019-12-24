@@ -14,10 +14,8 @@ func (a *Account) successFindNewBlock(msg *message.PowMasterMsg) {
 	minerpool.periodChange.Lock()
 	defer minerpool.periodChange.Unlock()
 
-	// cache
-	minerpool.prevRealtimePeriod = minerpool.currentRealtimePeriod
-	// create next period
-	minerpool.currentRealtimePeriod = NewRealtimePeriod(minerpool, nil)
+	// mark new Period
+	minerpool.successFindNewBlockOnce = true
 
 	// copy data
 	copyblock := a.workBlock.CopyForMining()

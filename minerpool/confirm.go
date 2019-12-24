@@ -5,7 +5,7 @@ func (p *MinerPool) confirmRewards(curblkheight uint64, confirmPeriod *RealtimeP
 	p.periodChange.Lock()
 	defer p.periodChange.Unlock()
 
-	delayedCheckHeight := uint64(20)
+	delayedCheckHeight := uint64(p.Config.DelayedConfirmRewardHeight)
 
 	if curblkheight < delayedCheckHeight*2 {
 		return

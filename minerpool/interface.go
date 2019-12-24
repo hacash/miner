@@ -16,7 +16,14 @@ func (p *MinerPool) Excavate(inputBlock interfaces.Block, outputBlockCh chan int
 
 	if p.currentRealtimePeriod == nil {
 		p.currentRealtimePeriod = NewRealtimePeriod(p, inputBlock)
-
+	} else {
+		if p.successFindNewBlockOnce == true {
+			p.successFindNewBlockOnce = false // do once
+			// cache
+			p.prevRealtimePeriod = p.currentRealtimePeriod
+			// create next period
+			p.currentRealtimePeriod = NewRealtimePeriod(p, inputBlock)
+		}
 	}
 
 	// 设置新的挖矿区块，以供客户端请求
