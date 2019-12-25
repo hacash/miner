@@ -26,7 +26,7 @@ func NewEmptyMinerPoolConfig() *MinerPoolConfig {
 		TcpConnectMaxSize:            200,
 		FeePercentage:                0.2,
 		DelayedConfirmRewardHeight:   6 * 4,
-		DoTransferRewardPeriodHeight: 9,
+		DoTransferRewardPeriodHeight: 11,
 	}
 	return cnf
 }

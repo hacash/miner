@@ -53,6 +53,7 @@ func main() {
 
 	txpool := memtxpool.NewMemTxPool(0, 1024*1024*50)
 	txpool.SetBlockChain(blockchainobj)
+	txpool.Start()
 
 	// hnode set tx pool
 	hnode.SetTxPool(txpool)

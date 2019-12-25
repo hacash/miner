@@ -31,7 +31,16 @@ func (p *MemTxPool) CopyTxsOrderByFeePurity(targetblockheight uint64, maxcount u
 	var curitxitem *TxItem = nil
 	if targetblockheight > 0 && targetblockheight%5 == 0 && p.diamondCreateTxGroup.Count > 0 {
 		// pick up one diamond create tx
-		restrs = append(restrs, p.diamondCreateTxGroup.Head.tx)
+		head := p.diamondCreateTxGroup.Head
+		for {
+			if head == nil {
+				break
+			}
+			totalcount += 1
+			totalsize += head.size
+			restrs = append(restrs, head.tx)
+			head = head.next
+		}
 	}
 	if p.simpleTxGroup.Head == nil {
 		return restrs // simple empty

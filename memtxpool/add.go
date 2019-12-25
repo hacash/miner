@@ -81,5 +81,7 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 		p.addTxSuccess.Send(tx)
 	}
 
+	fmt.Println("memtxpool add tx successfully:", tx.Hash().ToHex())
+
 	return nil // add successfully !
 }
