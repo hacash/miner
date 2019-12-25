@@ -32,14 +32,16 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 
 	// check exist
 	if havitem := p.diamondCreateTxGroup.Find(txitem.hash); havitem != nil {
-		if havitem.feepurity <= txitem.feepurity {
-			return fmt.Errorf("already exist tx %s and fee purity more than new one.", txitem.hash.ToHex())
+		//fmt.Println(havitem.feepurity, txitem.feepurity)
+		if txitem.feepurity <= havitem.feepurity {
+			return fmt.Errorf("already exist tx %s and fee purity more than or equal the new one.", txitem.hash.ToHex())
 		}
 		p.diamondCreateTxGroup.RemoveItem(havitem)
 	}
 	if havitem := p.simpleTxGroup.Find(txitem.hash); havitem != nil {
-		if havitem.feepurity <= txitem.feepurity {
-			return fmt.Errorf("already exist tx %s and fee purity more than new one.", txitem.hash.ToHex())
+		//fmt.Println(havitem.feepurity, txitem.feepurity)
+		if txitem.feepurity <= havitem.feepurity {
+			return fmt.Errorf("already exist tx %s and fee purity more than or equal the new one.", txitem.hash.ToHex())
 		}
 		if p.simpleTxGroup.RemoveItem(havitem) {
 			// sub count

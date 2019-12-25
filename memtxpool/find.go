@@ -5,18 +5,18 @@ import (
 	"github.com/hacash/core/interfaces"
 )
 
-func (p *MemTxPool) CheckTxExist(tx interfaces.Transaction) bool {
+func (p *MemTxPool) CheckTxExist(tx interfaces.Transaction) (interfaces.Transaction, bool) {
 	return p.CheckTxExistByHash(tx.Hash())
 }
 
-func (p *MemTxPool) CheckTxExistByHash(txhash fields.Hash) bool {
-	if _, ok := p.diamondCreateTxGroup.Items[string(txhash)]; ok {
-		return true
+func (p *MemTxPool) CheckTxExistByHash(txhash fields.Hash) (interfaces.Transaction, bool) {
+	if tx, ok := p.diamondCreateTxGroup.Items[string(txhash)]; ok {
+		return tx.tx, true
 	}
-	if _, ok := p.simpleTxGroup.Items[string(txhash)]; ok {
-		return true
+	if tx, ok := p.simpleTxGroup.Items[string(txhash)]; ok {
+		return tx.tx, true
 	}
-	return false
+	return nil, false
 
 }
 

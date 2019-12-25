@@ -104,8 +104,10 @@ func (g *TxGroup) RemoveItem(item *TxItem) bool {
 			g.Tail = nil
 		} else if havtx == g.Head {
 			g.Head = g.Head.next
+			g.Head.prev = nil
 		} else if havtx == g.Tail {
 			g.Tail = g.Tail.prev
+			g.Tail.next = nil
 		} else {
 			havtx.prev.next = havtx.next
 			havtx.next.prev = havtx.prev // drop

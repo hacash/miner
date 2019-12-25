@@ -13,6 +13,7 @@ func (d *DiamondMiner) successFindDiamondAddTxPool(diamondCreateAction *actions.
 		return
 	}
 	tx.Fee = *(d.Config.FeeAmount.Copy())
+	//rand.Read(tx.Fee.Numeral)
 	//fmt.Println(diamondCreateAction)
 	tx.AppendAction(diamondCreateAction)
 	// fill sign
