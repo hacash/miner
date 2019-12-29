@@ -11,9 +11,19 @@ import (
 func (p *MinerWorker) loop() {
 
 	restartTick := time.NewTicker(time.Second * 13)
+	notEndSuccessMsg := time.NewTicker(time.Minute * 3)
 
 	for {
 		select {
+
+		case <-notEndSuccessMsg.C:
+			if p.currentMiningStatusSuccess {
+				p.currentMiningStatusSuccess = false
+				if p.conn != nil {
+					p.conn.Close() // restart next mining
+				}
+			}
+
 		case msg := <-p.miningOutputCh:
 
 			//fmt.Println( "msg := <- p.miningOutputCh:")

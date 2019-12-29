@@ -22,7 +22,7 @@ func main() {
 	signal.Notify(c, os.Interrupt, os.Kill)
 
 	target_ini_file := "hacash_config.ini"
-	//target_ini_file := "/home/shiqiujie/Desktop/Hacash/go/src/github.com/hacash/miner/run/minerpool/test.ini"
+	//target_ini_file := "/home/shiqiujie/Desktop/Hacash/go/src/github.com/hacash/miner/run/main/test.ini"
 	//target_ini_file := ""
 	if len(os.Args) >= 2 {
 		target_ini_file = os.Args[1]
@@ -110,6 +110,10 @@ func main() {
 		miner.Start()
 		miner.StartMining()
 
+	} else {
+
+		txpool.SetAutomaticallyCleanInvalidTransactions(true)
+
 	}
 
 	// http api service
@@ -135,7 +139,12 @@ func main() {
 	}
 
 	// download block datas
-	//hnode.DownloadBlocksDataFromWebSocketApi("ws://127.0.0.1:3338/websocket", 1)
+	wsaddr := hinicnf.Section("").Key("first_download_block_datas_websocket_addr").MustString("")
+	if wsaddr != "" {
+		//time.Sleep( time.Second * 3 )
+		hnode.DownloadBlocksDataFromWebSocketApi("ws://"+wsaddr+"/websocket", 14690)
+	}
+	//
 
 	s := <-c
 	fmt.Println("Got signal:", s)

@@ -1,6 +1,13 @@
 package memtxpool
 
+import (
+	"github.com/hacash/core/interfaces"
+	"time"
+)
+
 func (p *MemTxPool) loop() {
+
+	automaticallyCleanInvalidTransactionsTicker := time.NewTicker(time.Minute * 9)
 
 	for {
 		select {
@@ -10,8 +17,19 @@ func (p *MemTxPool) loop() {
 			p.changeLock.Lock()
 			p.diamondCreateTxGroup.Clean() // delete all diamond create tx
 			p.changeLock.Unlock()
-		}
 
+		case newblk := <-p.newBlockOnInsertCh:
+			p.RemoveTxs(newblk.GetTransactions())
+			txs := p.removeTxsOnNextBlockArrive
+			p.removeTxsOnNextBlockArrive = []interfaces.Transaction{}
+			p.RemoveTxs(txs)
+
+		case <-automaticallyCleanInvalidTransactionsTicker.C:
+			if p.automaticallyCleanInvalidTransactions {
+				p.doCleanInvalidTransactions()
+			}
+
+		}
 	}
 
 }

@@ -26,13 +26,13 @@ func (m *Miner) doStartMining() {
 		panic(err)
 	}
 	// pick up txs from pool
-	pikuptxs := m.txpool.CopyTxsOrderByFeePurity(last.GetHeight()+1, 2000, mint.SingleBlockMaxSize)
+	pikuptxs := m.txpool.CopyTxsOrderByFeePurity(last.GetHeight()+1, 2000, mint.SingleBlockMaxSize*2)
 	// create next block
-	nextblock, totaltxsize, e1 := m.blockchain.CreateNextBlockByValidateTxs(pikuptxs)
+	nextblock, removetxs, totaltxsize, e1 := m.blockchain.CreateNextBlockByValidateTxs(pikuptxs)
 	if e1 != nil {
 		panic(e1)
 	}
-
+	m.txpool.RemoveTxsOnNextBlockArrive(removetxs) // remove
 	// update set coinbase reward address
 	coinbase.UpdateBlockCoinbaseMessage(nextblock, m.config.CoinbaseMessage)
 	coinbase.UpdateBlockCoinbaseAddress(nextblock, m.config.Rewards)
