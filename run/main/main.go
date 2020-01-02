@@ -21,8 +21,8 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, os.Kill)
 
-	target_ini_file := "hacash_config.ini"
-	//target_ini_file := "/home/shiqiujie/Desktop/Hacash/go/src/github.com/hacash/miner/run/main/test.ini"
+	target_ini_file := "hacash.config.ini"
+	//target_ini_file := "/home/shiqiujise/Desktop/Hacash/go/src/github.com/hacash/miner/run/main/test.ini"
 	//target_ini_file := ""
 	if len(os.Args) >= 2 {
 		target_ini_file = os.Args[1]
@@ -130,11 +130,11 @@ func main() {
 	if isOpenDiamondMiner {
 
 		dmcnf := diamondminer.NewDiamondMinerConfig(hinicnf)
-		diamondminer := diamondminer.NewDiamondMiner(dmcnf)
-		diamondminer.SetTxPool(txpool)
-		diamondminer.SetBlockChain(blockchainobj)
+		diamondMiner := diamondminer.NewDiamondMiner(dmcnf)
+		diamondMiner.SetTxPool(txpool)
+		diamondMiner.SetBlockChain(blockchainobj)
 
-		diamondminer.Start() // start do mining
+		diamondMiner.Start() // start do mining
 
 	}
 
