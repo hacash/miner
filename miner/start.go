@@ -94,6 +94,9 @@ func (m *Miner) doStartMining() {
 		miningSuccessBlock, _, _ = blocks.ParseBlock(dddd, 0)
 		fmt.Println(miningSuccessBlock.GetTransactions()[0].Serialize())
 	*/
+	if nextblockHeight < 288 * 100 {
+		time.Sleep(time.Second)
+	}
 	// mining success
 	if miningSuccessBlock != nil {
 		miningSuccessBlock.SetOriginMark("mining")
