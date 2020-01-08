@@ -16,6 +16,17 @@ import (
 	"time"
 )
 
+
+/**
+
+go build -o test/test1 miner/run/main/main.go && ./test/test1 test1.ini
+
+
+ */
+
+
+
+
 func main() {
 
 	c := make(chan os.Signal, 1)
@@ -140,11 +151,28 @@ func main() {
 
 	// download block datas
 	wsaddr := hinicnf.Section("").Key("first_download_block_datas_websocket_addr").MustString("")
+	wsurl1 := "ws://"+wsaddr+"/ws/download"
 	if wsaddr != "" {
 		//time.Sleep( time.Second * 3 )
-		hnode.DownloadBlocksDataFromWebSocketApi("ws://"+wsaddr+"/websocket", 14690)
+		hnode.DownloadBlocksDataFromWebSocketApi(wsurl1, 1)
 	}
-	//
+
+	// sync block
+	syncblockwsaddr := hinicnf.Section("").Key("sync_block_websocket_addr").MustString("")
+	wssyncurl := "ws://" + syncblockwsaddr + "/ws/sync"
+	if syncblockwsaddr != "" {
+		fmt.Println("Sync new block from", wssyncurl)
+		go func() {
+			for {
+				//time.Sleep(time.Minute * 4)
+				//time.Sleep(time.Second * 2)
+				err := hnode.SyncBlockFromWebSocketApi( wssyncurl )
+				if err != nil {
+					fmt.Println("SyncBlockFromWebSocketApi Error:", err.Error())
+				}
+			}
+		}()
+	}
 
 	s := <-c
 	fmt.Println("Got signal:", s)
