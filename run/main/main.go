@@ -164,7 +164,7 @@ func main() {
 		fmt.Println("Sync new block from", wssyncurl)
 		go func() {
 			for {
-				//time.Sleep(time.Minute * 4)
+				time.Sleep(time.Minute * 3)
 				//time.Sleep(time.Second * 2)
 				err := hnode.SyncBlockFromWebSocketApi( wssyncurl )
 				if err != nil {
