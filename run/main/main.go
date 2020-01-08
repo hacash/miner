@@ -159,13 +159,14 @@ func main() {
 
 	// sync block
 	syncblockwsaddr := hinicnf.Section("").Key("sync_block_websocket_addr").MustString("")
+	syncblocktimesleep := hinicnf.Section("").Key("sync_block_websocket_timesleep").MustUint(60 * 3)
 	wssyncurl := "ws://" + syncblockwsaddr + "/ws/sync"
 	if syncblockwsaddr != "" {
 		fmt.Println("Sync new block from", wssyncurl)
 		go func() {
 			for {
-				time.Sleep(time.Minute * 3)
-				//time.Sleep(time.Second * 2)
+				//time.Sleep(time.Minute * 3)
+				time.Sleep(time.Second * time.Duration(syncblocktimesleep))
 				err := hnode.SyncBlockFromWebSocketApi( wssyncurl )
 				if err != nil {
 					fmt.Println("SyncBlockFromWebSocketApi Error:", err.Error())
