@@ -20,7 +20,7 @@ import (
 /**
 
 go build -o test/test1 miner/run/main/main.go && ./test/test1 test1.ini
-
+go build -ldflags '-w -s' -o hacash_node_2020_01_09_3 miner/run/main/main.go
 
  */
 

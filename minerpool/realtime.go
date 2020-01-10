@@ -8,6 +8,7 @@ import (
 	"github.com/hacash/mint/coinbase"
 	"net"
 	"sync"
+	"sync/atomic"
 )
 
 type RealtimePeriod struct {
@@ -38,36 +39,33 @@ func NewRealtimePeriod(minerpool *MinerPool, block interfaces.Block) *RealtimePe
 	return per
 }
 
-func (r *RealtimePeriod) getAutoIncrementCoinbaseMsgNum(unlock bool) uint32 {
-	if !unlock {
-		r.changeLock.Lock()
-		defer r.changeLock.Unlock()
-	}
+func (r *RealtimePeriod) getAutoIncrementCoinbaseMsgNum() uint32 {
 
-	r.autoIncrementCoinbaseMsgNum += 1
+	atomic.AddUint32(&r.autoIncrementCoinbaseMsgNum, 1)
 	return r.autoIncrementCoinbaseMsgNum
 }
 
 func (r *RealtimePeriod) sendMiningStuffMsg(conn net.Conn) {
-
 	r.changeLock.Lock()
 	defer r.changeLock.Unlock()
 
 	msgobj := message.NewPowMasterMsg()
-	msgobj.CoinbaseMsgNum = fields.VarInt4(r.getAutoIncrementCoinbaseMsgNum(true))
+	msgobj.CoinbaseMsgNum = fields.VarInt4(r.getAutoIncrementCoinbaseMsgNum())
 	//fmt.Println("sendMiningStuffMsg", uint32(msgobj.CoinbaseMsgNum) )
 	coinbase.UpdateBlockCoinbaseMessageForMiner(r.targetBlock, uint32(msgobj.CoinbaseMsgNum))
 	r.targetBlock.SetMrklRoot(blocks.CalculateMrklRoot(r.targetBlock.GetTransactions()))
 	msgobj.BlockHeadMeta = r.targetBlock
 	// send data
 	data, _ := msgobj.Serialize()
-	conn.Write(data)
+	go conn.Write(data)
 }
 
 // find ok
 func (r *RealtimePeriod) successFindNewBlock(block interfaces.Block) {
 	if r.outputBlockCh != nil {
-		*r.outputBlockCh <- block // 挖出区块，传递给miner
+		go func() {
+			*r.outputBlockCh <- block // 挖出区块，传递给miner
+		}()
 	}
 }
 

@@ -42,29 +42,41 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 
 	for {
 
+		databuf := bytes.NewBuffer([]byte{})
+
+		READNEXTDATASEG:
+
+		//fmt.Println("READNEXTDATASEG")
+
 		rn, err := conn.Read(segdata)
 		if err != nil {
 			//fmt.Println(err)
 			break
 		}
 
+		//fmt.Println(segdata[0:rn])
+
+		databuf.Write( segdata[0:rn] )
+		data := databuf.Bytes()
+		rn = len(data)
+
 		//fmt.Println("MinerWorker: rn, err := conn.Read(segdata)", message.PowMasterMsgSize, len(segdata[0:rn]), segdata[0:rn])
 		//fmt.Println("MinerWorker: rn, err := conn.Read(segdata)", string(segdata[0:rn]))
 
-		if rn == len(MsgMarkTooMuchConnect) && bytes.Compare([]byte(MsgMarkTooMuchConnect), segdata[0:rn]) == 0 {
+		if rn == len(MsgMarkTooMuchConnect) && bytes.Compare([]byte(MsgMarkTooMuchConnect), data) == 0 {
 			// wait for min
 			fmt.Println("pool return: " + MsgMarkTooMuchConnect)
 			fmt.Println("There are too many ore pool connections. The connection has been refused. Please contact your ore pool service provider.")
 			fmt.Println("矿池连接数太多，已拒绝连接，请联系您的矿池服务商。")
 			os.Exit(0)
 
-		} else if rn == len(MsgMarkNotReadyYet) && bytes.Compare([]byte(MsgMarkNotReadyYet), segdata[0:rn]) == 0 {
+		} else if rn == len(MsgMarkNotReadyYet) && bytes.Compare([]byte(MsgMarkNotReadyYet), data) == 0 {
 			// wait for min
 			fmt.Println("pool return: " + MsgMarkNotReadyYet)
 			time.Sleep(time.Second * 5)
 			break
 
-		} else if rn == len(MsgMarkEndCurrentMining) && bytes.Compare([]byte(MsgMarkEndCurrentMining), segdata[0:rn]) == 0 {
+		} else if rn == len(MsgMarkEndCurrentMining) && bytes.Compare([]byte(MsgMarkEndCurrentMining), data) == 0 {
 
 			//fmt.Println( "  -  1  -  p.worker.StopMining() ", p.currentMiningStatusSuccess )
 			if p.currentMiningStatusSuccess == true {
@@ -84,13 +96,17 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 		} else if rn == message.PowMasterMsgSize {
 			// start mining
 			powmsg := message.NewPowMasterMsg()
-			powmsg.Parse(segdata[0:rn], 0)
+			powmsg.Parse(data, 0)
 			//fmt.Println("Excavate",  powmsg.CoinbaseMsgNum, powmsg.BlockHeadMeta)
 			fmt.Print("mining block height: ", powmsg.BlockHeadMeta.GetHeight(), ", cbmn:‹", powmsg.CoinbaseMsgNum, "›... ")
 			// do work
 			p.worker.SetCoinbaseMsgNum(uint32(powmsg.CoinbaseMsgNum))
-			time.Sleep(time.Second)
+			//time.Sleep(time.Second)
 			p.worker.Excavate(powmsg.BlockHeadMeta, p.miningOutputCh)
+		} else {
+
+			goto READNEXTDATASEG
+
 		}
 	}
 

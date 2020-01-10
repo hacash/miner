@@ -46,7 +46,7 @@ func (a *Account) successFindNewBlock(msg *message.PowMasterMsg) {
 	minerpool.saveFoundBlockHash(copyblock.GetHeight(), copyblock.Hash())
 	// settle 结算
 	go func() {
-		<-time.Tick(time.Second * 5) // 33 秒后去结算 period
+		<-time.Tick(time.Second * 33) // 33 秒后去结算 period
 		minerpool.settleOnePeriod(a.realtimePeriod)
 	}()
 }

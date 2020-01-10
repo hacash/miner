@@ -1,6 +1,7 @@
 package minerpool
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/hacash/core/fields"
 	"github.com/hacash/miner/message"
@@ -35,21 +36,20 @@ func (p *MinerPool) startServerListen() error {
 
 func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 
-	if p.currentTcpConnectingCount > int32(p.Config.TcpConnectMaxSize) {
-		conn.Write([]byte("too_many_connect"))
-		conn.Close() // 连接最大值
-		return
-	}
-
 	atomic.AddInt32(&p.currentTcpConnectingCount, 1)
 	defer func() {
 		atomic.AddInt32(&p.currentTcpConnectingCount, -1) // 减法
+		conn.Close()
 	}()
+
+	if p.currentTcpConnectingCount > int32(p.Config.TcpConnectMaxSize) {
+		conn.Write([]byte("too_many_connect"))
+		return
+	}
 
 	// 如果还没有挖区块，则返回关闭，隔一段时间再次连接
 	if p.currentRealtimePeriod == nil {
 		conn.Write([]byte("not_ready_yet"))
-		conn.Close()
 		return
 	}
 	curperiod := p.currentRealtimePeriod
@@ -67,19 +67,27 @@ func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 	segdata := make([]byte, 2048)
 
 	for {
+
+		readbuf := bytes.NewBuffer([]byte{})
+
+		READNEXTBUF:
+
 		rn, err := conn.Read(segdata)
 		if err != nil {
 			break
 		}
 
-		newbytes := make([]byte, rn)
-		copy(newbytes, segdata[0:rn])
+		readbuf.Write( segdata[0:rn] )
+
+		newbytes := readbuf.Bytes()
+
+
 		//fmt.Println("MinerPool: rn, err := conn.Read(segdata)", segdata[0:rn])
 
-		if rn == 21 && client.address == nil { // post address
+		if len(newbytes) == 21 { // post address
 
-			//fmt.Println(segdata[0:21])
 			client.address = fields.Address(newbytes[0:21])
+			// fmt.Println( client.address.ToReadable() )
 			account := p.loadAccountAndAddPeriodByAddress(client.address)
 			//fmt.Println("account.activeClients.Add(client) // add")
 			account.activeClients.Add(client) // add
@@ -87,7 +95,7 @@ func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 			// send mining stuff
 			client.belongAccount.realtimePeriod.sendMiningStuffMsg(client.conn)
 
-		} else if rn == message.PowMasterMsgSize && client.belongAccount != nil {
+		} else if len(newbytes) == message.PowMasterMsgSize && client.belongAccount != nil {
 
 			//fmt.Println( "message.PowMasterMsgSize", segdata[0:rn] )
 
@@ -95,12 +103,18 @@ func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 			powresult.Parse(newbytes, 0)
 			client.postPowResult(powresult) // return pow results
 
+		} else {
+
+			goto READNEXTBUF
+
 		}
+
 	}
 
 	// end
 	//fmt.Println("client.belongAccount.activeClients.Remove(client)")
-	client.belongAccount.activeClients.Remove(client) // remove
-	conn.Close()
+	if client.belongAccount != nil {
+		client.belongAccount.activeClients.Remove(client) // remove
+	}
 
 }

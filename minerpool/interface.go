@@ -35,9 +35,9 @@ func (p *MinerPool) Excavate(inputBlock interfaces.Block, outputBlockCh chan int
 		p.prevRealtimePeriod.endCurrentMining()
 		// 确认应得的奖励，并开始打币流程
 		go func() {
-			time.Sleep(time.Second)
+			time.Sleep(time.Second * 3)
 			p.confirmRewards(inputBlock.GetHeight(), p.prevRealtimePeriod)
-			time.Sleep(time.Millisecond * 150)
+			time.Sleep(time.Second * 1)
 			p.startDoTransfer(inputBlock.GetHeight(), p.prevRealtimePeriod)
 		}()
 
