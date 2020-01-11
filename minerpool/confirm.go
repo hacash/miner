@@ -2,8 +2,8 @@ package minerpool
 
 // 	确认收益
 func (p *MinerPool) confirmRewards(curblkheight uint64, confirmPeriod *RealtimePeriod) {
-	p.periodChange.Lock()
-	defer p.periodChange.Unlock()
+	//p.periodChange.Lock()
+	//defer p.periodChange.Unlock()
 
 	delayedCheckHeight := uint64(p.Config.DelayedConfirmRewardHeight)
 

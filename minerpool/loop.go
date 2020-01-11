@@ -13,6 +13,11 @@ func (p *MinerPool) loop() {
 			*/
 			// do add success
 			obj.account.successFindNewBlock(obj.msg)
+
+
+		case period := <- p.settleRealtimePeriodCh:
+			p.settleOnePeriod( period )
+
 		}
 	}
 

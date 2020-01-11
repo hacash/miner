@@ -10,8 +10,8 @@ import (
 
 // 开始判断后打币
 func (p *MinerPool) startDoTransfer(curblkheight uint64, period *RealtimePeriod) {
-	p.periodChange.Lock()
-	defer p.periodChange.Unlock()
+	//p.periodChange.Lock()
+	//defer p.periodChange.Unlock()
 
 	if curblkheight%uint64(p.Config.DoTransferRewardPeriodHeight) != 0 {
 		return

@@ -209,8 +209,8 @@ func (s *AccountStoreData) Size() uint32 {
 ////////////////////////////////////////////////////////////
 
 func (p *MinerPool) loadAccountAndAddPeriodByAddress(address fields.Address) *Account {
-	p.periodChange.Lock()
-	defer p.periodChange.Unlock()
+	//p.periodChange.Lock()
+	//defer p.periodChange.Unlock()
 
 	// check current
 	if p.currentRealtimePeriod != nil {

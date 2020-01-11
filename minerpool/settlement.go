@@ -9,8 +9,8 @@ import (
 
 // 结算一个周期
 func (p *MinerPool) settleOnePeriod(period *RealtimePeriod) {
-	p.periodChange.Lock()
-	defer p.periodChange.Unlock()
+	//p.periodChange.Lock()
+	//defer p.periodChange.Unlock()
 
 	successBlock := period.miningSuccessBlock
 	if successBlock == nil {

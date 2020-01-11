@@ -11,11 +11,8 @@ import (
 func (a *Account) successFindNewBlock(msg *message.PowMasterMsg) {
 	minerpool := a.realtimePeriod.minerpool
 
-	minerpool.periodChange.Lock()
-	defer minerpool.periodChange.Unlock()
-
-	// mark new Period
-	minerpool.successFindNewBlockOnce = true
+	//minerpool.periodChange.Lock()
+	//defer minerpool.periodChange.Unlock()
 
 	// copy data
 	copyblock := a.workBlock.CopyForMining()
@@ -33,6 +30,10 @@ func (a *Account) successFindNewBlock(msg *message.PowMasterMsg) {
 	copyblock.SetMrklRoot(blocks.CalculateMrklRoot(copyblock.GetTransactions()))
 	copyblock.SetOriginMark("mining") // set origin
 	copyblock.Fresh()
+
+	// mark new Period
+	minerpool.successFindNewBlockHashOnce = copyblock.Hash()
+
 	//fmt.Println("--------")
 	//fmt.Println(copyblock)
 	//fmt.Println("========================================")
@@ -47,6 +48,6 @@ func (a *Account) successFindNewBlock(msg *message.PowMasterMsg) {
 	// settle 结算
 	go func() {
 		<-time.Tick(time.Second * 33) // 33 秒后去结算 period
-		minerpool.settleOnePeriod(a.realtimePeriod)
+		minerpool.settleRealtimePeriodCh <- a.realtimePeriod
 	}()
 }

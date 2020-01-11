@@ -75,10 +75,12 @@ func (c *Client) postPowResult(msg *message.PowMasterMsg) {
 			return
 		}
 		// success find block
-		minerpool.successFindBlockCh <- &findBlockMsg{
-			msg:     msg,
-			account: c.belongAccount,
-		}
+		go func() {
+			minerpool.successFindBlockCh <- &findBlockMsg{
+				msg:     msg,
+				account: c.belongAccount,
+			}
+		}()
 		return
 	}
 }
