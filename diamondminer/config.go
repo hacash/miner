@@ -47,6 +47,14 @@ func NewDiamondMinerConfig(cnffile *sys.Inicnf) *DiamondMinerConfig {
 		log.Fatal("[Diamond Miner Config Error] fee password cannot be empty.")
 		os.Exit(0)
 	}
+	feeamount, err2 := fields.NewAmountFromFinString( cnfsection.Key("fee_amount").MustString("ㄜ4:244") )
+	if err2 == nil {
+		cnf.FeeAmount = feeamount
+	} else {
+		fmt.Println("[Diamond Miner Config Error] FeeAmount:", err)
+		os.Exit(0)
+	}
+
 	var privkey []byte = nil
 	if len(password) == 64 {
 		key, err := hex.DecodeString(password)
