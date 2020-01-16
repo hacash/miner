@@ -11,10 +11,17 @@ import (
 
 
 type Client struct {
-
 	conn *net.TCPConn
+	workBlockHeight uint64
 	pingtime *time.Time
+}
 
+func NewClient(conn *net.TCPConn) *Client {
+	return &Client{
+		conn: conn,
+		workBlockHeight: 0,
+		pingtime: nil,
+	}
 }
 
 type MinerWorker struct {

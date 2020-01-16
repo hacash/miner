@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	"github.com/hacash/core/fields"
 	"github.com/hacash/miner/message"
 	"time"
 )
@@ -27,8 +28,11 @@ func (p *MinerWorker) loop() {
 			}
 
 		case <-	sendPingMsgToPoolServer.C:
-			if p.client != nil {
-				p.client.conn.Write([]byte("ping"))
+			if p.client != nil && p.client.workBlockHeight > 0 {
+				pingmsg := []byte("ping")
+				tarhei := fields.VarInt5(p.client.workBlockHeight)
+				heibts, _ := tarhei.Serialize()
+				p.client.conn.Write( append(pingmsg, heibts...) )
 				ctime := time.Now()
 				p.client.pingtime = &ctime
 				//fmt.Println("send ping", p.client)

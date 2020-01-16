@@ -74,7 +74,7 @@ func (r *RealtimePeriod) successFindNewBlock(block interfaces.Block) {
 func (r *RealtimePeriod) IsOverEndBlock(blkheibts []byte) bool {
 	tarhei := fields.VarInt5(0)
 	tarhei.Parse(blkheibts[0:5], 0)
-	return uint64(tarhei) == r.targetBlock.GetHeight()
+	return uint64(tarhei) != r.targetBlock.GetHeight()
 }
 
 // 结束当前挖矿

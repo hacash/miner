@@ -33,10 +33,7 @@ func (p *MinerWorker) startConnect() error {
 }
 
 func (p *MinerWorker) handleConn(conn *net.TCPConn) {
-	client := &Client{
-		conn:conn,
-		pingtime:nil,
-	}
+	client := NewClient(conn)
 	p.client = client
 	// send reward address
 	//fmt.Println([]byte(p.config.Rewards))
@@ -97,21 +94,27 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 				break
 			} else {
 				// 结束挖矿，等待上报挖矿结果
+				fmt.Print("ending... ")
 				p.worker.StopMining()
 			}
 
 			//
 
 		} else if rn == message.PowMasterMsgSize {
+
+
 			// start mining
 			powmsg := message.NewPowMasterMsg()
 			powmsg.Parse(data, 0)
+			client.workBlockHeight = powmsg.BlockHeadMeta.GetHeight()
 			//fmt.Println("Excavate",  powmsg.CoinbaseMsgNum, powmsg.BlockHeadMeta)
 			fmt.Print("mining block height: ", powmsg.BlockHeadMeta.GetHeight(), ", cbmn:‹", powmsg.CoinbaseMsgNum, "›... ")
 			// do work
 			p.worker.SetCoinbaseMsgNum(uint32(powmsg.CoinbaseMsgNum))
 			//time.Sleep(time.Second)
 			p.worker.Excavate(powmsg.BlockHeadMeta, p.miningOutputCh)
+
+
 		} else {
 
 			goto READNEXTDATASEG
