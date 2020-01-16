@@ -10,8 +10,8 @@ import (
 
 func (p *MinerWorker) loop() {
 
-	sendPingMsgToPoolServer := time.NewTicker(time.Second * 15)
-	checkPongMsgReturn := time.NewTicker(time.Second * 4)
+	sendPingMsgToPoolServer := time.NewTicker(time.Second * 20)
+	checkPongMsgReturn := time.NewTicker(time.Second * 15)
 	restartTick := time.NewTicker(time.Second * 13)
 	notEndSuccessMsg := time.NewTicker(time.Minute * 3)
 
@@ -31,21 +31,19 @@ func (p *MinerWorker) loop() {
 				p.client.conn.Write([]byte("ping"))
 				ctime := time.Now()
 				p.client.pingtime = &ctime
-				fmt.Println("send ping")
+				//fmt.Println("send ping", p.client)
 			}
 
 		case <- checkPongMsgReturn.C:
-			fmt.Print("chenk pong... ")
+			//fmt.Print("chenk pong... ", p.client)
 			if p.client != nil && p.client.pingtime != nil {
-				if p.client.pingtime.Add(time.Second * time.Duration(4)).After(time.Now()) {
+				if p.client.pingtime.Add(time.Second * time.Duration(5)).After(time.Now()) {
 					p.client.conn.Close() // force close with no pong
-					fmt.Println(" force close with no pong")
+					//fmt.Println(" force close with no pong")
 				}else{
-					fmt.Println("ok")
+					//fmt.Println("ok")
 				}
 			}
-
-
 
 		case msg := <-p.miningOutputCh:
 
