@@ -33,7 +33,6 @@ func (a *Account) successFindNewBlock(msg *message.PowMasterMsg) {
 
 	// mark new Period
 	minerpool.successFindNewBlockHashOnce = copyblock.Hash()
-
 	//fmt.Println("--------")
 	//fmt.Println(copyblock)
 	//fmt.Println("========================================")

@@ -2,6 +2,7 @@ package minerpool
 
 import (
 	"github.com/hacash/core/interfaces"
+	"sync/atomic"
 	"time"
 )
 
@@ -36,6 +37,7 @@ func (p *MinerPool) Excavate(inputBlock interfaces.Block, outputBlockCh chan int
 	}
 
 	// 设置新的挖矿区块，以供客户端请求
+	atomic.StoreUint32( &p.currentRealtimePeriod.autoIncrementCoinbaseMsgNum, 0 )
 	p.currentRealtimePeriod.targetBlock = inputBlock
 	p.currentRealtimePeriod.outputBlockCh = &outputBlockCh
 

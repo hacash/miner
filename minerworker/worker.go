@@ -6,7 +6,16 @@ import (
 	"github.com/hacash/miner/message"
 	"net"
 	"os"
+	"time"
 )
+
+
+type Client struct {
+
+	conn *net.TCPConn
+	pingtime *time.Time
+
+}
 
 type MinerWorker struct {
 	config *MinerWorkerConfig
@@ -18,7 +27,8 @@ type MinerWorker struct {
 
 	currentMiningStatusSuccess bool
 
-	conn *net.TCPConn
+	client *Client
+
 }
 
 func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
@@ -26,7 +36,7 @@ func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
 	pool := &MinerWorker{
 		currentMiningStatusSuccess: false,
 		config:                     cnf,
-		conn:                       nil,
+		client:                       nil,
 		miningOutputCh:             make(chan message.PowMasterMsg, 2),
 		immediateStartConnectCh:    make(chan bool, 2),
 	}

@@ -84,7 +84,14 @@ func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 
 		//fmt.Println("MinerPool: rn, err := conn.Read(segdata)", segdata[0:rn])
 
-		if len(newbytes) == 21 { // post address
+		if len(newbytes) == 4 && string(newbytes) == "ping" {
+			if client.belongAccount.realtimePeriod.IsEnd() {
+				conn.Write([]byte("end_current_mining")) // return end mining
+			}else{
+				conn.Write([]byte("pong")) // ok pong
+			}
+
+		}else if len(newbytes) == 21 { // post address
 
 			client.address = fields.Address(newbytes[0:21])
 			// fmt.Println( client.address.ToReadable() )

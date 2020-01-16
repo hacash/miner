@@ -10,6 +10,8 @@ import (
 
 func (p *MinerWorker) loop() {
 
+	sendPingMsgToPoolServer := time.NewTicker(time.Second * 15)
+	checkPongMsgReturn := time.NewTicker(time.Second * 4)
 	restartTick := time.NewTicker(time.Second * 13)
 	notEndSuccessMsg := time.NewTicker(time.Minute * 3)
 
@@ -19,10 +21,31 @@ func (p *MinerWorker) loop() {
 		case <-notEndSuccessMsg.C:
 			if p.currentMiningStatusSuccess {
 				p.currentMiningStatusSuccess = false
-				if p.conn != nil {
-					p.conn.Close() // restart next mining
+				if p.client != nil {
+					p.client.conn.Close() // restart next mining
 				}
 			}
+
+		case <-	sendPingMsgToPoolServer.C:
+			if p.client != nil {
+				p.client.conn.Write([]byte("ping"))
+				ctime := time.Now()
+				p.client.pingtime = &ctime
+				fmt.Println("send ping")
+			}
+
+		case <- checkPongMsgReturn.C:
+			fmt.Print("chenk pong... ")
+			if p.client != nil && p.client.pingtime != nil {
+				if p.client.pingtime.Add(time.Second * time.Duration(4)).After(time.Now()) {
+					p.client.conn.Close() // force close with no pong
+					fmt.Println(" force close with no pong")
+				}else{
+					fmt.Println("ok")
+				}
+			}
+
+
 
 		case msg := <-p.miningOutputCh:
 
@@ -34,8 +57,8 @@ func (p *MinerWorker) loop() {
 
 			if msg.Status == message.PowMasterMsgStatusSuccess || msg.Status == message.PowMasterMsgStatusMostPowerHash {
 				msgbytes, _ := msg.Serialize()
-				if p.conn != nil {
-					p.conn.Write(msgbytes) // send success
+				if p.client != nil {
+					p.client.conn.Write(msgbytes) // send success
 				}
 			}
 			if msg.Status == message.PowMasterMsgStatusSuccess {
@@ -44,8 +67,8 @@ func (p *MinerWorker) loop() {
 			}
 			if msg.Status == message.PowMasterMsgStatusMostPowerHash {
 				fmt.Print("upload power hash: ", hex.EncodeToString(msg.BlockHeadMeta.Hash()[0:12]), " ok.")
-				if p.conn != nil {
-					p.conn.Close() // next mining
+				if p.client != nil {
+					p.client.conn.Close() // next mining
 				}
 			}
 
@@ -56,7 +79,7 @@ func (p *MinerWorker) loop() {
 			}
 
 		case <-restartTick.C:
-			if p.conn == nil {
+			if p.client == nil {
 				p.immediateStartConnectCh <- true
 			}
 

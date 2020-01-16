@@ -13,6 +13,8 @@ const (
 	MsgMarkNotReadyYet      = "not_ready_yet"
 	MsgMarkEndCurrentMining = "end_current_mining"
 	MsgMarkTooMuchConnect   = "too_many_connect"
+	MsgMarkPong             = "pong"
+
 )
 
 func (p *MinerWorker) startConnect() error {
@@ -31,8 +33,11 @@ func (p *MinerWorker) startConnect() error {
 }
 
 func (p *MinerWorker) handleConn(conn *net.TCPConn) {
-	p.conn = conn
-
+	client := &Client{
+		conn:conn,
+		pingtime:nil,
+	}
+	p.client = client
 	// send reward address
 	//fmt.Println([]byte(p.config.Rewards))
 	conn.Write(p.config.Rewards)
@@ -63,7 +68,11 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 		//fmt.Println("MinerWorker: rn, err := conn.Read(segdata)", message.PowMasterMsgSize, len(segdata[0:rn]), segdata[0:rn])
 		//fmt.Println("MinerWorker: rn, err := conn.Read(segdata)", string(segdata[0:rn]))
 
-		if rn == len(MsgMarkTooMuchConnect) && bytes.Compare([]byte(MsgMarkTooMuchConnect), data) == 0 {
+		if rn == len(MsgMarkPong) && bytes.Compare([]byte(MsgMarkPong), data) == 0 {
+
+			client.pingtime = nil // reset ping time
+
+		}else if rn == len(MsgMarkTooMuchConnect) && bytes.Compare([]byte(MsgMarkTooMuchConnect), data) == 0 {
 			// wait for min
 			fmt.Println("pool return: " + MsgMarkTooMuchConnect)
 			fmt.Println("There are too many ore pool connections. The connection has been refused. Please contact your ore pool service provider.")
@@ -82,8 +91,8 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 			if p.currentMiningStatusSuccess == true {
 				p.currentMiningStatusSuccess = false // reset
 				// 是我挖出了本区块，立即开始下一轮挖矿
-				if p.conn != nil {
-					p.conn.Close()
+				if p.client != nil {
+					p.client.conn.Close()
 				}
 				break
 			} else {
@@ -116,7 +125,7 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 
 	p.worker.StopMining()
 
-	p.conn = nil
+	p.client = nil
 
 	p.immediateStartConnectCh <- true
 }
