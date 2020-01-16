@@ -24,14 +24,12 @@ type RealtimePeriod struct {
 
 	outputBlockCh *chan interfaces.Block
 
-	isEnd bool
 
 	changeLock sync.Mutex
 }
 
 func NewRealtimePeriod(minerpool *MinerPool, block interfaces.Block) *RealtimePeriod {
 	per := &RealtimePeriod{
-		isEnd : false,
 		miningSuccessBlock:          nil,
 		minerpool:                   minerpool,
 		targetBlock:                 block,
@@ -73,16 +71,14 @@ func (r *RealtimePeriod) successFindNewBlock(block interfaces.Block) {
 }
 
 
-func (r *RealtimePeriod) IsEnd() bool {
-	return r.isEnd
+func (r *RealtimePeriod) IsOverEndBlock(blkheibts []byte) bool {
+	tarhei := fields.VarInt5(0)
+	tarhei.Parse(blkheibts[0:5], 0)
+	return uint64(tarhei) == r.targetBlock.GetHeight()
 }
 
 // 结束当前挖矿
 func (r *RealtimePeriod) endCurrentMining() {
-	if r.isEnd {
-		return
-	}
-	r.isEnd = true
 
 	//fmt.Println("+++++++++++++++++++++ endCurrentMining ")
 	go func() {

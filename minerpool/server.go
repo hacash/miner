@@ -84,8 +84,8 @@ func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 
 		//fmt.Println("MinerPool: rn, err := conn.Read(segdata)", segdata[0:rn])
 
-		if len(newbytes) == 4 && string(newbytes) == "ping" {
-			if client.belongAccount.realtimePeriod.IsEnd() {
+		if len(newbytes) == 4 + 5 && string(newbytes[0:4]) == "ping" {
+			if client.belongAccount.realtimePeriod.IsOverEndBlock(newbytes[4:]) {
 				conn.Write([]byte("end_current_mining")) // return end mining
 			}else{
 				conn.Write([]byte("pong")) // ok pong
