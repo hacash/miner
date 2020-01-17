@@ -54,7 +54,7 @@ func (p *MinerWorker) loop() {
 			//fmt.Println( "msg := <- p.miningOutputCh:")
 			//fmt.Println("msg: ", msg.CoinbaseMsgNum, msg.Status, msg.NonceBytes, msg)
 
-			if msg.BlockHeadMeta.GetHeight() == p.client.workBlockHeight {
+			if p.client != nil && msg.BlockHeadMeta.GetHeight() == p.client.workBlockHeight {
 
 				msg.BlockHeadMeta.SetNonce(binary.BigEndian.Uint32(msg.NonceBytes))
 				msg.BlockHeadMeta.Fresh()
