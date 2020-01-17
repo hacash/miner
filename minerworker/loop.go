@@ -54,24 +54,28 @@ func (p *MinerWorker) loop() {
 			//fmt.Println( "msg := <- p.miningOutputCh:")
 			//fmt.Println("msg: ", msg.CoinbaseMsgNum, msg.Status, msg.NonceBytes, msg)
 
-			msg.BlockHeadMeta.SetNonce(binary.BigEndian.Uint32(msg.NonceBytes))
-			msg.BlockHeadMeta.Fresh()
+			if msg.BlockHeadMeta.GetHeight() == p.client.workBlockHeight {
 
-			if msg.Status == message.PowMasterMsgStatusSuccess || msg.Status == message.PowMasterMsgStatusMostPowerHash {
-				msgbytes, _ := msg.Serialize()
-				if p.client != nil {
-					p.client.conn.Write(msgbytes) // send success
+				msg.BlockHeadMeta.SetNonce(binary.BigEndian.Uint32(msg.NonceBytes))
+				msg.BlockHeadMeta.Fresh()
+
+				if msg.Status == message.PowMasterMsgStatusSuccess || msg.Status == message.PowMasterMsgStatusMostPowerHash {
+					msgbytes, _ := msg.Serialize()
+					if p.client != nil {
+						p.client.conn.Write(msgbytes) // send success
+					}
 				}
-			}
-			if msg.Status == message.PowMasterMsgStatusSuccess {
-				p.currentMiningStatusSuccess = true // set mining status
-				fmt.Print("OK.\n\n== ⬤ == Successfully mining block height: ", msg.BlockHeadMeta.GetHeight(), ", hash: ", msg.BlockHeadMeta.Hash().ToHex(), ", rewards: ", p.config.Rewards.ToReadable(), "\n")
-			}
-			if msg.Status == message.PowMasterMsgStatusMostPowerHash {
-				fmt.Print("upload power hash: ", hex.EncodeToString(msg.BlockHeadMeta.Hash()[0:12]), " ok.")
-				if p.client != nil {
-					p.client.conn.Close() // next mining
+				if msg.Status == message.PowMasterMsgStatusSuccess {
+					p.currentMiningStatusSuccess = true // set mining status
+					fmt.Print("OK.\n\n== ⬤ == Successfully mining block height: ", msg.BlockHeadMeta.GetHeight(), ", hash: ", msg.BlockHeadMeta.Hash().ToHex(), ", rewards: ", p.config.Rewards.ToReadable(), "\n")
 				}
+				if msg.Status == message.PowMasterMsgStatusMostPowerHash {
+					fmt.Print("upload power hash: ", hex.EncodeToString(msg.BlockHeadMeta.Hash()[0:12]), " ok.")
+					if p.client != nil {
+						p.client.conn.Close() // next mining
+					}
+				}
+
 			}
 
 		case <-p.immediateStartConnectCh:

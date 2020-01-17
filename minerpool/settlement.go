@@ -3,9 +3,45 @@ package minerpool
 import (
 	"fmt"
 	"github.com/hacash/core/fields"
+	"github.com/hacash/core/interfaces"
 	"github.com/hacash/mint/coinbase"
 	"math/big"
 )
+
+
+type SettlementPeriod struct {
+	period *RealtimePeriod
+	miningSuccessAccount *Account
+	successBlockHeight uint64
+	successBlockHash fields.Hash
+}
+
+
+
+func (p *MinerPool) createSettlementPeriod(account *Account, period *RealtimePeriod, successBlock interfaces.Block) {
+	if p.currentRealtimePeriod == period {
+
+	}
+
+
+
+}
+
+
+
+
+
+
+
+func (p *MinerPool) settleOneSuccessPeriod(period *SettlementPeriod) {
+
+
+}
+
+
+
+
+
 
 // 结算一个周期
 func (p *MinerPool) settleOnePeriod(period *RealtimePeriod) {
@@ -37,13 +73,13 @@ func (p *MinerPool) settleOnePeriod(period *RealtimePeriod) {
 		}
 		if acc.miningSuccessBlock != nil {
 			minerAccount = acc // 成功挖出区块的用户
-		} else {
-			// 其他矿工统计算力, 拷贝值，避免运算过程中修改
-			worth := new(big.Int).Add(big.NewInt(0), acc.realtimePowWorth)
-			otherAccounts = append(otherAccounts, acc)
-			addressPowWorth[key] = worth
-			totalPowWorth = new(big.Int).Add(totalPowWorth, worth)
 		}
+		// 其他矿工统计算力, 拷贝值，避免运算过程中修改
+		worth := new(big.Int).Add(big.NewInt(0), acc.realtimePowWorth)
+		otherAccounts = append(otherAccounts, acc)
+		addressPowWorth[key] = worth
+		totalPowWorth = new(big.Int).Add(totalPowWorth, worth)
+
 	}
 	if minerAccount == nil {
 		return
@@ -53,7 +89,8 @@ func (p *MinerPool) settleOnePeriod(period *RealtimePeriod) {
 	rwdcoin := coinbase.BlockCoinBaseRewardNumber(blockHeight)
 	totalReward := int64(rwdcoin) * 10000 * 10000 // 单位：铢
 	totalReward = totalReward * int64((1-p.Config.FeePercentage)*10000) / 10000
-	partReward := totalReward / 2
+	part1of3Reward := totalReward / 3
+	part2of3Reward := part1of3Reward * 2
 	var rwdAccounts = make([]*Account, 0)
 	for _, acc := range otherAccounts {
 		if totalPowWorth.Cmp(big.NewInt(0)) == 0 {
@@ -61,7 +98,7 @@ func (p *MinerPool) settleOnePeriod(period *RealtimePeriod) {
 		}
 		num1 := new(big.Int).Mul(addressPowWorth[string(acc.address)], pernum)
 		num2 := new(big.Int).Div(num1, totalPowWorth)
-		reward := num2.Int64() * partReward / pernum.Int64()
+		reward := num2.Int64() * part2of3Reward / pernum.Int64()
 		if reward > 0 {
 			rwdAccounts = append(rwdAccounts, acc)
 			acc.storeData.appendUnconfirmedRewards(uint32(blockHeight), uint64(reward))
@@ -74,7 +111,7 @@ func (p *MinerPool) settleOnePeriod(period *RealtimePeriod) {
 		// 如果只有一个账户挖矿，则拿到全部奖励
 		minerAccount.storeData.appendUnconfirmedRewards(uint32(blockHeight), uint64(totalReward))
 	} else {
-		minerAccount.storeData.appendUnconfirmedRewards(uint32(blockHeight), uint64(partReward))
+		minerAccount.storeData.appendUnconfirmedRewards(uint32(blockHeight), uint64(part1of3Reward))
 	}
 	err = p.saveAccountStoreData(minerAccount)
 	for _, acc := range rwdAccounts {
