@@ -1,4 +1,4 @@
-package minerworker
+﻿package minerworker
 
 import (
 	"bytes"
@@ -102,7 +102,7 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 
 		} else if rn == message.PowMasterMsgSize {
 
-
+			p.worker.StopMining()
 			// start mining
 			powmsg := message.NewPowMasterMsg()
 			powmsg.Parse(data, 0)
