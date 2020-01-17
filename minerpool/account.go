@@ -17,7 +17,7 @@ type Account struct {
 
 	address fields.Address // 获得奖励地址
 
-	workBlock interfaces.Block
+	//workBlock interfaces.Block
 
 	activeClients mapset.Set // [*Client] // 正在连接的客户端
 
@@ -35,7 +35,7 @@ func NewAccountByPeriod(address fields.Address, period *RealtimePeriod) *Account
 		miningSuccessBlock: nil,
 		realtimePeriod:     period,
 		address:            address,
-		workBlock:          period.targetBlock,
+		//workBlock:          period.targetBlock,
 		activeClients:      mapset.NewSet(),
 		realtimePowWorth:   new(big.Int),
 		storeData:          nil,
@@ -47,7 +47,7 @@ func (a Account) CopyByPeriod(period *RealtimePeriod) *Account {
 	acc := &Account{
 		realtimePeriod:   period,
 		address:          append([]byte{}, a.address...),
-		workBlock:        period.targetBlock,
+		//workBlock:        period.targetBlock,
 		activeClients:    mapset.NewSet(),
 		realtimePowWorth: new(big.Int),
 		storeData:        a.storeData,

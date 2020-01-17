@@ -15,7 +15,7 @@ func (a *Account) successFindNewBlock(msg *message.PowMasterMsg) {
 	//defer minerpool.periodChange.Unlock()
 
 	// copy data
-	copyblock := a.workBlock.CopyForMining()
+	copyblock := a.realtimePeriod.targetBlock.CopyForMining()
 
 	//fmt.Println("========================================")
 	//fmt.Println(msg.BlockHeadMeta)
