@@ -21,7 +21,8 @@ func (p *MinerPool) Excavate(inputBlock interfaces.Block, outputBlockCh chan int
 	prevblockMiningSuccess := p.successFindNewBlockHashOnce != nil &&
 		p.successFindNewBlockHashOnce.Equal( inputBlock.GetPrevHash() )
 
-	var endCurrent = false
+	var endPrev bool = false
+	var sendCurrentRestartMining bool = false
 
 	if p.currentRealtimePeriod == nil {
 		p.currentRealtimePeriod = NewRealtimePeriod(p, inputBlock)
@@ -31,8 +32,10 @@ func (p *MinerPool) Excavate(inputBlock interfaces.Block, outputBlockCh chan int
 			p.prevRealtimePeriod = p.currentRealtimePeriod
 			// create next period
 			p.currentRealtimePeriod = NewRealtimePeriod(p, inputBlock)
+			// end current
+			endPrev = true
 		}else{
-			endCurrent = true
+			sendCurrentRestartMining = true
 		}
 	}
 
@@ -41,13 +44,17 @@ func (p *MinerPool) Excavate(inputBlock interfaces.Block, outputBlockCh chan int
 	p.currentRealtimePeriod.targetBlock = inputBlock
 	p.currentRealtimePeriod.outputBlockCh = &outputBlockCh
 
-	if endCurrent {
-		p.currentRealtimePeriod.endCurrentMining()
+	if endPrev {
+		p.prevRealtimePeriod.endCurrentMining()
+	}
+
+	if sendCurrentRestartMining {
+		p.currentRealtimePeriod.sendMiningStuffMsgToAllClient()
 	}
 
 	// 结束当前的全部挖矿
 	if p.prevRealtimePeriod != nil {
-		p.prevRealtimePeriod.endCurrentMining()
+		//p.prevRealtimePeriod.endCurrentMining()
 		// 确认应得的奖励，并开始打币流程
 		if prevblockMiningSuccess {
 			go func() {

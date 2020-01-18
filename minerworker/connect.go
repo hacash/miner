@@ -11,8 +11,8 @@ import (
 
 const (
 	MsgMarkNotReadyYet      = "not_ready_yet"
-	MsgMarkEndCurrentMining = "end_current_mining"
 	MsgMarkTooMuchConnect   = "too_many_connect"
+	MsgMarkEndCurrentMining = "end_current_mining"
 	MsgMarkPong             = "pong"
 
 )
@@ -24,7 +24,7 @@ func (p *MinerWorker) startConnect() error {
 		return err
 	}
 
-	fmt.Print("\nconnect ", p.config.PoolAddress.String(), ", ")
+	fmt.Print("connecting... ")
 
 	go p.handleConn(conn)
 
@@ -84,21 +84,18 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 
 		} else if rn == len(MsgMarkEndCurrentMining) && bytes.Compare([]byte(MsgMarkEndCurrentMining), data) == 0 {
 
+			p.statusMutex.Lock()
 			//fmt.Println( "  -  1  -  p.worker.StopMining() ", p.currentMiningStatusSuccess )
-			if p.currentMiningStatusSuccess == true {
-				p.currentMiningStatusSuccess = false // reset
-				// 是我挖出了本区块，立即开始下一轮挖矿
-				if p.client != nil {
-					p.client.conn.Close()
-				}
-				break
-			} else {
-				// 结束挖矿，等待上报挖矿结果
+			// 结束挖矿，等待上报挖矿结果
+			p.worker.StopMining()
+			if client.setend {
+				client.conn.Close() // close
+			}else{
 				fmt.Print("ending... ")
-				p.worker.StopMining()
+				client.setend = true
 			}
+			p.statusMutex.Unlock()
 
-			//
 
 		} else if rn == message.PowMasterMsgSize {
 
@@ -106,9 +103,12 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 			// start mining
 			powmsg := message.NewPowMasterMsg()
 			powmsg.Parse(data, 0)
+
 			client.workBlockHeight = powmsg.BlockHeadMeta.GetHeight()
+			p.clients.Add(client)
+
 			//fmt.Println("Excavate",  powmsg.CoinbaseMsgNum, powmsg.BlockHeadMeta)
-			fmt.Print("mining block height: ", powmsg.BlockHeadMeta.GetHeight(), ", cbmn:‹", powmsg.CoinbaseMsgNum, "›... ")
+			fmt.Print("do mining height:‹", powmsg.BlockHeadMeta.GetHeight(), "›, cbmn:", powmsg.CoinbaseMsgNum, "... ")
 			// do work
 			p.worker.SetCoinbaseMsgNum(uint32(powmsg.CoinbaseMsgNum))
 			//time.Sleep(time.Second)

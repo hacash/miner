@@ -11,14 +11,15 @@ import (
 
 func (p *MinerWorker) loop() {
 
-	sendPingMsgToPoolServer := time.NewTicker(time.Second * 15)
+	sendPingMsgToPoolServer := time.NewTicker(time.Second * 35)
 	checkPongMsgReturn := time.NewTicker(time.Second * 4)
 	restartTick := time.NewTicker(time.Second * 13)
-	notEndSuccessMsg := time.NewTicker(time.Minute * 3)
+	//notEndSuccessMsg := time.NewTicker(time.Minute * 3)
 
 	for {
 		select {
 
+		/*
 		case <-notEndSuccessMsg.C:
 			if p.currentMiningStatusSuccess {
 				p.currentMiningStatusSuccess = false
@@ -26,6 +27,7 @@ func (p *MinerWorker) loop() {
 					p.client.conn.Close() // restart next mining
 				}
 			}
+		 */
 
 		case <-	sendPingMsgToPoolServer.C:
 			if p.client != nil && p.client.workBlockHeight > 0 {
@@ -52,31 +54,39 @@ func (p *MinerWorker) loop() {
 		case msg := <-p.miningOutputCh:
 
 			//fmt.Println( "msg := <- p.miningOutputCh:")
-			//fmt.Println("msg: ", msg.CoinbaseMsgNum, msg.Status, msg.NonceBytes, msg)
+			//fmt.Println("msg: ", msg.BlockHeadMeta.GetHeight(), msg.CoinbaseMsgNum, msg.Status, msg.NonceBytes, msg)
+			p.statusMutex.Lock()
 
-			if p.client != nil && msg.BlockHeadMeta.GetHeight() == p.client.workBlockHeight {
+			client := p.pickTargetClient( msg.BlockHeadMeta.GetHeight() )
+			//fmt.Println("pickTargetClient", client)
+			if client != nil {
 
 				msg.BlockHeadMeta.SetNonce(binary.BigEndian.Uint32(msg.NonceBytes))
 				msg.BlockHeadMeta.Fresh()
 
 				if msg.Status == message.PowMasterMsgStatusSuccess || msg.Status == message.PowMasterMsgStatusMostPowerHash {
 					msgbytes, _ := msg.Serialize()
-					if p.client != nil {
-						p.client.conn.Write(msgbytes) // send success
-					}
+					client.conn.Write(msgbytes) // send success
 				}
 				if msg.Status == message.PowMasterMsgStatusSuccess {
-					p.currentMiningStatusSuccess = true // set mining status
-					fmt.Print("OK.\n\n== ⬤ == Successfully mining block height: ", msg.BlockHeadMeta.GetHeight(), ", hash: ", msg.BlockHeadMeta.Hash().ToHex(), ", rewards: ", p.config.Rewards.ToReadable(), "\n")
+					//p.currentMiningStatusSuccess = true // set mining status
+					fmt.Print("OK.\n== ⬤ == Successfully mining block height: ", msg.BlockHeadMeta.GetHeight(), ", hash: ", msg.BlockHeadMeta.Hash().ToHex(), "\n")
 				}
 				if msg.Status == message.PowMasterMsgStatusMostPowerHash {
-					fmt.Print("upload power hash: ", hex.EncodeToString(msg.BlockHeadMeta.Hash()[0:12]), " ok.")
-					if p.client != nil {
+					fmt.Print("upload power hash: ", hex.EncodeToString(msg.BlockHeadMeta.Hash()[0:12]), "... ok.\n")
+					/*if p.client != nil {
 						p.client.conn.Close() // next mining
-					}
+					}*/
 				}
+				if client.setend {
+					client.conn.Close() // close
+				}
+				client.setend = true
 
 			}
+
+			p.statusMutex.Unlock()
+
 
 		case <-p.immediateStartConnectCh:
 			err := p.startConnect()

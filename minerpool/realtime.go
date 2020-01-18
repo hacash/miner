@@ -46,6 +46,16 @@ func (r *RealtimePeriod) getAutoIncrementCoinbaseMsgNum() uint32 {
 	return r.autoIncrementCoinbaseMsgNum
 }
 
+func (r *RealtimePeriod) sendMiningStuffMsgToAllClient() {
+	for _, v := range r.realtimeAccounts{
+		v.activeClients.Each(func(i interface{}) bool {
+			cli := i.(*Client)
+			r.sendMiningStuffMsg(cli.conn)
+			return false
+		})
+	}
+}
+
 func (r *RealtimePeriod) sendMiningStuffMsg(conn net.Conn) {
 	r.changeLock.Lock()
 	defer r.changeLock.Unlock()
@@ -79,7 +89,6 @@ func (r *RealtimePeriod) IsOverEndBlock(blkheibts []byte) bool {
 
 // 结束当前挖矿
 func (r *RealtimePeriod) endCurrentMining() {
-
 	//fmt.Println("+++++++++++++++++++++ endCurrentMining ")
 	go func() {
 		for _, acc := range r.realtimeAccounts {
@@ -93,6 +102,7 @@ func (r *RealtimePeriod) endCurrentMining() {
 		}
 	}()
 }
+
 
 ///////////////////////////
 

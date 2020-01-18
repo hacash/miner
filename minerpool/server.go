@@ -36,11 +36,7 @@ func (p *MinerPool) startServerListen() error {
 
 func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 
-	atomic.AddInt32(&p.currentTcpConnectingCount, 1)
-	defer func() {
-		atomic.AddInt32(&p.currentTcpConnectingCount, -1) // 减法
-		conn.Close()
-	}()
+	defer conn.Close()
 
 	if p.currentTcpConnectingCount > int32(p.Config.TcpConnectMaxSize) {
 		conn.Write([]byte("too_many_connect"))
@@ -55,6 +51,9 @@ func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 	curperiod := p.currentRealtimePeriod
 	// create client
 	client := NewClient(nil, conn, curperiod.targetBlock)
+
+	atomic.AddInt32(&p.currentTcpConnectingCount, 1)
+	defer atomic.AddInt32(&p.currentTcpConnectingCount, -1) // 减法
 
 	go func() {
 		<-time.Tick(time.Second * 17)
