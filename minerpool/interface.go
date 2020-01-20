@@ -14,19 +14,19 @@ func (p *MinerPool) StopMining() {
 func (p *MinerPool) Excavate(inputBlock interfaces.Block, outputBlockCh chan interfaces.Block) {
 	p.periodChange.Lock()
 	defer p.periodChange.Unlock()
-	defer func() {
-		p.successFindNewBlockHashOnce = nil // reset status
-	}()
 
-	prevblockMiningSuccess := p.successFindNewBlockHashOnce != nil &&
-		p.successFindNewBlockHashOnce.Equal( inputBlock.GetPrevHash() )
+	//defer func() {
+	//	p.successFindNewBlockHashOnce = nil // reset status
+	//}()
 
-	var endPrev bool = false
-	var sendCurrentRestartMining bool = false
+	prevblockMiningSuccess := p.successFindNewBlockHashs.Contains(string(inputBlock.GetPrevHash()))
+
+	//var endPrev bool = false
+	//var sendCurrentRestartMining bool = false
 
 	if p.currentRealtimePeriod == nil {
 		p.currentRealtimePeriod = NewRealtimePeriod(p, inputBlock)
-	} else {
+	} /*else {
 		if prevblockMiningSuccess {
 			// cache
 			p.prevRealtimePeriod = p.currentRealtimePeriod
@@ -37,32 +37,45 @@ func (p *MinerPool) Excavate(inputBlock interfaces.Block, outputBlockCh chan int
 		}else{
 			sendCurrentRestartMining = true
 		}
-	}
+	}*/
 
 	// 设置新的挖矿区块，以供客户端请求
-	atomic.StoreUint32( &p.currentRealtimePeriod.autoIncrementCoinbaseMsgNum, 0 )
+	atomic.StoreUint32(&p.currentRealtimePeriod.autoIncrementCoinbaseMsgNum, 0)
 	p.currentRealtimePeriod.targetBlock = inputBlock
 	p.currentRealtimePeriod.outputBlockCh = &outputBlockCh
 
-	if endPrev {
-		p.prevRealtimePeriod.endCurrentMining()
-	}
+	//if endPrev {
+	//	p.prevRealtimePeriod.endCurrentMining()
+	//}
 
-	if sendCurrentRestartMining {
-		p.currentRealtimePeriod.sendMiningStuffMsgToAllClient()
-	}
+	//if sendCurrentRestartMining {
+	p.currentRealtimePeriod.sendMiningStuffMsgToAllClient()
+	//}
 
 	// 结束当前的全部挖矿
 	if p.prevRealtimePeriod != nil {
-		//p.prevRealtimePeriod.endCurrentMining()
+		p.prevRealtimePeriod.endCurrentMining()
 		// 确认应得的奖励，并开始打币流程
-		if prevblockMiningSuccess {
+		if prevblockMiningSuccess && p.prevRealtimePeriod != nil {
 			go func() {
 				time.Sleep(time.Second * 1)
 				p.confirmRewards(inputBlock.GetHeight(), p.prevRealtimePeriod)
 				time.Sleep(time.Second * 1)
 				p.startDoTransfer(inputBlock.GetHeight(), p.prevRealtimePeriod)
 			}()
+			//}
+		}
+
+	}
+
+	// mapset max size
+	for {
+		if p.successFindNewBlockHashs.Cardinality() > 32 {
+			p.successFindNewBlockHashs.Pop()
+		} else {
+			break
 		}
 	}
+
+
 }

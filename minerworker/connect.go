@@ -33,8 +33,6 @@ func (p *MinerWorker) startConnect() error {
 }
 
 func (p *MinerWorker) handleConn(conn *net.TCPConn) {
-	client := NewClient(conn)
-	p.client = client
 	// send reward address
 	//fmt.Println([]byte(p.config.Rewards))
 	conn.Write(p.config.Rewards)
@@ -67,7 +65,9 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 
 		if rn == len(MsgMarkPong) && bytes.Compare([]byte(MsgMarkPong), data) == 0 {
 
-			client.pingtime = nil // reset ping time
+			if p.client != nil {
+				p.client.pingtime = nil // reset ping time
+			}
 
 		}else if rn == len(MsgMarkTooMuchConnect) && bytes.Compare([]byte(MsgMarkTooMuchConnect), data) == 0 {
 			// wait for min
@@ -88,24 +88,32 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 			//fmt.Println( "  -  1  -  p.worker.StopMining() ", p.currentMiningStatusSuccess )
 			// 结束挖矿，等待上报挖矿结果
 			p.worker.StopMining()
-			if client.setend {
-				client.conn.Close() // close
-			}else{
-				fmt.Print("ending... ")
-				client.setend = true
+			if p.client != nil {
+				if p.client.setend {
+					p.client.conn.Close() // close
+				}else{
+					fmt.Print("ending... ")
+					p.client.setend = true
+				}
 			}
 			p.statusMutex.Unlock()
 
 
 		} else if rn == message.PowMasterMsgSize {
 
-			p.worker.StopMining()
+			p.statusMutex.Lock()
+
 			// start mining
 			powmsg := message.NewPowMasterMsg()
 			powmsg.Parse(data, 0)
 
+			client := NewClient(conn)
 			client.workBlockHeight = powmsg.BlockHeadMeta.GetHeight()
-			p.clients.Add(client)
+			p.clients[ client.workBlockHeight ] = client
+			p.client = client
+
+			// stop prev mining
+			p.worker.StopMining()
 
 			//fmt.Println("Excavate",  powmsg.CoinbaseMsgNum, powmsg.BlockHeadMeta)
 			fmt.Print("do mining height:‹", powmsg.BlockHeadMeta.GetHeight(), "›, cbmn:", powmsg.CoinbaseMsgNum, "... ")
@@ -114,6 +122,7 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 			//time.Sleep(time.Second)
 			p.worker.Excavate(powmsg.BlockHeadMeta, p.miningOutputCh)
 
+			p.statusMutex.Unlock()
 
 		} else {
 

@@ -2,7 +2,6 @@ package minerworker
 
 import (
 	"fmt"
-	"github.com/hacash/chain/mapset"
 	"github.com/hacash/miner/localcpu"
 	"github.com/hacash/miner/message"
 	"net"
@@ -12,15 +11,15 @@ import (
 )
 
 
-type Client struct {
+type WorkClient struct {
 	conn *net.TCPConn
 	workBlockHeight uint64
 	pingtime *time.Time
 	setend bool
 }
 
-func NewClient(conn *net.TCPConn) *Client {
-	return &Client{
+func NewClient(conn *net.TCPConn) *WorkClient {
+	return &WorkClient{
 		conn: conn,
 		workBlockHeight: 0,
 		pingtime: nil,
@@ -36,8 +35,8 @@ type MinerWorker struct {
 	miningOutputCh          chan message.PowMasterMsg
 	immediateStartConnectCh chan bool
 
-	clients mapset.Set
-	client *Client
+	clients map[uint64]*WorkClient
+	client *WorkClient
 
 	statusMutex sync.Mutex
 }
@@ -49,7 +48,7 @@ func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
 		client:                       nil,
 		miningOutputCh:             make(chan message.PowMasterMsg, 2),
 		immediateStartConnectCh:    make(chan bool, 2),
-		clients: mapset.NewSet(),
+		clients: map[uint64]*WorkClient{},
 	}
 
 	wkcnf := localcpu.NewEmptyLocalCPUPowMasterConfig()
@@ -79,12 +78,13 @@ func (p *MinerWorker) Start() {
 }
 
 
-func (p *MinerWorker) pickTargetClient( blkhei uint64 ) *Client {
-	lists := p.clients.ToSlice()
-	for _, v := range lists {
-		if v.(*Client).workBlockHeight == blkhei {
-			p.clients.Remove(v)
-			return v.(*Client)
+func (p *MinerWorker) pickTargetClient( blkhei uint64 ) *WorkClient {
+	//fmt.Printf("pickTargetClient  <%d> ", blkhei)
+	for h, v := range p.clients {
+		//fmt.Printf("  %d  ", v.workBlockHeight)
+		if h == blkhei {
+			delete(p.clients, blkhei)
+			return v
 		}
 	}
 	return nil

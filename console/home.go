@@ -25,10 +25,13 @@ func (mc *MinerConsole) home(response http.ResponseWriter, request *http.Request
 	*/
 
 	htmltext += fmt.Sprintf(`<div>
-			<p>FeeRatio: %.2f %%</p>
+			<p>FeeRatio: %.2f %%, Addr: %s</p>
+			<p>Port: %d</p>
 			<p>TotalClients: %d</p>
 		</div>`,
 		mc.pool.Config.FeePercentage*100,
+		mc.pool.Config.RewardAccount.AddressReadable,
+		mc.pool.Config.TcpListenPort,
 		mc.pool.GetCurrentTcpConnectingCount(),
 	)
 

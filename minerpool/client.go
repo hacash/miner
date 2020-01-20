@@ -4,8 +4,8 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	"github.com/hacash/chain/mapset"
 	"github.com/hacash/core/fields"
-	"github.com/hacash/core/interfaces"
 	"github.com/hacash/miner/message"
 	"github.com/hacash/mint/difficulty"
 	"math/big"
@@ -19,28 +19,67 @@ type Client struct {
 
 	address fields.Address
 
-	workBlock interfaces.Block
+	//workBlock interfaces.Block
 
-	coinbaseMsgNum uint32 // > 0
+	//coinbaseMsgNum uint32 // > 0
 
+	workItems mapset.Set // set[*WorkItem]
 }
 
-func NewClient(acc *Account, conn *net.TCPConn, workBlock interfaces.Block) *Client {
+func NewClient(acc *Account, conn *net.TCPConn) *Client {
 	return &Client{
 		belongAccount:  acc,
 		conn:           conn,
-		workBlock:      workBlock,
+		//workBlock:      workBlock,
 		address:        nil,
-		coinbaseMsgNum: 0,
+		//coinbaseMsgNum: 0,
+		workItems: mapset.NewSet(),
 	}
 }
+
+
+
+// pop and get work item
+func (c *Client) popWorkItemByBlockHeight( height uint64 ) *WorkItem {
+	var taritem *WorkItem = nil
+	c.workItems.Each(func(i interface{}) bool {
+		item := i.(*WorkItem)
+		if item.miningBlock.GetHeight() == height {
+			taritem = item
+			return true
+		}
+		return false
+	})
+	if taritem != nil {
+		c.workItems.Remove(taritem)
+	}
+	return taritem
+}
+
+
+func (c *Client) addWorkItem( wkit *WorkItem ) {
+	c.workItems.Add(wkit)
+}
+
+
+
+
+
+
+
+
 
 // 上报挖矿结果
 
 func (c *Client) postPowResult(msg *message.PowMasterMsg) {
+	//fmt.Println("postPowResult")
+
 	block := msg.BlockHeadMeta
 
-	if c.workBlock.GetHeight() != block.GetHeight() {
+	wkitem := c.popWorkItemByBlockHeight( block.GetHeight() )
+	//fmt.Println("popWorkItemByBlockHeight ", block.GetHeight() )
+	if wkitem == nil {
+		//fmt.Println(" wkitem == nil ")
 		return // error
 	}
 
@@ -74,6 +113,7 @@ func (c *Client) postPowResult(msg *message.PowMasterMsg) {
 			c.conn.Close() // 关闭连接
 			return
 		}
+
 		// success find block
 		go func() {
 			minerpool.successFindBlockCh <- &findBlockMsg{

@@ -44,19 +44,18 @@ func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 	}
 
 	// 如果还没有挖区块，则返回关闭，隔一段时间再次连接
-	if p.currentRealtimePeriod == nil {
+	if p.currentRealtimePeriod == nil || p.currentRealtimePeriod.targetBlock == nil{
 		conn.Write([]byte("not_ready_yet"))
 		return
 	}
-	curperiod := p.currentRealtimePeriod
 	// create client
-	client := NewClient(nil, conn, curperiod.targetBlock)
+	client := NewClient(nil, conn)
 
 	atomic.AddInt32(&p.currentTcpConnectingCount, 1)
 	defer atomic.AddInt32(&p.currentTcpConnectingCount, -1) // 减法
 
 	go func() {
-		<-time.Tick(time.Second * 17)
+		time.Sleep(time.Second * 17)
 		if client.address == nil {
 			conn.Close() // err end
 		}
@@ -99,7 +98,7 @@ func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 			account.activeClients.Add(client) // add
 			client.belongAccount = account    // set belong
 			// send mining stuff
-			client.belongAccount.realtimePeriod.sendMiningStuffMsg(client.conn)
+			client.belongAccount.realtimePeriod.sendMiningStuffMsg(client)
 
 		} else if len(newbytes) == message.PowMasterMsgSize && client.belongAccount != nil {
 

@@ -5,7 +5,6 @@ import (
 	"github.com/hacash/core/blocks"
 	"github.com/hacash/miner/message"
 	"github.com/hacash/mint/coinbase"
-	"time"
 )
 
 func (a *Account) successFindNewBlock(msg *message.PowMasterMsg) {
@@ -45,8 +44,11 @@ func (a *Account) successFindNewBlock(msg *message.PowMasterMsg) {
 	// store success
 	minerpool.saveFoundBlockHash(copyblock.GetHeight(), copyblock.Hash())
 	// settle 结算
+	minerpool.createSettlementPeriod( a, a.realtimePeriod, copyblock )
+	/*
 	go func() {
 		<-time.Tick(time.Second * 33) // 33 秒后去结算 period
 		minerpool.settleRealtimePeriodCh <- a.realtimePeriod
 	}()
+	*/
 }

@@ -6,7 +6,6 @@ import (
 	"github.com/hacash/core/interfaces"
 	"github.com/hacash/miner/message"
 	"github.com/hacash/mint/coinbase"
-	"net"
 	"sync"
 	"sync/atomic"
 )
@@ -50,25 +49,32 @@ func (r *RealtimePeriod) sendMiningStuffMsgToAllClient() {
 	for _, v := range r.realtimeAccounts{
 		v.activeClients.Each(func(i interface{}) bool {
 			cli := i.(*Client)
-			r.sendMiningStuffMsg(cli.conn)
+			r.sendMiningStuffMsg(cli)
 			return false
 		})
 	}
 }
 
-func (r *RealtimePeriod) sendMiningStuffMsg(conn net.Conn) {
+func (r *RealtimePeriod) sendMiningStuffMsg(client *Client) {
 	r.changeLock.Lock()
 	defer r.changeLock.Unlock()
 
+	if r.targetBlock == nil {
+		return
+	}
+	cbmsgnum := r.getAutoIncrementCoinbaseMsgNum()
 	msgobj := message.NewPowMasterMsg()
-	msgobj.CoinbaseMsgNum = fields.VarInt4(r.getAutoIncrementCoinbaseMsgNum())
+	msgobj.CoinbaseMsgNum = fields.VarInt4(cbmsgnum)
 	//fmt.Println("sendMiningStuffMsg", uint32(msgobj.CoinbaseMsgNum) )
 	coinbase.UpdateBlockCoinbaseMessageForMiner(r.targetBlock, uint32(msgobj.CoinbaseMsgNum))
 	r.targetBlock.SetMrklRoot(blocks.CalculateMrklRoot(r.targetBlock.GetTransactions()))
 	msgobj.BlockHeadMeta = r.targetBlock
+	// create work item
+	wkitem := NewWorkItem(client, r.targetBlock, cbmsgnum)
+	client.addWorkItem(wkitem)
 	// send data
 	data, _ := msgobj.Serialize()
-	go conn.Write(data)
+	go client.conn.Write(data)
 }
 
 // find ok

@@ -3,6 +3,7 @@ package minerpool
 import (
 	"fmt"
 	"github.com/hacash/chain/leveldb"
+	"github.com/hacash/chain/mapset"
 	"github.com/hacash/core/fields"
 	"github.com/hacash/core/interfaces"
 	"github.com/hacash/miner/message"
@@ -31,8 +32,12 @@ type MinerPool struct {
 
 	checkBlockHeightMiningDict map[uint64]bool
 	successFindNewBlockHashOnce   fields.Hash
+
+	successFindNewBlockHashs mapset.Set
+
 	successFindBlockCh         chan *findBlockMsg
-	settleRealtimePeriodCh     chan *RealtimePeriod
+	//settleRealtimePeriodCh     chan *SettlementPeriod
+
 
 	/////////////////////////////////////
 
@@ -54,8 +59,9 @@ func NewMinerPool(cnf *MinerPoolConfig) *MinerPool {
 		currentTcpConnectingCount:  0,
 		checkBlockHeightMiningDict: make(map[uint64]bool),
 		successFindNewBlockHashOnce:    nil,
+		successFindNewBlockHashs:   mapset.NewSet(),
 		successFindBlockCh:         make(chan *findBlockMsg, 4),
-		settleRealtimePeriodCh:     make(chan *RealtimePeriod, 4),
+		//settleRealtimePeriodCh:     make(chan *SettlementPeriod, 4),
 		storedb:                    db,
 		txpool:                     nil,
 	}

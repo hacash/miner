@@ -57,7 +57,9 @@ func (p *MinerWorker) loop() {
 			//fmt.Println("msg: ", msg.BlockHeadMeta.GetHeight(), msg.CoinbaseMsgNum, msg.Status, msg.NonceBytes, msg)
 			p.statusMutex.Lock()
 
-			client := p.pickTargetClient( msg.BlockHeadMeta.GetHeight() )
+			block_height := msg.BlockHeadMeta.GetHeight()
+
+			client := p.pickTargetClient( block_height )
 			//fmt.Println("pickTargetClient", client)
 			if client != nil {
 
@@ -73,7 +75,7 @@ func (p *MinerWorker) loop() {
 					fmt.Print("OK.\n== ⬤ == Successfully mining block height: ", msg.BlockHeadMeta.GetHeight(), ", hash: ", msg.BlockHeadMeta.Hash().ToHex(), "\n")
 				}
 				if msg.Status == message.PowMasterMsgStatusMostPowerHash {
-					fmt.Print("upload power hash: ", hex.EncodeToString(msg.BlockHeadMeta.Hash()[0:12]), "... ok.\n")
+					fmt.Printf("upload power hash: %d, %s... ok.\n", block_height, hex.EncodeToString(msg.BlockHeadMeta.Hash()[0:12]))
 					/*if p.client != nil {
 						p.client.conn.Close() // next mining
 					}*/
