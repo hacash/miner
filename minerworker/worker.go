@@ -16,15 +16,18 @@ type WorkClient struct {
 	workBlockHeight uint64
 	pingtime *time.Time
 	setend bool
+	miningStartTime time.Time
 }
 
 func NewClient(conn *net.TCPConn) *WorkClient {
-	return &WorkClient{
+	cli := &WorkClient{
 		conn: conn,
 		workBlockHeight: 0,
 		pingtime: nil,
 		setend: false,
 	}
+	cli.miningStartTime = time.Now()
+	return cli
 }
 
 type MinerWorker struct {
@@ -45,7 +48,7 @@ func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
 
 	pool := &MinerWorker{
 		config:                     cnf,
-		client:                       nil,
+		client:                     nil,
 		miningOutputCh:             make(chan message.PowMasterMsg, 2),
 		immediateStartConnectCh:    make(chan bool, 2),
 		clients: map[uint64]*WorkClient{},

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/hacash/core/fields"
 	"github.com/hacash/miner/message"
+	"github.com/hacash/mint/difficulty"
+	"math/big"
 	"time"
 )
 
@@ -66,16 +68,27 @@ func (p *MinerWorker) loop() {
 				msg.BlockHeadMeta.SetNonce(binary.BigEndian.Uint32(msg.NonceBytes))
 				msg.BlockHeadMeta.Fresh()
 
+				var powerworthshow string = ""
+				var usetimesec int64 = 0
+				var block_hash fields.Hash = nil
+
 				if msg.Status == message.PowMasterMsgStatusSuccess || msg.Status == message.PowMasterMsgStatusMostPowerHash {
 					msgbytes, _ := msg.Serialize()
-					client.conn.Write(msgbytes) // send success
+					go client.conn.Write(msgbytes) // send success
+					// power worth
+					block_hash = msg.BlockHeadMeta.Hash()
+					hxworth := difficulty.CalculateHashWorth(block_hash)
+					usetimesec = int64(time.Now().Sub( client.miningStartTime ).Seconds())
+					//fmt.Println( usetimesec )
+					hxworth = new(big.Int).Div(hxworth, big.NewInt(usetimesec) )
+					powerworthshow = difficulty.ConvertPowPowerToShowFormat( hxworth )
 				}
 				if msg.Status == message.PowMasterMsgStatusSuccess {
 					//p.currentMiningStatusSuccess = true // set mining status
-					fmt.Print("OK.\n== ⬤ == Successfully mining block height: ", msg.BlockHeadMeta.GetHeight(), ", hash: ", msg.BlockHeadMeta.Hash().ToHex(), "\n")
+					fmt.Printf("OK.\n== ⬤ == Successfully mining block height: %d, hash: %s, time: %ds, power: %s. \n", block_height, block_hash.ToHex(), usetimesec, powerworthshow)
 				}
 				if msg.Status == message.PowMasterMsgStatusMostPowerHash {
-					fmt.Printf("upload power hash: %d, %s... ok.\n", block_height, hex.EncodeToString(msg.BlockHeadMeta.Hash()[0:12]))
+					fmt.Printf("upload hash: %d, %s..., time: %ds, power: %s ok.\n", block_height, hex.EncodeToString(block_hash[0:12]), usetimesec, powerworthshow)
 					/*if p.client != nil {
 						p.client.conn.Close() // next mining
 					}*/
