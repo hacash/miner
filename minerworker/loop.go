@@ -79,6 +79,9 @@ func (p *MinerWorker) loop() {
 					block_hash = msg.BlockHeadMeta.Hash()
 					hxworth := difficulty.CalculateHashWorth(block_hash)
 					usetimesec = int64(time.Now().Sub( client.miningStartTime ).Seconds())
+					if usetimesec == 0 {
+						usetimesec = 1
+					}
 					//fmt.Println( usetimesec )
 					hxworth = new(big.Int).Div(hxworth, big.NewInt(usetimesec) )
 					powerworthshow = difficulty.ConvertPowPowerToShowFormat( hxworth )
