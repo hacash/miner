@@ -2,6 +2,7 @@ package minerworker
 
 import (
 	"fmt"
+	"github.com/hacash/chain/mapset"
 	"github.com/hacash/miner/localcpu"
 	"github.com/hacash/miner/message"
 	"net"
@@ -41,7 +42,11 @@ type MinerWorker struct {
 	clients map[uint64]*WorkClient
 	client *WorkClient
 
+	powerTotalCmx mapset.Set
+
 	statusMutex sync.Mutex
+
+
 }
 
 func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
@@ -52,6 +57,7 @@ func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
 		miningOutputCh:             make(chan message.PowMasterMsg, 2),
 		immediateStartConnectCh:    make(chan bool, 2),
 		clients: map[uint64]*WorkClient{},
+		powerTotalCmx: mapset.NewSet(),
 	}
 
 	wkcnf := localcpu.NewEmptyLocalCPUPowMasterConfig()

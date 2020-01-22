@@ -85,6 +85,7 @@ func (p *MinerWorker) loop() {
 					//fmt.Println( usetimesec )
 					hxworth = new(big.Int).Div(hxworth, big.NewInt(usetimesec) )
 					powerworthshow = difficulty.ConvertPowPowerToShowFormat( hxworth )
+					powerworthshow += ", " + p.addPowerLogReturnShow(hxworth)
 				}
 				if msg.Status == message.PowMasterMsgStatusSuccess {
 					//p.currentMiningStatusSuccess = true // set mining status
