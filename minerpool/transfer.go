@@ -10,8 +10,8 @@ import (
 
 // 开始判断后打币
 func (p *MinerPool) startDoTransfer(curblkheight uint64, period *RealtimePeriod) {
-	//p.periodChange.Lock()
-	//defer p.periodChange.Unlock()
+	p.periodChange.Lock()
+	defer p.periodChange.Unlock()
 
 	if curblkheight%uint64(p.Config.DoTransferRewardPeriodHeight) != 0 {
 		return
@@ -36,7 +36,7 @@ func (p *MinerPool) startDoTransfer(curblkheight uint64, period *RealtimePeriod)
 		totalFee, _ = totalFee.Add(baseFee)
 		trsact := actions.NewAction_1_SimpleTransfer(acc.address, amt)
 		//transfers = append(transfers, trsact)
-		tx.AppendAction(trsact)
+		_ = tx.AppendAction(trsact)
 	}
 	// check balance
 	checkAmt, _ := totalAmount.Add(totalFee)
@@ -76,7 +76,8 @@ func (p *MinerPool) startDoTransfer(curblkheight uint64, period *RealtimePeriod)
 	// change store data
 	for _, acc := range trsAccounts {
 		acc.storeData.moveRewards("complete", uint64(acc.storeData.deservedRewards))
-		p.saveAccountStoreData(acc)
+		acc.storeData.prevTransferBlockHeight = fields.VarInt4(uint32(curblkheight))
+		_ = p.saveAccountStoreData(acc)
 	}
 	// ok
 	fmt.Printf(" --> --> --> --> miner pool transfer to %d address cost amount: %s, fee: %s.\n", len(tx.GetActions()), totalAmount.ToFinString(), totalFee.ToFinString())

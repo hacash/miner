@@ -63,23 +63,27 @@ func (p *MinerPool) settleOneSuccessPeriod(period *SettlementPeriod) {
 	totalPowWorth := big.NewInt(0)
 	addressPowWorth := make(map[string]*big.Int)
 	var minerAccount *Account = nil
-	var otherAccounts = make([]*Account, 0)
+	var divrwdAccounts = make([]*Account, 0)
+	//fmt.Println("settleOneSuccessPeriod")
+
 	for key, acc := range period.period.realtimeAccounts {
 		clients := acc.activeClients.ToSlice()
 		for _, cli := range clients {
 			cli.(*Client).conn.Close() // 关闭连接
 		}
-		if acc.miningSuccessBlock != nil {
+		//fmt.Println(acc.miningSuccessBlock.Hash().ToHex(), period.successBlockHash.ToHex())
+		if acc.miningSuccessBlock != nil && acc.miningSuccessBlock.Hash().Equal( period.successBlockHash ) {
 			minerAccount = acc // 成功挖出区块的用户
 		}
 		// 其他矿工统计算力, 拷贝值，避免运算过程中被修改
+		//fmt.Println(acc.address.ToReadable(), acc.realtimePowWorth.String())
 		worth := new(big.Int).Add(big.NewInt(0), acc.realtimePowWorth)
-		otherAccounts = append(otherAccounts, acc)
+		divrwdAccounts = append(divrwdAccounts, acc)
 		addressPowWorth[key] = worth
 		totalPowWorth = new(big.Int).Add(totalPowWorth, worth)
-
 	}
 	if minerAccount == nil {
+		//fmt.Println("minerAccount == nil return")
 		return
 	}
 	// 计算收益
@@ -90,35 +94,38 @@ func (p *MinerPool) settleOneSuccessPeriod(period *SettlementPeriod) {
 	part1of3Reward := totalReward / 3
 	part2of3Reward := part1of3Reward * 2
 	var rwdAccounts = make([]*Account, 0)
-	for _, acc := range otherAccounts {
-		if totalPowWorth.Cmp(big.NewInt(0)) == 0 {
+	for _, acc := range divrwdAccounts {
+		if totalPowWorth.Cmp(big.NewInt(0)) <= 0 {
 			continue
 		}
 		num1 := new(big.Int).Mul(addressPowWorth[string(acc.address)], pernum)
 		num2 := new(big.Int).Div(num1, totalPowWorth)
 		reward := num2.Int64() * part2of3Reward / pernum.Int64()
+		if acc.address.Equal( minerAccount.address ) {
+			reward += part1of3Reward // 加上独自的1/3挖出者收益
+		}
+		//fmt.Println("rwdAccounts = append(rwdAccounts, acc)", acc.address.ToReadable(), reward)
 		if reward > 0 {
+			// 矿工按比例收益
 			rwdAccounts = append(rwdAccounts, acc)
 			acc.storeData.appendUnconfirmedRewards(uint32(blockHeight), uint64(reward))
 		}
 	}
-	// 保存收益
+	//fmt.Println(len(divrwdAccounts), len(rwdAccounts), totalPowWorth.String())
+	// 保存挖出矿工收益
 	minerAccount.storeData.findBlocks += 1
 	minerAccount.storeData.findCoins += fields.VarInt4(rwdcoin)
-	if len(rwdAccounts) == 0 {
-		// 如果只有一个账户挖矿，则拿到全部奖励
-		minerAccount.storeData.appendUnconfirmedRewards(uint32(blockHeight), uint64(totalReward))
-	} else {
-		minerAccount.storeData.appendUnconfirmedRewards(uint32(blockHeight), uint64(part1of3Reward))
-	}
-	err = p.saveAccountStoreData(minerAccount)
+	// 保存比例矿工收益
 	for _, acc := range rwdAccounts {
 		err = p.saveAccountStoreData(acc)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 	// ok 结算完成
-	if err != nil {
-		fmt.Println(err)
-	}
+
+	// store success
+	_ = p.saveFoundBlockHash(period.successBlockHeight, period.successBlockHash)
 
 }
 

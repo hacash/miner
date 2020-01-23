@@ -19,7 +19,7 @@ func (p *MinerPool) Excavate(inputBlock interfaces.Block, outputBlockCh chan int
 	//	p.successFindNewBlockHashOnce = nil // reset status
 	//}()
 
-	prevblockMiningSuccess := p.successFindNewBlockHashs.Contains(string(inputBlock.GetPrevHash()))
+	//prevblockMiningSuccess := p.successFindNewBlockHashs.Contains(string(inputBlock.GetPrevHash()))
 
 	//var endPrev bool = false
 	//var sendCurrentRestartMining bool = false
@@ -56,7 +56,7 @@ func (p *MinerPool) Excavate(inputBlock interfaces.Block, outputBlockCh chan int
 	if p.prevRealtimePeriod != nil {
 		p.prevRealtimePeriod.endCurrentMining()
 		// 确认应得的奖励，并开始打币流程
-		if prevblockMiningSuccess && p.prevRealtimePeriod != nil {
+		if p.prevRealtimePeriod != nil {
 			go func() {
 				time.Sleep(time.Second * 1)
 				p.confirmRewards(inputBlock.GetHeight(), p.prevRealtimePeriod)

@@ -94,10 +94,7 @@ func (c *Client) postPowResult(msg *message.PowMasterMsg) {
 	minerpool := c.belongAccount.realtimePeriod.minerpool
 
 	// 添加算力统计
-	if msg.Status != message.PowMasterMsgStatusSuccess {
-		c.belongAccount.addPowWorth(blkhash)
-		return
-	}
+	c.belongAccount.addPowWorth(blkhash)
 
 	// 挖出区块
 	if msg.Status == message.PowMasterMsgStatusSuccess {

@@ -2,8 +2,8 @@ package minerpool
 
 // 	确认收益
 func (p *MinerPool) confirmRewards(curblkheight uint64, confirmPeriod *RealtimePeriod) {
-	//p.periodChange.Lock()
-	//defer p.periodChange.Unlock()
+	p.periodChange.Lock()
+	defer p.periodChange.Unlock()
 
 	delayedCheckHeight := uint64(p.Config.DelayedConfirmRewardHeight)
 
@@ -13,12 +13,13 @@ func (p *MinerPool) confirmRewards(curblkheight uint64, confirmPeriod *RealtimeP
 	for _, acc := range confirmPeriod.realtimeAccounts {
 		//fmt.Println(acc.storeData.unconfirmedRewardListCount, acc.storeData.unconfirmedRewardList)
 		curhei, rewards, ok := acc.storeData.unshiftUnconfirmedRewards(curblkheight - delayedCheckHeight)
+		//fmt.Println("confirmRewards", ok, curhei, rewards)
 		if ok {
+			_ = p.saveAccountStoreData(acc)
 			// check block height
 			if p.checkBlockHeightMiningSuccess(uint64(curhei)) {
 				//fmt.Println( "checkBlockHeightMiningSuccess:", rewards )
 				if acc.storeData.moveRewards("deserved", rewards) {
-					p.saveAccountStoreData(acc)
 				}
 			}
 		}
@@ -26,6 +27,7 @@ func (p *MinerPool) confirmRewards(curblkheight uint64, confirmPeriod *RealtimeP
 }
 
 func (p *MinerPool) checkBlockHeightMiningSuccess(height uint64) bool {
+
 	if ok1, ok2 := p.checkBlockHeightMiningDict[height]; ok2 {
 		return ok1 // cache
 	}
@@ -35,14 +37,14 @@ func (p *MinerPool) checkBlockHeightMiningSuccess(height uint64) bool {
 		return false
 	}
 	// compare
-	lastestHash, err := p.blockchain.State().BlockStore().ReadBlockHashByHeight(height)
+	storeHash, err := p.blockchain.State().BlockStore().ReadBlockHashByHeight(height)
 	if err != nil {
 		return false
 	}
 	if len(p.checkBlockHeightMiningDict) > 255 {
 		p.checkBlockHeightMiningDict = map[uint64]bool{} // clean
 	}
-	if foundblkhx.Equal(lastestHash) {
+	if foundblkhx.Equal(storeHash) {
 		p.checkBlockHeightMiningDict[height] = true
 		return true
 	} else {

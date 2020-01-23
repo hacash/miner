@@ -41,8 +41,6 @@ func (a *Account) successFindNewBlock(msg *message.PowMasterMsg) {
 	// insert new block
 	//fmt.Println("a.realtimePeriod.successFindNewBlock MrklRoot:", copyblock.GetMrklRoot().ToHex())
 	a.realtimePeriod.successFindNewBlock(copyblock)
-	// store success
-	minerpool.saveFoundBlockHash(copyblock.GetHeight(), copyblock.Hash())
 	// settle 结算
 	minerpool.createSettlementPeriod( a, a.realtimePeriod, copyblock )
 	/*

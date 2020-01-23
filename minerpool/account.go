@@ -86,6 +86,9 @@ type AccountStoreData struct {
 	unconfirmedRewardList      []fields.Bytes12 // 4 + 8 : blockHeight + reward
 	//
 	others fields.Bytes16 // 备用扩展字段
+
+	//
+	changeMutex sync.Mutex
 }
 
 func NewEmptyAccountStoreData(curhei uint64) *AccountStoreData {
@@ -99,10 +102,14 @@ func NewEmptyAccountStoreData(curhei uint64) *AccountStoreData {
 		0,
 		[]fields.Bytes12{},
 		fields.Bytes16{},
+		sync.Mutex{},
 	}
 }
 
 func (s *AccountStoreData) moveRewards(target string, rewards uint64) bool {
+	s.changeMutex.Lock()
+	defer s.changeMutex.Unlock()
+	// do some
 	if target == "deserved" {
 		if uint64(s.unconfirmedRewards) < rewards {
 			return false
@@ -122,11 +129,16 @@ func (s *AccountStoreData) moveRewards(target string, rewards uint64) bool {
 }
 
 func (s *AccountStoreData) unshiftUnconfirmedRewards(lessthanblkhei uint64) (uint32, uint64, bool) {
+	s.changeMutex.Lock()
+	defer s.changeMutex.Unlock()
+	// start
 	if s.unconfirmedRewardListCount == 0 {
 		return 0, 0, false
 	}
 	valdts := s.unconfirmedRewardList[0]
 	blockhei := binary.BigEndian.Uint32(valdts[0:4])
+	//fmt.Println("unshiftUnconfirmedRewards", len(s.unconfirmedRewardList), blockhei, lessthanblkhei)
+
 	if lessthanblkhei > 0 && uint64(blockhei) > lessthanblkhei {
 		return 0, 0, false
 	}
@@ -139,6 +151,9 @@ func (s *AccountStoreData) unshiftUnconfirmedRewards(lessthanblkhei uint64) (uin
 }
 
 func (s *AccountStoreData) appendUnconfirmedRewards(blockHeight uint32, rewards uint64) {
+	s.changeMutex.Lock()
+	defer s.changeMutex.Unlock()
+	// start
 	s.unconfirmedRewards += fields.VarInt8(rewards)
 	s.unconfirmedRewardListCount += 1
 	rwdlstdts := make([]byte, 12)
@@ -169,17 +184,15 @@ func (s *AccountStoreData) Serialize() ([]byte, error) {
 	buf.Write(b5)
 	b6, _ := s.prevTransferBlockHeight.Serialize()
 	buf.Write(b6)
-	b7, _ := s.unconfirmedRewards.Serialize()
+	b7, _ := s.unconfirmedRewardListCount.Serialize()
 	buf.Write(b7)
-	b8, _ := s.unconfirmedRewardListCount.Serialize()
-	buf.Write(b8)
 	for i := 0; i < int(s.unconfirmedRewardListCount); i++ {
 		b, _ := s.unconfirmedRewardList[i].Serialize()
 		buf.Write(b)
 	}
-	///
-	b9, _ := s.others.Serialize()
-	buf.Write(b9)
+	//
+	b8, _ := s.others.Serialize()
+	buf.Write(b8)
 	return buf.Bytes(), nil
 }
 
@@ -193,8 +206,7 @@ func (s *AccountStoreData) Parse(buf []byte, seek uint32) (uint32, error) {
 	seek, _ = s.unconfirmedRewardListCount.Parse(buf, seek)
 	s.unconfirmedRewardList = make([]fields.Bytes12, s.unconfirmedRewardListCount)
 	for i := 0; i < int(s.unconfirmedRewardListCount); i++ {
-		_, _ = s.unconfirmedRewardList[i].Parse(buf, seek)
-		seek += 12
+		seek, _ = s.unconfirmedRewardList[i].Parse(buf, seek)
 	}
 	seek, _ = s.others.Parse(buf, seek)
 	return seek, nil
