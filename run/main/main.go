@@ -9,6 +9,7 @@ import (
 	"github.com/hacash/miner/memtxpool"
 	"github.com/hacash/miner/miner"
 	"github.com/hacash/miner/minerpool"
+	"github.com/hacash/mint"
 	"github.com/hacash/node/backend"
 	rpc "github.com/hacash/service/deprecated"
 	"os"
@@ -50,6 +51,9 @@ func main() {
 		fmt.Println(err.Error())
 		os.Exit(0)
 	}
+
+	// debug test config set
+	debugTestConfigSetHandle(hinicnf)
 
 	//test_data_dir := "/home/shiqiujie/Desktop/Hacash/go/src/github.com/hacash/miner/run/minerpool/testdata"
 	//hinicnf.SetMustDataDir(test_data_dir)
@@ -178,4 +182,18 @@ func main() {
 	s := <-c
 	fmt.Println("Got signal:", s)
 
+}
+
+/////////////////////////////////////////////////////
+
+func debugTestConfigSetHandle(hinicnf *sys.Inicnf) {
+
+	// test set start
+	if adjustTargetDifficultyNumberOfBlocks := hinicnf.Section("").Key("AdjustTargetDifficultyNumberOfBlocks").MustUint64(0); adjustTargetDifficultyNumberOfBlocks > 0 {
+		mint.AdjustTargetDifficultyNumberOfBlocks = adjustTargetDifficultyNumberOfBlocks
+	}
+	if eachBlockRequiredTargetTime := hinicnf.Section("").Key("EachBlockRequiredTargetTime").MustUint64(0); eachBlockRequiredTargetTime > 0 {
+		mint.EachBlockRequiredTargetTime = eachBlockRequiredTargetTime
+	}
+	// test set end
 }

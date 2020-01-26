@@ -119,5 +119,10 @@ func (c *Client) postPowResult(msg *message.PowMasterMsg) {
 			}
 		}()
 		return
+	}else{
+
+		// 发送继续挖矿
+		minerpool.currentRealtimePeriod.sendMiningStuffMsg( c )
+
 	}
 }
