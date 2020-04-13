@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/hacash/core/actions"
 	"github.com/hacash/core/interfaces"
+	"time"
 )
 
 func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
@@ -64,6 +65,10 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 			}
 			return nil // add successfully !
 		}
+	}
+	// check tx time
+	if tx.GetTimestamp() > uint64(time.Now().Unix()) {
+		return fmt.Errorf("tx timestamp cannot more than now.")
 	}
 	// check tx
 	txerr := p.blockchain.ValidateTransaction(tx)
