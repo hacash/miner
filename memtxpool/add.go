@@ -23,6 +23,11 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 		return fmt.Errorf("[MemTxPool] blockchain is not be set.")
 	}
 
+	// check tx time
+	if tx.GetTimestamp() > uint64(time.Now().Unix()) {
+		return fmt.Errorf("tx timestamp cannot more than now.")
+	}
+
 	// check pool max
 	if p.maxcount > 0 && p.txTotalCount+1 > p.maxcount {
 		return fmt.Errorf("Tx pool max count %d and too mach.", p.maxcount)
@@ -65,10 +70,6 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 			}
 			return nil // add successfully !
 		}
-	}
-	// check tx time
-	if tx.GetTimestamp() > uint64(time.Now().Unix()) {
-		return fmt.Errorf("tx timestamp cannot more than now.")
 	}
 	// check tx
 	txerr := p.blockchain.ValidateTransaction(tx)
