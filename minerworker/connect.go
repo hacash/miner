@@ -1,4 +1,4 @@
-﻿package minerworker
+package minerworker
 
 import (
 	"bytes"
@@ -14,7 +14,6 @@ const (
 	MsgMarkTooMuchConnect   = "too_many_connect"
 	MsgMarkEndCurrentMining = "end_current_mining"
 	MsgMarkPong             = "pong"
-
 )
 
 func (p *MinerWorker) startConnect() error {
@@ -44,7 +43,7 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 
 		databuf := bytes.NewBuffer([]byte{})
 
-		READNEXTDATASEG:
+	READNEXTDATASEG:
 
 		//fmt.Println("READNEXTDATASEG")
 
@@ -56,7 +55,7 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 
 		//fmt.Println(segdata[0:rn])
 
-		databuf.Write( segdata[0:rn] )
+		databuf.Write(segdata[0:rn])
 		data := databuf.Bytes()
 		rn = len(data)
 
@@ -69,7 +68,7 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 				p.client.pingtime = nil // reset ping time
 			}
 
-		}else if rn == len(MsgMarkTooMuchConnect) && bytes.Compare([]byte(MsgMarkTooMuchConnect), data) == 0 {
+		} else if rn == len(MsgMarkTooMuchConnect) && bytes.Compare([]byte(MsgMarkTooMuchConnect), data) == 0 {
 			// wait for min
 			fmt.Println("pool return: " + MsgMarkTooMuchConnect)
 			fmt.Println("There are too many ore pool connections. The connection has been refused. Please contact your ore pool service provider.")
@@ -91,13 +90,12 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 			if p.client != nil {
 				if p.client.setend {
 					p.client.conn.Close() // close
-				}else{
+				} else {
 					fmt.Print("ending... ")
 					p.client.setend = true
 				}
 			}
 			p.statusMutex.Unlock()
-
 
 		} else if rn == message.PowMasterMsgSize {
 
@@ -106,21 +104,31 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 			// start mining
 			powmsg := message.NewPowMasterMsg()
 			powmsg.Parse(data, 0)
+			tarBlockHeight := powmsg.BlockHeadMeta.GetHeight()
 
-			client := NewClient(conn)
-			client.workBlockHeight = powmsg.BlockHeadMeta.GetHeight()
-			p.clients[ client.workBlockHeight ] = client
-			p.client = client
+			if p.currentDoBlockHeight == tarBlockHeight {
+				// 重复挖矿消息，忽略本次消息
+				//fmt.Print(" -ignore duplicate mining messages- ")
+			} else {
+				// 执行挖矿
+				p.currentDoBlockHeight = tarBlockHeight
 
-			// stop prev mining
-			p.worker.StopMining()
+				client := NewClient(conn)
+				client.workBlockHeight = tarBlockHeight
+				p.clients[client.workBlockHeight] = client
+				p.client = client
 
-			//fmt.Println("Excavate",  powmsg.CoinbaseMsgNum, powmsg.BlockHeadMeta)
-			fmt.Print("do mining height:‹", powmsg.BlockHeadMeta.GetHeight(), "›, cbmn:", powmsg.CoinbaseMsgNum, "... ")
-			// do work
-			p.worker.SetCoinbaseMsgNum(uint32(powmsg.CoinbaseMsgNum))
-			//time.Sleep(time.Second)
-			p.worker.Excavate(powmsg.BlockHeadMeta, p.miningOutputCh)
+				// stop prev mining
+				p.worker.StopMining()
+
+				//fmt.Println("Excavate",  powmsg.CoinbaseMsgNum, powmsg.BlockHeadMeta)
+				fmt.Print("do mining height:‹", tarBlockHeight, "›, cbmn:", powmsg.CoinbaseMsgNum, "... ")
+				// do work
+				p.worker.SetCoinbaseMsgNum(uint32(powmsg.CoinbaseMsgNum))
+				//time.Sleep(time.Second)
+				p.worker.Excavate(powmsg.BlockHeadMeta, p.miningOutputCh)
+
+			}
 
 			p.statusMutex.Unlock()
 

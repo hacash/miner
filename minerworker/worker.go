@@ -11,21 +11,20 @@ import (
 	"time"
 )
 
-
 type WorkClient struct {
-	conn *net.TCPConn
+	conn            *net.TCPConn
 	workBlockHeight uint64
-	pingtime *time.Time
-	setend bool
+	pingtime        *time.Time
+	setend          bool
 	miningStartTime time.Time
 }
 
 func NewClient(conn *net.TCPConn) *WorkClient {
 	cli := &WorkClient{
-		conn: conn,
+		conn:            conn,
 		workBlockHeight: 0,
-		pingtime: nil,
-		setend: false,
+		pingtime:        nil,
+		setend:          false,
 	}
 	cli.miningStartTime = time.Now()
 	return cli
@@ -40,24 +39,24 @@ type MinerWorker struct {
 	immediateStartConnectCh chan bool
 
 	clients map[uint64]*WorkClient
-	client *WorkClient
+	client  *WorkClient
 
 	powerTotalCmx mapset.Set
 
 	statusMutex sync.Mutex
 
-
+	currentDoBlockHeight uint64
 }
 
 func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
 
 	pool := &MinerWorker{
-		config:                     cnf,
-		client:                     nil,
-		miningOutputCh:             make(chan message.PowMasterMsg, 2),
-		immediateStartConnectCh:    make(chan bool, 2),
-		clients: map[uint64]*WorkClient{},
-		powerTotalCmx: mapset.NewSet(),
+		config:                  cnf,
+		client:                  nil,
+		miningOutputCh:          make(chan message.PowMasterMsg, 2),
+		immediateStartConnectCh: make(chan bool, 2),
+		clients:                 map[uint64]*WorkClient{},
+		powerTotalCmx:           mapset.NewSet(),
 	}
 
 	wkcnf := localcpu.NewEmptyLocalCPUPowMasterConfig()
@@ -86,8 +85,7 @@ func (p *MinerWorker) Start() {
 	go p.loop()
 }
 
-
-func (p *MinerWorker) pickTargetClient( blkhei uint64 ) *WorkClient {
+func (p *MinerWorker) pickTargetClient(blkhei uint64) *WorkClient {
 	//fmt.Printf("pickTargetClient  <%d> ", blkhei)
 	for h, v := range p.clients {
 		//fmt.Printf("  %d  ", v.workBlockHeight)

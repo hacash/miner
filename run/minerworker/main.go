@@ -9,6 +9,13 @@ import (
 	"time"
 )
 
+/**
+
+go build -o poolworker github.com/hacash/miner/run/minerworker
+go build -ldflags '-w -s' -o poolworker_2020_5_13 github.com/hacash/miner/run/minerworker
+
+*/
+
 func main() {
 
 	c := make(chan os.Signal, 1)
