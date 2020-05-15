@@ -17,16 +17,12 @@ import (
 	"time"
 )
 
-
 /**
 
 go build -o test/test1 miner/run/main/main.go && ./test/test1 test1.ini
-go build -ldflags '-w -s' -o hacash_node_2020_01_09_3 miner/run/main/main.go
+go build -ldflags '-w -s' -o hacash_node_2020_05_13_01 miner/run/main/main.go
 
- */
-
-
-
+*/
 
 func main() {
 
@@ -155,7 +151,7 @@ func main() {
 
 	// download block datas
 	wsaddr := hinicnf.Section("").Key("first_download_block_datas_websocket_addr").MustString("")
-	wsurl1 := "ws://"+wsaddr+"/ws/download"
+	wsurl1 := "ws://" + wsaddr + "/ws/download"
 	if wsaddr != "" {
 		//time.Sleep( time.Second * 3 )
 		hnode.DownloadBlocksDataFromWebSocketApi(wsurl1, 1)
@@ -171,7 +167,7 @@ func main() {
 			for {
 				//time.Sleep(time.Minute * 3)
 				time.Sleep(time.Second * time.Duration(syncblocktimesleep))
-				err := hnode.SyncBlockFromWebSocketApi( wssyncurl )
+				err := hnode.SyncBlockFromWebSocketApi(wssyncurl)
 				if err != nil {
 					fmt.Println("SyncBlockFromWebSocketApi Error:", err.Error())
 				}

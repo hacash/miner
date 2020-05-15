@@ -18,8 +18,11 @@ const (
 
 func (p *MinerWorker) startConnect() error {
 
+	p.isInConnecting = true
+
 	conn, err := net.DialTCP("tcp", nil, p.config.PoolAddress)
 	if err != nil {
+		p.isInConnecting = false
 		return err
 	}
 
@@ -49,7 +52,7 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 
 		rn, err := conn.Read(segdata)
 		if err != nil {
-			//fmt.Println(err)
+			fmt.Println(err)
 			break
 		}
 
@@ -91,7 +94,7 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 				if p.client.setend {
 					p.client.conn.Close() // close
 				} else {
-					fmt.Print("ending... ")
+					fmt.Print("next... ")
 					p.client.setend = true
 				}
 			}
@@ -99,19 +102,19 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 
 		} else if rn == message.PowMasterMsgSize {
 
-			p.statusMutex.Lock()
-
 			// start mining
 			powmsg := message.NewPowMasterMsg()
 			powmsg.Parse(data, 0)
 			tarBlockHeight := powmsg.BlockHeadMeta.GetHeight()
 
-			if p.currentDoBlockHeight == tarBlockHeight {
+			if p.currentPowMasterMsg != nil &&
+				p.currentPowMasterMsg.BlockHeadMeta.GetHeight() == tarBlockHeight &&
+				p.currentPowMasterMsg.CoinbaseMsgNum == powmsg.CoinbaseMsgNum {
 				// 重复挖矿消息，忽略本次消息
-				//fmt.Print(" -ignore duplicate mining messages- ")
+				fmt.Print(" -ignore duplicate mining messages- ")
 			} else {
 				// 执行挖矿
-				p.currentDoBlockHeight = tarBlockHeight
+				p.currentPowMasterMsg = powmsg
 
 				client := NewClient(conn)
 				client.workBlockHeight = tarBlockHeight
@@ -130,8 +133,6 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 
 			}
 
-			p.statusMutex.Unlock()
-
 		} else {
 
 			goto READNEXTDATASEG
@@ -146,6 +147,7 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 	p.worker.StopMining()
 
 	p.client = nil
+	p.isInConnecting = false
 
 	p.immediateStartConnectCh <- true
 }

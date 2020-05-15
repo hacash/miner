@@ -22,33 +22,33 @@ func (p *MinerWorker) loop() {
 		select {
 
 		/*
-		case <-notEndSuccessMsg.C:
-			if p.currentMiningStatusSuccess {
-				p.currentMiningStatusSuccess = false
-				if p.client != nil {
-					p.client.conn.Close() // restart next mining
+			case <-notEndSuccessMsg.C:
+				if p.currentMiningStatusSuccess {
+					p.currentMiningStatusSuccess = false
+					if p.client != nil {
+						p.client.conn.Close() // restart next mining
+					}
 				}
-			}
-		 */
+		*/
 
-		case <-	sendPingMsgToPoolServer.C:
+		case <-sendPingMsgToPoolServer.C:
 			if p.client != nil && p.client.workBlockHeight > 0 {
 				pingmsg := []byte("ping")
 				tarhei := fields.VarInt5(p.client.workBlockHeight)
 				heibts, _ := tarhei.Serialize()
-				p.client.conn.Write( append(pingmsg, heibts...) )
+				p.client.conn.Write(append(pingmsg, heibts...))
 				ctime := time.Now()
 				p.client.pingtime = &ctime
 				//fmt.Println("send ping", p.client)
 			}
 
-		case <- checkPongMsgReturn.C:
+		case <-checkPongMsgReturn.C:
 			//fmt.Print("chenk pong... ", p.client)
 			if p.client != nil && p.client.pingtime != nil {
 				if p.client.pingtime.Add(time.Second * time.Duration(5)).Before(time.Now()) {
 					p.client.conn.Close() // force close with no pong
 					fmt.Println(" --[ force close with no pong ]-- ")
-				}else{
+				} else {
 					//fmt.Println("ok")
 				}
 			}
@@ -61,7 +61,7 @@ func (p *MinerWorker) loop() {
 
 			block_height := msg.BlockHeadMeta.GetHeight()
 
-			client := p.pickTargetClient( block_height )
+			client := p.pickTargetClient(block_height)
 			//fmt.Println("pickTargetClient", client)
 			if client != nil {
 
@@ -78,13 +78,13 @@ func (p *MinerWorker) loop() {
 					// power worth
 					block_hash = msg.BlockHeadMeta.Hash()
 					hxworth := difficulty.CalculateHashWorth(block_hash)
-					usetimesec = int64(time.Now().Sub( client.miningStartTime ).Seconds())
+					usetimesec = int64(time.Now().Sub(client.miningStartTime).Seconds())
 					if usetimesec == 0 {
 						usetimesec = 1
 					}
 					//fmt.Println( usetimesec )
-					hxworth = new(big.Int).Div(hxworth, big.NewInt(usetimesec) )
-					powerworthshow = difficulty.ConvertPowPowerToShowFormat( hxworth )
+					hxworth = new(big.Int).Div(hxworth, big.NewInt(usetimesec))
+					powerworthshow = difficulty.ConvertPowPowerToShowFormat(hxworth)
 					powerworthshow += ", " + p.addPowerLogReturnShow(hxworth)
 				}
 				if msg.Status == message.PowMasterMsgStatusSuccess {
@@ -106,15 +106,16 @@ func (p *MinerWorker) loop() {
 
 			p.statusMutex.Unlock()
 
-
 		case <-p.immediateStartConnectCh:
-			err := p.startConnect()
-			if err != nil {
-				fmt.Println(err)
+			if p.isInConnecting == false {
+				err := p.startConnect()
+				if err != nil {
+					fmt.Println(err)
+				}
 			}
 
 		case <-restartTick.C:
-			if p.client == nil {
+			if p.client == nil && p.isInConnecting == false {
 				p.immediateStartConnectCh <- true
 			}
 

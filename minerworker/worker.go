@@ -38,14 +38,15 @@ type MinerWorker struct {
 	miningOutputCh          chan message.PowMasterMsg
 	immediateStartConnectCh chan bool
 
-	clients map[uint64]*WorkClient
-	client  *WorkClient
+	clients        map[uint64]*WorkClient
+	client         *WorkClient
+	isInConnecting bool
 
 	powerTotalCmx mapset.Set
 
 	statusMutex sync.Mutex
 
-	currentDoBlockHeight uint64
+	currentPowMasterMsg *message.PowMasterMsg
 }
 
 func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
@@ -57,6 +58,7 @@ func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
 		immediateStartConnectCh: make(chan bool, 2),
 		clients:                 map[uint64]*WorkClient{},
 		powerTotalCmx:           mapset.NewSet(),
+		isInConnecting:          false,
 	}
 
 	wkcnf := localcpu.NewEmptyLocalCPUPowMasterConfig()
