@@ -46,7 +46,8 @@ type MinerWorker struct {
 
 	statusMutex sync.Mutex
 
-	currentPowMasterMsg *message.PowMasterMsg
+	currentPowMasterMsg        *message.PowMasterMsg
+	currentPowMasterCreateTime time.Time
 }
 
 func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {

@@ -52,7 +52,7 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 
 		rn, err := conn.Read(segdata)
 		if err != nil {
-			fmt.Println(err)
+			//fmt.Println(err)
 			break
 		}
 
@@ -107,14 +107,16 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 			powmsg.Parse(data, 0)
 			tarBlockHeight := powmsg.BlockHeadMeta.GetHeight()
 
-			if p.currentPowMasterMsg != nil &&
+			if p.currentPowMasterMsg != nil && p.client != nil && p.isInConnecting &&
 				p.currentPowMasterMsg.BlockHeadMeta.GetHeight() == tarBlockHeight &&
-				p.currentPowMasterMsg.CoinbaseMsgNum == powmsg.CoinbaseMsgNum {
-				// 重复挖矿消息，忽略本次消息
+				p.currentPowMasterCreateTime.Add(time.Second*3).After(time.Now()) {
+				//p.currentPowMasterMsg.CoinbaseMsgNum == powmsg.CoinbaseMsgNum {
+				// 5秒内重复挖矿消息，忽略本次消息
 				fmt.Print(" -ignore duplicate mining messages- ")
 			} else {
 				// 执行挖矿
 				p.currentPowMasterMsg = powmsg
+				p.currentPowMasterCreateTime = time.Now()
 
 				client := NewClient(conn)
 				client.workBlockHeight = tarBlockHeight
