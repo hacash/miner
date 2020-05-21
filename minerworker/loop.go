@@ -14,7 +14,7 @@ import (
 func (p *MinerWorker) loop() {
 
 	sendPingMsgToPoolServer := time.NewTicker(time.Second * 35)
-	checkPongMsgReturn := time.NewTicker(time.Second * 4)
+	checkPongMsgReturn := time.NewTicker(time.Second * 7)
 	restartTick := time.NewTicker(time.Second * 13)
 	//notEndSuccessMsg := time.NewTicker(time.Minute * 3)
 
@@ -36,16 +36,16 @@ func (p *MinerWorker) loop() {
 				pingmsg := []byte("ping")
 				tarhei := fields.VarInt5(p.client.workBlockHeight)
 				heibts, _ := tarhei.Serialize()
-				p.client.conn.Write(append(pingmsg, heibts...))
 				ctime := time.Now()
 				p.client.pingtime = &ctime
+				p.client.conn.Write(append(pingmsg, heibts...))
 				//fmt.Println("send ping", p.client)
 			}
 
 		case <-checkPongMsgReturn.C:
 			//fmt.Print("chenk pong... ", p.client)
 			if p.client != nil && p.client.pingtime != nil {
-				if p.client.pingtime.Add(time.Second * time.Duration(5)).Before(time.Now()) {
+				if p.client.pingtime.Add(time.Second * time.Duration(13)).Before(time.Now()) {
 					p.client.conn.Close() // force close with no pong
 					fmt.Println(" --[ force close with no pong ]-- ")
 				} else {
@@ -72,7 +72,9 @@ func (p *MinerWorker) loop() {
 				var usetimesec int64 = 0
 				var block_hash fields.Hash = nil
 
-				if msg.Status == message.PowMasterMsgStatusSuccess || msg.Status == message.PowMasterMsgStatusMostPowerHash {
+				if msg.Status == message.PowMasterMsgStatusSuccess ||
+					msg.Status == message.PowMasterMsgStatusMostPowerHash ||
+					msg.Status == message.PowMasterMsgStatusMostPowerHashAndRequestNextMining {
 					msgbytes, _ := msg.Serialize()
 					go client.conn.Write(msgbytes) // send success
 					// power worth
@@ -91,7 +93,7 @@ func (p *MinerWorker) loop() {
 					//p.currentMiningStatusSuccess = true // set mining status
 					fmt.Printf("OK.\n== ⬤ == Successfully mining block height: %d, hash: %s, time: %ds, power: %s. \n", block_height, block_hash.ToHex(), usetimesec, powerworthshow)
 				}
-				if msg.Status == message.PowMasterMsgStatusMostPowerHash {
+				if msg.Status == message.PowMasterMsgStatusMostPowerHash || msg.Status == message.PowMasterMsgStatusMostPowerHashAndRequestNextMining {
 					fmt.Printf("upload hash: %d, %s..., time: %ds, power: %s ok.\n", block_height, hex.EncodeToString(block_hash[0:12]), usetimesec, powerworthshow)
 					/*if p.client != nil {
 						p.client.conn.Close() // next mining

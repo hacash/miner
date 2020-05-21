@@ -9,6 +9,7 @@ import (
 )
 
 type miningBlockReturn struct {
+	stopKind       byte
 	isSuccess      bool
 	coinbaseMsgNum uint32
 	nonceBytes     []byte
@@ -47,13 +48,14 @@ func (c *CPUWorker) RunMining(newblockheadmeta interfaces.Block, startNonce uint
 	// ========= test start =========
 	//time.Sleep(time.Second)
 	// ========= test end   =========
-	issuccess, noncebytes, powerhash := x16rs.MinerNonceHashX16RS(newblockheadmeta.GetHeight(), c.returnPowerHash, c.stopMark, startNonce, endNonce, targethashdiff, workStuff)
+	stopkind, issuccess, noncebytes, powerhash := x16rs.MinerNonceHashX16RS(newblockheadmeta.GetHeight(), c.returnPowerHash, c.stopMark, startNonce, endNonce, targethashdiff, workStuff)
 	//fmt.Println("x16rs.MinerNonceHashX16RS finish ", issuccess,  binary.LittleEndian.Uint32(noncebytes[0:4]), startNonce, endNonce)
 	if issuccess && atomic.CompareAndSwapUint32(c.successMiningMark, 0, 1) {
 		// return success block
 		*c.stopMark = 1 // set stop mark for all cpu worker
 		//fmt.Println("start c.successBlockCh <- newblock")
 		c.successBlockCh <- miningBlockReturn{
+			stopkind,
 			true,
 			c.coinbaseMsgNum,
 			noncebytes,
@@ -64,6 +66,7 @@ func (c *CPUWorker) RunMining(newblockheadmeta interfaces.Block, startNonce uint
 		return true
 	} else if c.returnPowerHash {
 		c.successBlockCh <- miningBlockReturn{
+			stopkind,
 			false,
 			c.coinbaseMsgNum,
 			noncebytes,

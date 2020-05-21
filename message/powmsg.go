@@ -11,10 +11,11 @@ import (
 const (
 	PowMasterMsgSize = blocks.BlockHeadSize + blocks.BlockMetaSizeV1 + 1 + 4 + 4
 
-	PowMasterMsgStatusContinue      fields.VarInt1 = 0
-	PowMasterMsgStatusSuccess       fields.VarInt1 = 1
-	PowMasterMsgStatusStop          fields.VarInt1 = 2
-	PowMasterMsgStatusMostPowerHash fields.VarInt1 = 3
+	PowMasterMsgStatusContinue                          fields.VarInt1 = 0
+	PowMasterMsgStatusSuccess                           fields.VarInt1 = 1
+	PowMasterMsgStatusStop                              fields.VarInt1 = 2
+	PowMasterMsgStatusMostPowerHash                     fields.VarInt1 = 3
+	PowMasterMsgStatusMostPowerHashAndRequestNextMining fields.VarInt1 = 4
 )
 
 type PowMasterMsg struct {

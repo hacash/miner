@@ -28,19 +28,17 @@ type Client struct {
 
 func NewClient(acc *Account, conn *net.TCPConn) *Client {
 	return &Client{
-		belongAccount:  acc,
-		conn:           conn,
+		belongAccount: acc,
+		conn:          conn,
 		//workBlock:      workBlock,
-		address:        nil,
+		address: nil,
 		//coinbaseMsgNum: 0,
 		workItems: mapset.NewSet(),
 	}
 }
 
-
-
 // pop and get work item
-func (c *Client) popWorkItemByBlockHeight( height uint64 ) *WorkItem {
+func (c *Client) popWorkItemByBlockHeight(height uint64) *WorkItem {
 	var taritem *WorkItem = nil
 	c.workItems.Each(func(i interface{}) bool {
 		item := i.(*WorkItem)
@@ -56,18 +54,9 @@ func (c *Client) popWorkItemByBlockHeight( height uint64 ) *WorkItem {
 	return taritem
 }
 
-
-func (c *Client) addWorkItem( wkit *WorkItem ) {
+func (c *Client) addWorkItem(wkit *WorkItem) {
 	c.workItems.Add(wkit)
 }
-
-
-
-
-
-
-
-
 
 // 上报挖矿结果
 
@@ -76,7 +65,7 @@ func (c *Client) postPowResult(msg *message.PowMasterMsg) {
 
 	block := msg.BlockHeadMeta
 
-	wkitem := c.popWorkItemByBlockHeight( block.GetHeight() )
+	wkitem := c.popWorkItemByBlockHeight(block.GetHeight())
 	//fmt.Println("popWorkItemByBlockHeight ", block.GetHeight() )
 	if wkitem == nil {
 		//fmt.Println(" wkitem == nil ")
@@ -119,10 +108,12 @@ func (c *Client) postPowResult(msg *message.PowMasterMsg) {
 			}
 		}()
 		return
-	}else{
+	} else {
 
-		// 发送继续挖矿
-		minerpool.currentRealtimePeriod.sendMiningStuffMsg( c )
+		// 收到请求，发送继续挖矿
+		if msg.Status == message.PowMasterMsgStatusMostPowerHashAndRequestNextMining {
+			minerpool.currentRealtimePeriod.sendMiningStuffMsg(c)
+		}
 
 	}
 }

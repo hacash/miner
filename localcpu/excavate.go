@@ -116,8 +116,12 @@ func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 			var mostPowerHashNonceBytes []byte = nil
 			var mostPowerHash []byte = nil
 			var mostCoinbaseNum uint32 = 0
+			var neednextminingmsg bool = true
 			for i := 0; i < int(supervene); i++ {
 				msg := <-miningBlockCh
+				if msg.stopKind != 0 {
+					neednextminingmsg = false
+				}
 				if mostPowerHash == nil {
 					mostPowerHashNonceBytes = msg.nonceBytes
 					mostPowerHash = msg.powerHash
@@ -141,12 +145,16 @@ func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 			}
 
 			// 上报最大哈希结果
-			outputCh <- message.PowMasterMsg{
+			uppowermsg := message.PowMasterMsg{
 				Status:         message.PowMasterMsgStatusMostPowerHash,
 				CoinbaseMsgNum: fields.VarInt4(mostCoinbaseNum),
 				NonceBytes:     mostPowerHashNonceBytes,
 				BlockHeadMeta:  inputblockheadmeta,
 			}
+			if neednextminingmsg {
+				uppowermsg.Status = message.PowMasterMsgStatusMostPowerHashAndRequestNextMining
+			}
+			outputCh <- uppowermsg
 
 			return
 
