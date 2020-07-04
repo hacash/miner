@@ -19,7 +19,10 @@ import (
 
 /**
 
+export GOPATH=/media/yangjie/500GB/hacash/go
+
 go build -o test/test1 miner/run/main/main.go && ./test/test1 test1.ini
+go build -o test/test3 miner/run/main/main.go && ./test/test3 test3.ini
 go build -ldflags '-w -s' -o hacash_node_2020_05_13_01 miner/run/main/main.go
 
 */

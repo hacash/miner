@@ -30,14 +30,13 @@ type MinerPool struct {
 
 	/////////////////////////////////////
 
-	checkBlockHeightMiningDict map[uint64]bool
-	successFindNewBlockHashOnce   fields.Hash
+	checkBlockHeightMiningDict  map[uint64]bool
+	successFindNewBlockHashOnce fields.Hash
 
 	successFindNewBlockHashs mapset.Set
 
-	successFindBlockCh         chan *findBlockMsg
+	successFindBlockCh chan *findBlockMsg
 	//settleRealtimePeriodCh     chan *SettlementPeriod
-
 
 	/////////////////////////////////////
 
@@ -55,15 +54,15 @@ func NewMinerPool(cnf *MinerPoolConfig) *MinerPool {
 	}
 
 	pool := &MinerPool{
-		Config:                     cnf,
-		currentTcpConnectingCount:  0,
-		checkBlockHeightMiningDict: make(map[uint64]bool),
-		successFindNewBlockHashOnce:    nil,
-		successFindNewBlockHashs:   mapset.NewSet(),
-		successFindBlockCh:         make(chan *findBlockMsg, 4),
+		Config:                      cnf,
+		currentTcpConnectingCount:   0,
+		checkBlockHeightMiningDict:  make(map[uint64]bool),
+		successFindNewBlockHashOnce: nil,
+		successFindNewBlockHashs:    mapset.NewSet(),
+		successFindBlockCh:          make(chan *findBlockMsg, 4),
 		//settleRealtimePeriodCh:     make(chan *SettlementPeriod, 4),
-		storedb:                    db,
-		txpool:                     nil,
+		storedb: db,
+		txpool:  nil,
 	}
 
 	// read status
@@ -97,9 +96,24 @@ func (p *MinerPool) SetTxPool(tp interfaces.TxPool) {
 	p.txpool = tp
 }
 
-func (p *MinerPool) GetCurrentTcpConnectingCount() int32 {
-	return p.currentTcpConnectingCount
+func (p *MinerPool) GetCurrentAddressCount() int {
+	if p.currentRealtimePeriod == nil {
+		return 0
+	}
+	return len(p.currentRealtimePeriod.realtimeAccounts)
 }
+
+func (p *MinerPool) GetCurrentMiningAccounts() map[string]*Account {
+	if p.currentRealtimePeriod == nil {
+		return map[string]*Account{}
+	}
+	return p.currentRealtimePeriod.realtimeAccounts
+}
+
+func (p *MinerPool) GetCurrentTcpConnectingCount() int {
+	return int(p.currentTcpConnectingCount)
+}
+
 func (p *MinerPool) GetCurrentRealtimePeriod() *RealtimePeriod {
 	return p.currentRealtimePeriod
 }
