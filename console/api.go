@@ -80,6 +80,9 @@ func (mc *MinerConsole) addresses(response http.ResponseWriter, request *http.Re
 				acclist = append(acclist, v)
 				totalPower += v.GetRealtimePowWorth().Uint64()
 			}
+			if totalPower <= 0 {
+				totalPower = 10000 * 10000
+			}
 			// 排序
 			//by_sort_clients := func(a1, a2 *minerpool.Account) bool {
 			//	return a1.GetClientCount() < a2.GetClientCount()
