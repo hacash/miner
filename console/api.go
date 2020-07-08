@@ -33,7 +33,12 @@ func (mc *MinerConsole) console(response http.ResponseWriter, request *http.Requ
 
 /**********************************************************************************/
 
-var data_cache_current_mining_accounts []*minerpool.Account = nil
+type AccountWithPowerRatio struct {
+	Account    *minerpool.Account
+	PowerRatio float64
+}
+
+var data_cache_current_mining_accounts []*AccountWithPowerRatio = nil
 
 type sortBy func(p1, p2 *minerpool.Account) bool
 
@@ -67,22 +72,38 @@ func (mc *MinerConsole) addresses(response http.ResponseWriter, request *http.Re
 		accmaps := mc.pool.GetCurrentMiningAccounts()
 		//fmt.Println(accmaps)
 		acclist := []*minerpool.Account{}
+		accExtList := []*AccountWithPowerRatio{}
 		// 排序
 		if len(accmaps) > 0 {
+			var totalPower uint64 = 0
 			for _, v := range accmaps {
 				acclist = append(acclist, v)
+				totalPower += v.GetRealtimePowWorth().Uint64()
 			}
 			// 排序
-			by_sort_clients := func(a1, a2 *minerpool.Account) bool {
-				return a1.GetClientCount() < a2.GetClientCount()
+			//by_sort_clients := func(a1, a2 *minerpool.Account) bool {
+			//	return a1.GetClientCount() < a2.GetClientCount()
+			//}
+			//sortBy(by_sort_clients).Sort(acclist)
+			//by_sort_addr := func(a1, a2 *minerpool.Account) bool {
+			//	return a1.GetAddress().ToReadable() < a2.GetAddress().ToReadable()
+			//}
+			//sortBy(by_sort_addr).Sort(acclist)
+			by_sort_findblocks := func(a1, a2 *minerpool.Account) bool {
+				b1, _ := a1.GetStoreData().GetFinds()
+				b2, _ := a2.GetStoreData().GetFinds()
+				return b1 > b2
 			}
-			sortBy(by_sort_clients).Sort(acclist)
-			by_sort_addr := func(a1, a2 *minerpool.Account) bool {
-				return a1.GetAddress().ToReadable() < a2.GetAddress().ToReadable()
+			sortBy(by_sort_findblocks).Sort(acclist)
+			accExtList = make([]*AccountWithPowerRatio, len(acclist))
+			for i, v := range acclist {
+				accExtList[i] = &AccountWithPowerRatio{
+					Account:    v,
+					PowerRatio: float64(v.GetRealtimePowWorth().Uint64()) / float64(totalPower),
+				}
 			}
-			sortBy(by_sort_addr).Sort(acclist)
 		}
-		data_cache_current_mining_accounts = acclist
+		data_cache_current_mining_accounts = accExtList
 		go func() {
 			time.Sleep(time.Second * 10)
 			data_cache_current_mining_accounts = nil
@@ -117,13 +138,13 @@ func (mc *MinerConsole) addresses(response http.ResponseWriter, request *http.Re
 		limit = 1
 	}
 
-	var empty_accounts = []*minerpool.Account{}
+	var empty_accounts = []*AccountWithPowerRatio{}
 
 	// single row
 	if address != "" {
 		for _, v := range data_cache_current_mining_accounts {
-			if strings.Compare(address, v.GetAddress().ToReadable()) == 0 {
-				renderAccountDatalist(mc, response, []*minerpool.Account{v})
+			if strings.Compare(address, v.Account.GetAddress().ToReadable()) == 0 {
+				renderAccountDatalist(mc, response, []*AccountWithPowerRatio{v})
 				return
 			}
 		}
@@ -149,7 +170,7 @@ func (mc *MinerConsole) addresses(response http.ResponseWriter, request *http.Re
 
 }
 
-func renderAccountDatalist(mc *MinerConsole, response http.ResponseWriter, accs []*minerpool.Account) {
+func renderAccountDatalist(mc *MinerConsole, response http.ResponseWriter, accs []*AccountWithPowerRatio) {
 	if len(accs) == 0 {
 		mc.renderJsonString(response, `{"datalist":[]}`)
 		return
@@ -164,8 +185,8 @@ func renderAccountDatalist(mc *MinerConsole, response http.ResponseWriter, accs 
 
 }
 
-func parsePowWorkerTableRowJsonString(acc *minerpool.Account) string {
-	sto := acc.GetStoreData()
+func parsePowWorkerTableRowJsonString(acc *AccountWithPowerRatio) string {
+	sto := acc.Account.GetStoreData()
 	if sto == nil {
 		return ""
 	}
@@ -175,6 +196,7 @@ func parsePowWorkerTableRowJsonString(acc *minerpool.Account) string {
 		"address":"%s",
 		"clients":%d,
 		"realtime_power":%d,
+		"realtime_power_ratio":%f,
 		"find_blocks":%d,
 		"find_coins":%d,
 		"complete_rewards":"ㄜ%d:240",
@@ -182,9 +204,10 @@ func parsePowWorkerTableRowJsonString(acc *minerpool.Account) string {
 		"unconfirmed_rewards":"ㄜ%d:240",
 		"deserved_and_unconfirmed_rewards":"ㄜ%d:240"
 	}`, "\n", "", -1),
-		acc.GetAddress().ToReadable(),
-		acc.GetClientCount(),
-		acc.GetRealtimePowWorth(),
+		acc.Account.GetAddress().ToReadable(),
+		acc.Account.GetClientCount(),
+		acc.Account.GetRealtimePowWorth(),
+		acc.PowerRatio,
 		f1, f2,
 		r1, r2, r3, r2+r3,
 	)

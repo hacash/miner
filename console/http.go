@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func (mc *MinerConsole) startHttpService() error {
@@ -17,8 +18,12 @@ func (mc *MinerConsole) startHttpService() error {
 
 	portstr := strconv.Itoa(mc.config.HttpListenPort)
 	server := &http.Server{
-		Addr:    ":" + portstr,
-		Handler: mux,
+		ReadTimeout:       time.Second * 10,
+		ReadHeaderTimeout: time.Second * 10,
+		WriteTimeout:      time.Second * 10,
+		IdleTimeout:       time.Second * 10,
+		Addr:              ":" + portstr,
+		Handler:           mux,
 	}
 
 	fmt.Println("[Miner Pool Console] Http service listen on port: " + portstr)
