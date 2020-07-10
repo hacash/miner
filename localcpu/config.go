@@ -1,6 +1,8 @@
 package localcpu
 
-import "github.com/hacash/core/sys"
+import (
+	"github.com/hacash/core/sys"
+)
 
 type LocalCPUPowMasterConfig struct {
 	ReturnPowerHash bool

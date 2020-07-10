@@ -111,9 +111,9 @@ func main() {
 
 		} else {
 
-			// local cpu
-			lccnf := localcpu.NewPowWrapConfig(hinicnf)
-			powwrap := localcpu.NewPowWrap(lccnf)
+			// full node local cpu
+			lccnf := localcpu.NewFullNodePowWrapConfig(hinicnf)
+			powwrap := localcpu.NewFullNodePowWrap(lccnf)
 			miner.SetPowServer(powwrap)
 
 		}

@@ -10,19 +10,19 @@ import (
 	"github.com/hacash/mint/coinbase"
 )
 
-type PowWrapConfig struct {
+type FullNodePowWrapConfig struct {
 	cnffile *sys.Inicnf
 }
 
-func NewEmptyPowWrapConfig() *PowWrapConfig {
-	cnf := &PowWrapConfig{}
+func NewEmptyFullNodePowWrapConfig() *FullNodePowWrapConfig {
+	cnf := &FullNodePowWrapConfig{}
 	return cnf
 }
 
 //////////////////////////////////////////////////
 
-func NewPowWrapConfig(cnffile *sys.Inicnf) *PowWrapConfig {
-	cnf := NewEmptyPowWrapConfig()
+func NewFullNodePowWrapConfig(cnffile *sys.Inicnf) *FullNodePowWrapConfig {
+	cnf := NewEmptyFullNodePowWrapConfig()
 	cnf.cnffile = cnffile
 	return cnf
 
@@ -30,19 +30,24 @@ func NewPowWrapConfig(cnffile *sys.Inicnf) *PowWrapConfig {
 
 ///////////////////////////////////////////////
 
-type PowWrap struct {
-	config *PowWrapConfig
+type FullNodePowWrap struct {
+	config *FullNodePowWrapConfig
 
 	master *LocalCPUPowMaster
 }
 
-func NewPowWrap(cnf *PowWrapConfig) *PowWrap {
+func NewFullNodePowWrap(cnf *FullNodePowWrapConfig) *FullNodePowWrap {
 
-	wrap := &PowWrap{
+	wrap := &FullNodePowWrap{
 		config: cnf,
 	}
 
 	lccnf := NewLocalCPUPowMasterConfig(cnf.cnffile)
+
+	cnfsection := cnf.cnffile.Section("miner")
+	// supervene
+	lccnf.Concurrent = uint32(cnfsection.Key("supervene").MustUint(1))
+
 	powmaster := NewLocalCPUPowMaster(lccnf)
 
 	wrap.master = powmaster
@@ -52,11 +57,11 @@ func NewPowWrap(cnf *PowWrapConfig) *PowWrap {
 
 //////////////////////////////////////////////////////////////////
 
-func (p *PowWrap) StopMining() {
+func (p *FullNodePowWrap) StopMining() {
 	p.master.StopMining()
 }
 
-func (p *PowWrap) Excavate(inputBlock interfaces.Block, outputBlockCh chan interfaces.Block) {
+func (p *FullNodePowWrap) Excavate(inputBlock interfaces.Block, outputBlockCh chan interfaces.Block) {
 
 	var coinbaseMsgNum uint32 = 0
 
