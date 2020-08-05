@@ -1,6 +1,7 @@
 package diamondminer
 
 import (
+	"crypto/rand"
 	"encoding/binary"
 	"fmt"
 	"github.com/hacash/core/actions"
@@ -40,13 +41,19 @@ func (d *DiamondMiner) RunMining(prevDiamond *stores.DiamondSmelt, diamondCreate
 				current_lock.Unlock()
 				// call mining
 				tarnumber := int(prevDiamond.Number) + 1
+				retExtMsg := make([]byte, 32) // 随机字段值，让同一个地址配置也可以挖不同的的钻石
+				mnstart, mnend := my_i, my_i+1
+				if uint32(tarnumber) > actions.DiamondCreateCustomMessageAboveNumber {
+					mnstart, mnend = 0, 4294967290
+					rand.Read(retExtMsg)
+				}
 				fmt.Printf(" #%d", my_i)
-				retNonce, diamondStr := x16rs.MinerHacashDiamond(my_i, my_i+1, tarnumber, stopMark, prevDiamond.ContainBlockHash, d.Config.Rewards)
+				retNonce, diamondFullStr := x16rs.MinerHacashDiamond(mnstart, mnend, tarnumber, stopMark, prevDiamond.ContainBlockHash, d.Config.Rewards, retExtMsg)
 				retNonceNum := binary.BigEndian.Uint64(retNonce)
 				if retNonceNum > 0 {
-					fmt.Printf("\n\n[Diamond Miner] Success find a diamond: <%s>, number: %d, nonce: %d .\n\n", diamondStr, tarnumber, retNonceNum)
+					fmt.Printf("\n\n[Diamond Miner] Success find a diamond: <%s>, number: %d, nonce: %d .\n\n", diamondFullStr, tarnumber, retNonceNum)
 					// success
-					diamondCreateActionCh <- parsediamondCreateAction(diamondStr, prevDiamond, retNonce, d.Config.Rewards)
+					diamondCreateActionCh <- parsediamondCreateAction(diamondFullStr, prevDiamond, retNonce, d.Config.Rewards, retExtMsg)
 					// go to next loop
 				}
 
@@ -63,17 +70,19 @@ func (d *DiamondMiner) RunMining(prevDiamond *stores.DiamondSmelt, diamondCreate
 }
 
 func parsediamondCreateAction(
-	diamondStr string,
+	diamondFullStr string,
 	prevDiamond *stores.DiamondSmelt,
 	retNonce []byte,
 	rewards fields.Address,
+	extMsg []byte,
 ) *actions.Action_4_DiamondCreate {
 	newact := &actions.Action_4_DiamondCreate{
-		Diamond:  []byte(diamondStr)[10:16],
-		Number:   prevDiamond.Number + 1,
-		PrevHash: prevDiamond.ContainBlockHash,
-		Nonce:    retNonce,
-		Address:  rewards,
+		Diamond:       []byte(diamondFullStr)[10:16],
+		Number:        prevDiamond.Number + 1,
+		PrevHash:      prevDiamond.ContainBlockHash,
+		Nonce:         retNonce,
+		Address:       rewards,
+		CustomMessage: extMsg,
 	}
 	return newact
 }
