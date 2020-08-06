@@ -72,7 +72,10 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 		}
 	}
 	// check tx
-	txerr := p.blockchain.ValidateTransaction(tx)
+	txerr := p.blockchain.ValidateTransaction(tx, func(tmpState interfaces.ChainState) {
+		// 标记是矿池中验证tx
+		tmpState.SetInMemTxPool(true)
+	})
 	if txerr != nil {
 		return txerr
 	}

@@ -22,7 +22,7 @@ type MemTxPool struct {
 
 	////////////////////////////////
 
-	automaticallyCleanInvalidTransactions bool
+	automaticallyCleanInvalidTransactions bool // 是否自动清理失效的交易
 
 	isBanEventSubscribe bool
 	addTxSuccess        event.Feed

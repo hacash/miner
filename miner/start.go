@@ -27,6 +27,7 @@ func (m *Miner) doStartMining() {
 	}
 	// pick up txs from pool
 	pikuptxs := m.txpool.CopyTxsOrderByFeePurity(last.GetHeight()+1, 2000, mint.SingleBlockMaxSize*2)
+	//fmt.Println("doStartMining pikuptxs", pikuptxs)
 	// create next block
 	nextblock, removetxs, totaltxsize, e1 := m.blockchain.CreateNextBlockByValidateTxs(pikuptxs)
 	if e1 != nil {
@@ -94,13 +95,12 @@ func (m *Miner) doStartMining() {
 		miningSuccessBlock, _, _ = blocks.ParseBlock(dddd, 0)
 		fmt.Println(miningSuccessBlock.GetTransactions()[0].Serialize())
 	*/
-	if nextblockHeight < 288 * 100 {
+	if nextblockHeight < 288*100 {
 		time.Sleep(time.Second)
 	}
 	// mining success
 	if miningSuccessBlock != nil {
-		miningSuccessBlock.SetOriginMark("mining")
-		inserterr := m.blockchain.InsertBlock(miningSuccessBlock)
+		inserterr := m.blockchain.InsertBlock(miningSuccessBlock, "mining")
 		if inserterr == nil {
 			coinbaseStr := ""
 			coinbasetx := miningSuccessBlock.GetTransactions()[0]
