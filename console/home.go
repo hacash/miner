@@ -75,15 +75,15 @@ func parsePowWorkerTableRow(num int, acc *minerpool.Account) string {
 			<td>%d</td>
 			<td>%d</td>
 			<td>%d/%d</td>
-			<td>ㄜ%d:240</td>
-			<td>ㄜ%d:240</td>
-			<td>ㄜ%d:240</td>
+			<td>ㄜ%s:240</td>
+			<td>ㄜ%s:240</td>
+			<td>ㄜ%s:240</td>
 		</tr>`,
 		num,
 		acc.GetAddress().ToReadable(),
 		acc.GetClientCount(),
 		acc.GetRealtimePowWorth(),
 		f1, f2,
-		r1, r2, r3,
+		commaSplix(r1), commaSplix(r2), commaSplix(r3),
 	)
 }

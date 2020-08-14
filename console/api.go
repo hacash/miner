@@ -202,16 +202,32 @@ func parsePowWorkerTableRowJsonString(acc *AccountWithPowerRatio) string {
 		"realtime_power_ratio":%f,
 		"find_blocks":%d,
 		"find_coins":%d,
-		"complete_rewards":"ㄜ%d:240",
-		"deserved_rewards":"ㄜ%d:240",
-		"unconfirmed_rewards":"ㄜ%d:240",
-		"deserved_and_unconfirmed_rewards":"ㄜ%d:240"
+		"complete_rewards":"ㄜ%s:240",
+		"deserved_rewards":"ㄜ%s:240",
+		"unconfirmed_rewards":"ㄜ%s:240",
+		"deserved_and_unconfirmed_rewards":"ㄜ%s:240"
 	}`, "\n", "", -1),
 		acc.Account.GetAddress().ToReadable(),
 		acc.Account.GetClientCount(),
 		acc.Account.GetRealtimePowWorth(),
 		acc.PowerRatio,
 		f1, f2,
-		r1, r2, r3, r2+r3,
+		commaSplix(r1), commaSplix(r2), commaSplix(r3), commaSplix(r2+r3),
 	)
+}
+
+func commaSplix(num int64) string {
+	str := strconv.FormatInt(num, 10)
+	sl := len(str)
+	if sl > 3 {
+		ns := ""
+		for i := sl - 1; i >= 0; i-- {
+			ns = string([]byte(str)[i]) + ns
+			if (sl-i)%3 == 0 {
+				ns = "," + ns
+			}
+		}
+		return strings.TrimLeft(ns, ",")
+	}
+	return str
 }
