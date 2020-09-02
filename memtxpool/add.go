@@ -70,6 +70,7 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 	// do add is diamond ?
 	for _, act := range tx.GetActions() {
 		if dcact, ok := act.(*actions.Action_4_DiamondCreate); ok {
+			// is diamond create trs
 			err := p.checkDiamondCreate(dcact)
 			if err != nil {
 				return err
