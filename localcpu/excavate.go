@@ -82,7 +82,7 @@ func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 			success := <-miningBlockCh
 			outputCh <- message.PowMasterMsg{
 				Status:         message.PowMasterMsgStatusSuccess,
-				CoinbaseMsgNum: fields.VarInt4(success.coinbaseMsgNum),
+				CoinbaseMsgNum: fields.VarUint4(success.coinbaseMsgNum),
 				NonceBytes:     success.nonceBytes,
 				BlockHeadMeta:  inputblockheadmeta,
 			}
@@ -104,7 +104,7 @@ func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 				// continue
 				outputCh <- message.PowMasterMsg{
 					Status:         message.PowMasterMsgStatusContinue,
-					CoinbaseMsgNum: fields.VarInt4(l.coinbaseMsgNum),
+					CoinbaseMsgNum: fields.VarUint4(l.coinbaseMsgNum),
 					BlockHeadMeta:  inputblockheadmeta,
 				}
 				return
@@ -147,7 +147,7 @@ func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 			// 上报最大哈希结果
 			uppowermsg := message.PowMasterMsg{
 				Status:         message.PowMasterMsgStatusMostPowerHash,
-				CoinbaseMsgNum: fields.VarInt4(mostCoinbaseNum),
+				CoinbaseMsgNum: fields.VarUint4(mostCoinbaseNum),
 				NonceBytes:     mostPowerHashNonceBytes,
 				BlockHeadMeta:  inputblockheadmeta,
 			}

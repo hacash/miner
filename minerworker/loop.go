@@ -34,7 +34,7 @@ func (p *MinerWorker) loop() {
 		case <-sendPingMsgToPoolServer.C:
 			if p.client != nil && p.client.workBlockHeight > 0 {
 				pingmsg := []byte("ping")
-				tarhei := fields.VarInt5(p.client.workBlockHeight)
+				tarhei := fields.VarUint5(p.client.workBlockHeight)
 				heibts, _ := tarhei.Serialize()
 				ctime := time.Now()
 				p.client.pingtime = &ctime

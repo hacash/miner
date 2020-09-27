@@ -9,16 +9,12 @@ import (
 	"time"
 )
 
-
 type SettlementPeriod struct {
-	period *RealtimePeriod
+	period               *RealtimePeriod
 	miningSuccessAccount *Account
-	successBlockHeight uint64
-	successBlockHash fields.Hash
-
+	successBlockHeight   uint64
+	successBlockHash     fields.Hash
 }
-
-
 
 func (p *MinerPool) createSettlementPeriod(account *Account, period *RealtimePeriod, successBlock interfaces.Block) {
 	p.periodChange.Lock()
@@ -30,24 +26,19 @@ func (p *MinerPool) createSettlementPeriod(account *Account, period *RealtimePer
 	}
 
 	// add success block hash
-	p.successFindNewBlockHashs.Add( string(successBlock.Hash()) )
+	p.successFindNewBlockHashs.Add(string(successBlock.Hash()))
 
 	go func() {
-		time.Sleep( time.Second * time.Duration( 33 ) )
-		p.settleOneSuccessPeriod( &SettlementPeriod{
+		time.Sleep(time.Second * time.Duration(33))
+		p.settleOneSuccessPeriod(&SettlementPeriod{
 			period:               period,
 			miningSuccessAccount: account,
 			successBlockHeight:   successBlock.GetHeight(),
 			successBlockHash:     successBlock.Hash(),
-		} )
+		})
 	}()
 
-
-
 }
-
-
-
 
 func (p *MinerPool) settleOneSuccessPeriod(period *SettlementPeriod) {
 	blockHeight := period.successBlockHeight
@@ -56,7 +47,7 @@ func (p *MinerPool) settleOneSuccessPeriod(period *SettlementPeriod) {
 	if err != nil {
 		return
 	}
-	if storeBlockHash.Equal( period.successBlockHash ) == false {
+	if storeBlockHash.Equal(period.successBlockHash) == false {
 		return
 	}
 	// is ok
@@ -72,7 +63,7 @@ func (p *MinerPool) settleOneSuccessPeriod(period *SettlementPeriod) {
 			cli.(*Client).conn.Close() // 关闭连接
 		}
 		//fmt.Println(acc.miningSuccessBlock.Hash().ToHex(), period.successBlockHash.ToHex())
-		if acc.miningSuccessBlock != nil && acc.miningSuccessBlock.Hash().Equal( period.successBlockHash ) {
+		if acc.miningSuccessBlock != nil && acc.miningSuccessBlock.Hash().Equal(period.successBlockHash) {
 			minerAccount = acc // 成功挖出区块的用户
 		}
 		// 其他矿工统计算力, 拷贝值，避免运算过程中被修改
@@ -101,7 +92,7 @@ func (p *MinerPool) settleOneSuccessPeriod(period *SettlementPeriod) {
 		num1 := new(big.Int).Mul(addressPowWorth[string(acc.address)], pernum)
 		num2 := new(big.Int).Div(num1, totalPowWorth)
 		reward := num2.Int64() * part2of3Reward / pernum.Int64()
-		if acc.address.Equal( minerAccount.address ) {
+		if acc.address.Equal(minerAccount.address) {
 			reward += part1of3Reward // 加上独自的1/3挖出者收益
 		}
 		//fmt.Println("rwdAccounts = append(rwdAccounts, acc)", acc.address.ToReadable(), reward)
@@ -114,7 +105,7 @@ func (p *MinerPool) settleOneSuccessPeriod(period *SettlementPeriod) {
 	//fmt.Println(len(divrwdAccounts), len(rwdAccounts), totalPowWorth.String())
 	// 保存挖出矿工收益
 	minerAccount.storeData.findBlocks += 1
-	minerAccount.storeData.findCoins += fields.VarInt4(rwdcoin)
+	minerAccount.storeData.findCoins += fields.VarUint4(rwdcoin)
 	// 保存比例矿工收益
 	for _, acc := range rwdAccounts {
 		err = p.saveAccountStoreData(acc)
@@ -128,9 +119,6 @@ func (p *MinerPool) settleOneSuccessPeriod(period *SettlementPeriod) {
 	_ = p.saveFoundBlockHash(period.successBlockHeight, period.successBlockHash)
 
 }
-
-
-
 
 /*
 
@@ -197,7 +185,7 @@ func (p *MinerPool) settleOnePeriod(period *RealtimePeriod) {
 	}
 	// 保存收益
 	minerAccount.storeData.findBlocks += 1
-	minerAccount.storeData.findCoins += fields.VarInt4(rwdcoin)
+	minerAccount.storeData.findCoins += fields.VarUint4(rwdcoin)
 	if len(rwdAccounts) == 0 {
 		// 如果只有一个账户挖矿，则拿到全部奖励
 		minerAccount.storeData.appendUnconfirmedRewards(uint32(blockHeight), uint64(totalReward))

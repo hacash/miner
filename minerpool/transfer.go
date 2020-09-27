@@ -76,7 +76,7 @@ func (p *MinerPool) startDoTransfer(curblkheight uint64, period *RealtimePeriod)
 	// change store data
 	for _, acc := range trsAccounts {
 		acc.storeData.moveRewards("complete", uint64(acc.storeData.deservedRewards))
-		acc.storeData.prevTransferBlockHeight = fields.VarInt4(uint32(curblkheight))
+		acc.storeData.prevTransferBlockHeight = fields.VarUint4(uint32(curblkheight))
 		_ = p.saveAccountStoreData(acc)
 	}
 	// ok

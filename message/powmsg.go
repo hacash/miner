@@ -11,16 +11,16 @@ import (
 const (
 	PowMasterMsgSize = blocks.BlockHeadSize + blocks.BlockMetaSizeV1 + 1 + 4 + 4
 
-	PowMasterMsgStatusContinue                          fields.VarInt1 = 0
-	PowMasterMsgStatusSuccess                           fields.VarInt1 = 1
-	PowMasterMsgStatusStop                              fields.VarInt1 = 2
-	PowMasterMsgStatusMostPowerHash                     fields.VarInt1 = 3
-	PowMasterMsgStatusMostPowerHashAndRequestNextMining fields.VarInt1 = 4
+	PowMasterMsgStatusContinue                          fields.VarUint1 = 0
+	PowMasterMsgStatusSuccess                           fields.VarUint1 = 1
+	PowMasterMsgStatusStop                              fields.VarUint1 = 2
+	PowMasterMsgStatusMostPowerHash                     fields.VarUint1 = 3
+	PowMasterMsgStatusMostPowerHashAndRequestNextMining fields.VarUint1 = 4
 )
 
 type PowMasterMsg struct {
-	Status         fields.VarInt1 //
-	CoinbaseMsgNum fields.VarInt4
+	Status         fields.VarUint1 //
+	CoinbaseMsgNum fields.VarUint4
 	NonceBytes     fields.Bytes4
 	BlockHeadMeta  interfaces.Block
 }

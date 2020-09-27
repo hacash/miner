@@ -23,7 +23,6 @@ type RealtimePeriod struct {
 
 	outputBlockCh *chan interfaces.Block
 
-
 	changeLock sync.Mutex
 }
 
@@ -46,7 +45,7 @@ func (r *RealtimePeriod) getAutoIncrementCoinbaseMsgNum() uint32 {
 }
 
 func (r *RealtimePeriod) sendMiningStuffMsgToAllClient() {
-	for _, v := range r.realtimeAccounts{
+	for _, v := range r.realtimeAccounts {
 		v.activeClients.Each(func(i interface{}) bool {
 			cli := i.(*Client)
 			r.sendMiningStuffMsg(cli)
@@ -64,7 +63,7 @@ func (r *RealtimePeriod) sendMiningStuffMsg(client *Client) {
 	}
 	cbmsgnum := r.getAutoIncrementCoinbaseMsgNum()
 	msgobj := message.NewPowMasterMsg()
-	msgobj.CoinbaseMsgNum = fields.VarInt4(cbmsgnum)
+	msgobj.CoinbaseMsgNum = fields.VarUint4(cbmsgnum)
 	//fmt.Println("sendMiningStuffMsg", uint32(msgobj.CoinbaseMsgNum) )
 	coinbase.UpdateBlockCoinbaseMessageForMiner(r.targetBlock, uint32(msgobj.CoinbaseMsgNum))
 	r.targetBlock.SetMrklRoot(blocks.CalculateMrklRoot(r.targetBlock.GetTransactions()))
@@ -86,9 +85,8 @@ func (r *RealtimePeriod) successFindNewBlock(block interfaces.Block) {
 	}
 }
 
-
 func (r *RealtimePeriod) IsOverEndBlock(blkheibts []byte) bool {
-	tarhei := fields.VarInt5(0)
+	tarhei := fields.VarUint5(0)
 	tarhei.Parse(blkheibts[0:5], 0)
 	return uint64(tarhei) != r.targetBlock.GetHeight()
 }
@@ -108,7 +106,6 @@ func (r *RealtimePeriod) endCurrentMining() {
 		}
 	}()
 }
-
 
 ///////////////////////////
 

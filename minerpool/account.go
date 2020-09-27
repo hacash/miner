@@ -36,17 +36,17 @@ func NewAccountByPeriod(address fields.Address, period *RealtimePeriod) *Account
 		realtimePeriod:     period,
 		address:            address,
 		//workBlock:          period.targetBlock,
-		activeClients:      mapset.NewSet(),
-		realtimePowWorth:   new(big.Int),
-		storeData:          nil,
+		activeClients:    mapset.NewSet(),
+		realtimePowWorth: new(big.Int),
+		storeData:        nil,
 	}
 	return acc
 }
 
 func (a Account) CopyByPeriod(period *RealtimePeriod) *Account {
 	acc := &Account{
-		realtimePeriod:   period,
-		address:          append([]byte{}, a.address...),
+		realtimePeriod: period,
+		address:        append([]byte{}, a.address...),
 		//workBlock:        period.targetBlock,
 		activeClients:    mapset.NewSet(),
 		realtimePowWorth: new(big.Int),
@@ -75,14 +75,14 @@ func (a *Account) GetRealtimePowWorth() *big.Int {
 
 type AccountStoreData struct {
 	//
-	findBlocks              fields.VarInt4 // 挖出的区块数量
-	findCoins               fields.VarInt4 // 挖出的币数量
-	completeRewards         fields.VarInt8 // 已完成并打币的奖励     单位：铢 ㄜ240  （10^8）
-	deservedRewards         fields.VarInt8 // 应得但还没有打币的奖励  单位：铢 ㄜ240  （10^8）
-	unconfirmedRewards      fields.VarInt8 // 挖出还没经过确认的奖励  单位：铢 ㄜ240  （10^8）
-	prevTransferBlockHeight fields.VarInt4 // 上一次打币时的区块
+	findBlocks              fields.VarUint4 // 挖出的区块数量
+	findCoins               fields.VarUint4 // 挖出的币数量
+	completeRewards         fields.VarUint8 // 已完成并打币的奖励     单位：铢 ㄜ240  （10^8）
+	deservedRewards         fields.VarUint8 // 应得但还没有打币的奖励  单位：铢 ㄜ240  （10^8）
+	unconfirmedRewards      fields.VarUint8 // 挖出还没经过确认的奖励  单位：铢 ㄜ240  （10^8）
+	prevTransferBlockHeight fields.VarUint4 // 上一次打币时的区块
 	//
-	unconfirmedRewardListCount fields.VarInt4
+	unconfirmedRewardListCount fields.VarUint4
 	unconfirmedRewardList      []fields.Bytes12 // 4 + 8 : blockHeight + reward
 	//
 	others fields.Bytes16 // 备用扩展字段
@@ -98,7 +98,7 @@ func NewEmptyAccountStoreData(curhei uint64) *AccountStoreData {
 		0,
 		0,
 		0,
-		fields.VarInt4(uint32(curhei)),
+		fields.VarUint4(uint32(curhei)),
 		0,
 		[]fields.Bytes12{},
 		fields.Bytes16{},
@@ -114,15 +114,15 @@ func (s *AccountStoreData) moveRewards(target string, rewards uint64) bool {
 		if uint64(s.unconfirmedRewards) < rewards {
 			return false
 		}
-		s.unconfirmedRewards = fields.VarInt8(uint64(s.unconfirmedRewards) - rewards)
-		s.deservedRewards = fields.VarInt8(uint64(s.deservedRewards) + rewards)
+		s.unconfirmedRewards = fields.VarUint8(uint64(s.unconfirmedRewards) - rewards)
+		s.deservedRewards = fields.VarUint8(uint64(s.deservedRewards) + rewards)
 		return true
 	} else if target == "complete" {
 		if uint64(s.deservedRewards) < rewards {
 			return false
 		}
-		s.deservedRewards = fields.VarInt8(uint64(s.deservedRewards) - rewards)
-		s.completeRewards = fields.VarInt8(uint64(s.completeRewards) + rewards)
+		s.deservedRewards = fields.VarUint8(uint64(s.deservedRewards) - rewards)
+		s.completeRewards = fields.VarUint8(uint64(s.completeRewards) + rewards)
 		return true
 	}
 	return false
@@ -154,7 +154,7 @@ func (s *AccountStoreData) appendUnconfirmedRewards(blockHeight uint32, rewards 
 	s.changeMutex.Lock()
 	defer s.changeMutex.Unlock()
 	// start
-	s.unconfirmedRewards += fields.VarInt8(rewards)
+	s.unconfirmedRewards += fields.VarUint8(rewards)
 	s.unconfirmedRewardListCount += 1
 	rwdlstdts := make([]byte, 12)
 	binary.BigEndian.PutUint32(rwdlstdts[0:4], uint32(blockHeight))
