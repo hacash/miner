@@ -33,6 +33,7 @@ func (d *DiamondMiner) successFindDiamondAddTxPool(diamondCreateAction *actions.
 		fmt.Println("[Diamond Miner Error] AddTx error", err)
 		return
 	}
+	d.currentSuccessMiningDiamondTx = tx
 	// ok
 	fmt.Printf("\n\n[Diamond Miner] Diamond %d <%s> add to txpool, hx %s.\n\n", diamondCreateAction.Number, diamondCreateAction.Diamond, tx.Hash().ToHex())
 }

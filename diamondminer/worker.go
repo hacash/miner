@@ -3,6 +3,7 @@ package diamondminer
 import (
 	"crypto/rand"
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"github.com/hacash/core/actions"
 	"github.com/hacash/core/fields"
@@ -51,10 +52,13 @@ func (d *DiamondMiner) RunMining(prevDiamond *stores.DiamondSmelt, diamondCreate
 				retNonce, diamondFullStr := x16rs.MinerHacashDiamond(mnstart, mnend, tarnumber, stopMark, prevDiamond.ContainBlockHash, d.Config.Rewards, retExtMsg)
 				retNonceNum := binary.BigEndian.Uint64(retNonce)
 				if retNonceNum > 0 {
-					fmt.Printf("\n\n[Diamond Miner] Success find a diamond: <%s>, number: %d, nonce: %d .\n\n", diamondFullStr, tarnumber, retNonceNum)
+					fmt.Printf("\n\n[Diamond Miner] Success find a diamond: <%s>, number: %d, nonce: %d, extmsg: %s.\n\n",
+						diamondFullStr, tarnumber, retNonceNum, hex.EncodeToString(retExtMsg))
 					// success
 					diamondCreateActionCh <- parsediamondCreateAction(diamondFullStr, prevDiamond, retNonce, d.Config.Rewards, retExtMsg)
-					// go to next loop
+					// set all stop
+					*stopMark = 1
+					return
 				}
 
 				if *stopMark == 1 {

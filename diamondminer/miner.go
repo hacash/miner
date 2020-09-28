@@ -22,15 +22,19 @@ type DiamondMiner struct {
 	newDiamondBeFoundCh    chan *stores.DiamondSmelt
 	successMiningDiamondCh chan *actions.Action_4_DiamondCreate
 
+	// 当前挖掘成功的钻石交易
+	currentSuccessMiningDiamondTx interfaces.Transaction
+
 	changeLock sync.Mutex
 }
 
 func NewDiamondMiner(cnf *DiamondMinerConfig) *DiamondMiner {
 	dia := &DiamondMiner{
-		Config:                 cnf,
-		stopMarks:              map[*byte]*byte{},
-		newDiamondBeFoundCh:    make(chan *stores.DiamondSmelt, 2),
-		successMiningDiamondCh: make(chan *actions.Action_4_DiamondCreate, 4),
+		Config:                        cnf,
+		stopMarks:                     map[*byte]*byte{},
+		newDiamondBeFoundCh:           make(chan *stores.DiamondSmelt, 2),
+		successMiningDiamondCh:        make(chan *actions.Action_4_DiamondCreate, 4),
+		currentSuccessMiningDiamondTx: nil,
 	}
 
 	return dia
