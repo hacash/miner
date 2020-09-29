@@ -46,6 +46,9 @@ func (d *DiamondMiner) doAutoBidForMyDiamond() {
 		fmt.Println("doAutoBidForMyDiamond Error:", e1)
 		return
 	}
+	if newmyfee, _, e2 := myfee.CompressForMainNumLen(4, true); e2 == nil && newmyfee != nil {
+		myfee = newmyfee // 向上压缩长度
+	}
 	// 是否高于我设定的最高价
 	if d.Config.AutoBidMaxFee.LessThan(&topfee) {
 		return
