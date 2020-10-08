@@ -12,16 +12,22 @@ import (
 	"sync"
 )
 
+func (d *DiamondMiner) StopAll() {
+	for _, v := range d.stopMarks {
+		*v = 1 // stop
+	}
+	// clear
+	d.stopMarks = map[*byte]*byte{}
+}
+
 func (d *DiamondMiner) RunMining(prevDiamond *stores.DiamondSmelt, diamondCreateActionCh chan *actions.Action_4_DiamondCreate) {
 	d.changeLock.Lock()
 	defer d.changeLock.Unlock()
 
-	fmt.Printf("do diamond mining... number: %d, supervene: %d, start worker:", prevDiamond.Number+1, d.Config.Supervene)
-
 	// stop prev all
-	for _, v := range d.stopMarks {
-		*v = 1 // stop
-	}
+	d.StopAll()
+
+	fmt.Printf("do diamond mining... number: %d, supervene: %d, start worker:", prevDiamond.Number+1, d.Config.Supervene)
 
 	var stopMark byte = 0
 	d.stopMarks[&stopMark] = &stopMark
@@ -57,8 +63,12 @@ func (d *DiamondMiner) RunMining(prevDiamond *stores.DiamondSmelt, diamondCreate
 					// success
 					diamondCreateActionCh <- parsediamondCreateAction(diamondFullStr, prevDiamond, retNonce, d.Config.Rewards, retExtMsg)
 					// set all stop
-					*stopMark = 1
-					return
+					if !d.Config.Continued {
+						// 非连续挖矿
+						*stopMark = 1
+						return
+					}
+					// 连续不停的挖矿
 				}
 
 				if *stopMark == 1 {

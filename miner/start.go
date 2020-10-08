@@ -64,7 +64,7 @@ func (m *Miner) doStartMining() {
 
 	fmt.Printf("do mining... block height: %d, txs: %d, prev: %s..., difficulty: %d, size: %fkb, time: %s\n",
 		nextblockHeight,
-		nextblock.GetTransactionCount()-1,
+		nextblock.GetCustomerTransactionCount(),
 		string([]byte(nextblock.GetPrevHash().ToHex())[0:32]),
 		nextblock.GetDifficulty(),
 		float64(totaltxsize)/1024,
@@ -109,7 +109,7 @@ func (m *Miner) doStartMining() {
 			// show success
 			fmt.Printf("⬤ mining new block height: %d, txs: %d, hash: %s, coinbase: %s, successfully!\n",
 				miningSuccessBlock.GetHeight(),
-				miningSuccessBlock.GetTransactionCount()-1,
+				miningSuccessBlock.GetCustomerTransactionCount(),
 				miningSuccessBlock.Hash().ToHex(),
 				coinbaseStr,
 			)

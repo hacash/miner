@@ -9,15 +9,23 @@ import (
 // 钻石挖掘自动竞价
 func (d *DiamondMiner) doAutoBidForMyDiamond() {
 	//fmt.Println("- doAutoBidForMyDiamond")
-	if d.currentSuccessMiningDiamondTx == nil {
-		return
-	}
 
 	firstFeeTxs := d.txpool.GetDiamondCreateTxs(1) // 取出第一枚钻石挖掘交易
 	if firstFeeTxs == nil || len(firstFeeTxs) == 0 {
 		return // 没有钻石
 	}
 	firstFeeTx := firstFeeTxs[0]
+	// 我自己排第一位
+	if bytes.Compare(firstFeeTx.GetAddress(), d.Config.FeeAccount.Address) == 0 {
+		if !d.Config.Continued {
+			// 非连续挖矿时，停止本机的挖掘
+			d.StopAll()
+		}
+		return
+	}
+	if d.currentSuccessMiningDiamondTx == nil {
+		return
+	}
 	// 比较钻石序号
 	curact := transactions.CheckoutAction_4_DiamondCreateFromTx(d.currentSuccessMiningDiamondTx)
 	firstact := transactions.CheckoutAction_4_DiamondCreateFromTx(firstFeeTx)
@@ -26,10 +34,6 @@ func (d *DiamondMiner) doAutoBidForMyDiamond() {
 	}
 	if curact.Number != firstact.Number {
 		d.currentSuccessMiningDiamondTx = nil // 无效的挖掘
-		return
-	}
-	// 我自己排第一位
-	if bytes.Compare(firstFeeTx.GetAddress(), d.Config.FeeAccount.Address) == 0 {
 		return
 	}
 	// 放弃竞争的地址

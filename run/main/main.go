@@ -11,7 +11,8 @@ import (
 	"github.com/hacash/miner/minerpool"
 	"github.com/hacash/mint"
 	"github.com/hacash/node/backend"
-	rpc "github.com/hacash/service/deprecated"
+	deprecated "github.com/hacash/service/deprecated"
+	rpc "github.com/hacash/service/rpc"
 	"os"
 	"os/signal"
 	"time"
@@ -85,10 +86,10 @@ func main() {
 	// start
 	hnode.Start()
 
-	isOpenMiner := hinicnf.Section("miner").Key("enable").MustString("false") == "true"
-	isOpenMinerPool := hinicnf.Section("minerpool").Key("enable").MustString("false") == "true"
-	isOpenService := hinicnf.Section("service").Key("enable").MustString("false") == "true"
-	isOpenDiamondMiner := hinicnf.Section("diamondminer").Key("enable").MustString("false") == "true"
+	isOpenMiner := hinicnf.Section("miner").Key("enable").MustBool(false)
+	isOpenMinerPool := hinicnf.Section("minerpool").Key("enable").MustBool(false)
+	isOpenService := hinicnf.Section("service").Key("enable").MustBool(false)
+	isOpenDiamondMiner := hinicnf.Section("diamondminer").Key("enable").MustBool(false)
 
 	if isOpenMiner {
 
@@ -142,12 +143,25 @@ func main() {
 
 	// http api service
 	if isOpenService {
-		svcnf := rpc.NewDeprecatedApiServiceConfig(hinicnf)
-		deprecatedApi := rpc.NewDeprecatedApiService(svcnf)
-		deprecatedApi.SetBlockChain(blockchainobj)
-		deprecatedApi.SetTxPool(txpool)
-		deprecatedApi.SetBackend(hnode)
-		deprecatedApi.Start()
+
+		// deprecated http api
+		svcnf := deprecated.NewDeprecatedApiServiceConfig(hinicnf)
+		if svcnf.HttpListenPort > 0 {
+			deprecatedApi := deprecated.NewDeprecatedApiService(svcnf)
+			deprecatedApi.SetBlockChain(blockchainobj)
+			deprecatedApi.SetTxPool(txpool)
+			deprecatedApi.SetBackend(hnode)
+			deprecatedApi.Start()
+		}
+
+		// rpc api
+		rpccnf := rpc.NewRpcConfig(hinicnf)
+		if rpccnf.HttpListenPort > 0 {
+			rpcService := rpc.NewRpcService(rpccnf)
+			rpcService.SetTxPool(txpool)
+			rpcService.SetBackend(hnode)
+			rpcService.Start()
+		}
 	}
 
 	// diamond miner

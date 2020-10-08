@@ -16,6 +16,7 @@ type DiamondMinerConfig struct {
 	FeeAmount  *fields.Amount
 	FeeAccount *account.Account
 	Rewards    fields.Address
+	Continued  bool // 连续不停的挖矿钻石
 	// 自动竞价
 	AutoBid                bool              // 是否开启
 	AutoBidMaxFee          *fields.Amount    // 单枚钻石最高报价
@@ -29,6 +30,7 @@ func NewEmptyDiamondMinerConfig() *DiamondMinerConfig {
 		FeeAmount:              fields.NewAmountSmall(1, 246),
 		FeeAccount:             nil,
 		Rewards:                nil,
+		Continued:              false,
 		AutoBid:                false,
 		AutoBidMaxFee:          fields.NewAmountSmall(10, 250), // 1000枚
 		AutoBidMarginFee:       fields.NewAmountSmall(1, 246),
@@ -64,13 +66,9 @@ func NewDiamondMinerConfig(cnffile *sys.Inicnf) *DiamondMinerConfig {
 		fmt.Println("[Diamond Miner Config Error] FeeAmount:", err)
 		os.Exit(0)
 	}
+	cnf.Continued = cnfsection.Key("continued").MustBool(false) // 连续挖矿
 	// 自动竞价
-	autobid := cnfsection.Key("autobid").MustString("false")
-	if strings.Compare(autobid, "true") == 0 {
-		cnf.AutoBid = true
-	} else {
-		cnf.AutoBid = false
-	}
+	cnf.AutoBid = cnfsection.Key("autobid").MustBool(false)
 	if cnf.AutoBid {
 		autobidMaxFee, err3 := fields.NewAmountFromFinString(cnfsection.Key("autobid_fee_max").MustString("ㄜ10:250"))
 		if err3 == nil {
