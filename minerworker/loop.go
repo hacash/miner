@@ -26,7 +26,7 @@ func (p *MinerWorker) loop() {
 				if p.currentMiningStatusSuccess {
 					p.currentMiningStatusSuccess = false
 					if p.client != nil {
-						p.client.conn.Close() // restart next mining
+						p.client.conn.notifyClose() // restart next mining
 					}
 				}
 		*/
@@ -96,7 +96,7 @@ func (p *MinerWorker) loop() {
 				if msg.Status == message.PowMasterMsgStatusMostPowerHash || msg.Status == message.PowMasterMsgStatusMostPowerHashAndRequestNextMining {
 					fmt.Printf("upload hash: %d, %s..., time: %ds, power: %s ok.\n", block_height, hex.EncodeToString(block_hash[0:12]), usetimesec, powerworthshow)
 					/*if p.client != nil {
-						p.client.conn.Close() // next mining
+						p.client.conn.notifyClose() // next mining
 					}*/
 				}
 				if client.setend {

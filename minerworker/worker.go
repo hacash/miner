@@ -73,7 +73,7 @@ func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
 
 func (p *MinerWorker) Start() {
 
-	fmt.Printf("[Start] Connect: %s, rewards: %s, supervene: %d. \n",
+	fmt.Printf("[Start] notifyConnect: %s, rewards: %s, supervene: %d. \n",
 		p.config.PoolAddress.String(),
 		p.config.Rewards.ToReadable(),
 		p.config.Concurrent,

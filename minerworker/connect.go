@@ -143,7 +143,7 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 		}
 	}
 
-	//fmt.Println( "------ - --- - - -- break conn.Close()" )
+	//fmt.Println( "------ - --- - - -- break conn.notifyClose()" )
 
 	conn.Close()
 
