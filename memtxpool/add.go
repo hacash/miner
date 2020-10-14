@@ -81,7 +81,7 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 			if p.isBanEventSubscribe == false {
 				p.addTxSuccess.Send(tx)
 			}
-			fmt.Println("memtxpool add diamond create tx:", tx.Hash().ToHex())
+			fmt.Println("memtxpool add diamond create tx:", tx.Hash().ToHex(), ", diamond:", dcact.Number, string(dcact.Diamond))
 			return nil // add successfully !
 		}
 	}
