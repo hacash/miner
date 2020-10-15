@@ -77,7 +77,7 @@ func (d *DiamondMiner) doAutoBidForMyDiamond() {
 	}
 
 	// 成功
-	fmt.Printf("\ndiamond auto bid name: <%s>, tx: <%s>, fee: %s => %s .\n\n",
+	fmt.Printf("diamond auto bid name: <%s>, tx: <%s>, fee: %s => %s \n",
 		string(curact.Diamond), newtx.Hash().ToHex(),
 		topfee.ToFinString(), myfee.ToFinString(),
 	)
