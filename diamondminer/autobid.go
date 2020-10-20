@@ -15,10 +15,22 @@ func (d *DiamondMiner) doAutoBidForMyDiamond() {
 		return // 没有钻石
 	}
 	firstFeeTx := firstFeeTxs[0]
+	// 放弃竞争的地址
+	for _, iaddr := range d.Config.AutoBidIgnoreAddresses {
+		if bytes.Compare(firstFeeTx.GetAddress(), *iaddr) == 0 {
+			if !d.Config.Continued {
+				// 非连续挖矿时，停止本机的挖掘
+				//fmt.Println("diamond miner stop all, because fee addr:", iaddr.ToReadable())
+				d.StopAll()
+			}
+			return
+		}
+	}
 	// 我自己排第一位
 	if bytes.Compare(firstFeeTx.GetAddress(), d.Config.FeeAccount.Address) == 0 {
 		if !d.Config.Continued {
 			// 非连续挖矿时，停止本机的挖掘
+			//fmt.Println("diamond miner stop all, because fee addr:", firstFeeTx.GetAddress().ToReadable())
 			d.StopAll()
 		}
 		return
@@ -35,12 +47,6 @@ func (d *DiamondMiner) doAutoBidForMyDiamond() {
 	if curact.Number != firstact.Number {
 		d.currentSuccessMiningDiamondTx = nil // 无效的挖掘
 		return
-	}
-	// 放弃竞争的地址
-	for _, iaddr := range d.Config.AutoBidIgnoreAddresses {
-		if bytes.Compare(firstFeeTx.GetAddress(), *iaddr) == 0 {
-			return
-		}
 	}
 
 	// 开始竞价
