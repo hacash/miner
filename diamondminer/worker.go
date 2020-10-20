@@ -1,6 +1,7 @@
 package diamondminer
 
 import (
+	"bytes"
 	"crypto/rand"
 	"encoding/binary"
 	"encoding/hex"
@@ -48,7 +49,7 @@ func (d *DiamondMiner) RunMining(prevDiamond *stores.DiamondSmelt, diamondCreate
 				current_lock.Unlock()
 				// call mining
 				tarnumber := int(prevDiamond.Number) + 1
-				retExtMsg := make([]byte, 32) // 随机字段值，让同一个地址配置也可以挖不同的的钻石
+				retExtMsg := bytes.Repeat([]byte{0}, 32) // 随机字段值，让同一个地址配置也可以挖不同的的钻石
 				mnstart, mnend := my_i, my_i+1
 				if uint32(tarnumber) > actions.DiamondCreateCustomMessageAboveNumber {
 					mnstart, mnend = 0, 4294967290

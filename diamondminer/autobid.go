@@ -54,7 +54,7 @@ func (d *DiamondMiner) doAutoBidForMyDiamond() {
 		myfee = newmyfee // 向上压缩长度
 	}
 	// 是否高于我设定的最高价
-	if d.Config.AutoBidMaxFee.LessThan(&topfee) {
+	if d.Config.AutoBidMaxFee.LessThan(topfee) {
 		return
 	}
 	if d.Config.AutoBidMaxFee.LessThan(myfee) {
