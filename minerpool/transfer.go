@@ -45,8 +45,8 @@ func (p *MinerPool) startDoTransfer(curblkheight uint64, period *RealtimePeriod)
 		fmt.Printf("[Miner Pool Transfer Error] Balance not is empty.")
 		return
 	}
-	if balance.Amount.LessThan(checkAmt) {
-		fmt.Printf("[Miner Pool Transfer Error] Balance not enough, need %s but only have %s .", checkAmt.ToFinString(), balance.Amount.ToFinString())
+	if balance.Hacash.LessThan(checkAmt) {
+		fmt.Printf("[Miner Pool Transfer Error] Balance not enough, need %s but only have %s .", checkAmt.ToFinString(), balance.Hacash.ToFinString())
 		return
 	}
 	tx.Fee = *totalFee // set fee

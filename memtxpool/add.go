@@ -50,9 +50,9 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 		febls := p.blockchain.State().Balance(txitem.tx.GetAddress())
 		blastr := "ㄜ0:0"
 		if febls != nil {
-			blastr = febls.Amount.ToFinString()
+			blastr = febls.Hacash.ToFinString()
 		}
-		if febls == nil || febls.Amount.LessThan(txfee) {
+		if febls == nil || febls.Hacash.LessThan(txfee) {
 			// 余额不足以支付手续费
 			return fmt.Errorf("fee address balance need not less than %s but got %s.", txfee.ToFinString(), txitem.tx.GetAddress(), blastr)
 		}
