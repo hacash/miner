@@ -13,6 +13,6 @@ func (a *Account) addPowWorth(hash fields.Hash) {
 
 	//fmt.Println("addPowWorth", a, hash.ToHex())
 
-	val := difficulty.CalculateHashWorth(hash)
+	val := difficulty.CalculateHashWorth(1, hash)
 	a.realtimePowWorth = new(big.Int).Add(a.realtimePowWorth, val)
 }

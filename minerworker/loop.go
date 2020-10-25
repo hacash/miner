@@ -68,7 +68,7 @@ func (p *MinerWorker) loop() {
 				msg.BlockHeadMeta.SetNonce(binary.BigEndian.Uint32(msg.NonceBytes))
 				msg.BlockHeadMeta.Fresh()
 
-				var powerworthshow string = ""
+				var hashrateshow string = "-"
 				var usetimesec int64 = 0
 				var block_hash fields.Hash = nil
 
@@ -79,22 +79,23 @@ func (p *MinerWorker) loop() {
 					go client.conn.Write(msgbytes) // send success
 					// power worth
 					block_hash = msg.BlockHeadMeta.Hash()
-					hxworth := difficulty.CalculateHashWorth(block_hash)
+					hxworth := difficulty.CalculateHashWorth(msg.BlockHeadMeta.GetHeight(), block_hash)
 					usetimesec = int64(time.Now().Sub(client.miningStartTime).Seconds())
 					if usetimesec == 0 {
 						usetimesec = 1
 					}
 					//fmt.Println( usetimesec )
-					hxworth = new(big.Int).Div(hxworth, big.NewInt(usetimesec))
-					powerworthshow = difficulty.ConvertPowPowerToShowFormat(hxworth)
-					powerworthshow += ", " + p.addPowerLogReturnShow(hxworth)
+					hashrate := new(big.Int).Div(hxworth, big.NewInt(usetimesec))
+					//hashrateshow = difficulty.ConvertPowPowerToShowFormat(hashrate)
+					//hashrateshow += ", " + p.addPowerLogReturnShow(hashrate)
+					hashrateshow = p.addPowerLogReturnShow(hashrate)
 				}
 				if msg.Status == message.PowMasterMsgStatusSuccess {
 					//p.currentMiningStatusSuccess = true // set mining status
-					fmt.Printf("OK.\n== ⬤ == Successfully mining block height: %d, hash: %s, time: %ds, power: %s. \n", block_height, block_hash.ToHex(), usetimesec, powerworthshow)
+					fmt.Printf("OK.\n== ⬤ == Successfully mining block height: %d, hash: %s, time: %ds, hashrate: %s. \n", block_height, block_hash.ToHex(), usetimesec, hashrateshow)
 				}
 				if msg.Status == message.PowMasterMsgStatusMostPowerHash || msg.Status == message.PowMasterMsgStatusMostPowerHashAndRequestNextMining {
-					fmt.Printf("upload hash: %d, %s..., time: %ds, power: %s ok.\n", block_height, hex.EncodeToString(block_hash[0:12]), usetimesec, powerworthshow)
+					fmt.Printf("upload hash: %d, %s..., time: %ds, hashrate: %s ok.\n", block_height, hex.EncodeToString(block_hash[0:12]), usetimesec, hashrateshow)
 					/*if p.client != nil {
 						p.client.conn.notifyClose() // next mining
 					}*/

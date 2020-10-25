@@ -8,7 +8,7 @@ import (
 func (p *MinerWorker) addPowerLogReturnShow(hxworth *big.Int) string {
 
 	p.powerTotalCmx.Add(hxworth)
-	if p.powerTotalCmx.Cardinality() > 32 {
+	if p.powerTotalCmx.Cardinality() > 24 {
 		p.powerTotalCmx.Pop()
 	}
 
@@ -20,6 +20,5 @@ func (p *MinerWorker) addPowerLogReturnShow(hxworth *big.Int) string {
 
 	resworth = new(big.Int).Div(resworth, big.NewInt(int64(p.powerTotalCmx.Cardinality())))
 
-
-	return difficulty.ConvertPowPowerToShowFormat( resworth )
+	return difficulty.ConvertPowPowerToShowFormat(resworth)
 }
