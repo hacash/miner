@@ -32,9 +32,9 @@ go build -ldflags '-w -s' -o hacash_node_2020_05_13_01 miner/run/main/main.go
 
 编译发布版本：
 
-go build -ldflags '-w -s' -o hacash_node_2020_10_26_01 miner/run/main/main.go
-go build -ldflags '-w -s' -o  poolworker_2020_10_26_01 miner/run/minerworker/main.go
-go build -ldflags '-w -s' -o   cmdwallet_2020_10_26_01 cmdwallet/run/main/main.go
+go build -ldflags '-w -s' -o hacash_node_2020_10_26_02      miner/run/main/main.go
+go build -ldflags '-w -s' -o miner_poolworker_2020_10_26_02 miner/run/minerworker/main.go
+go build -ldflags '-w -s' -o cmdwallet_2020_10_26_02        cmdwallet/run/main/main.go
 
 */
 
