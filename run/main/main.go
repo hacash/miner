@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/hacash/core/interfaces"
 	"github.com/hacash/core/sys"
 	"github.com/hacash/miner/console"
 	"github.com/hacash/miner/diamondminer"
@@ -15,6 +16,7 @@ import (
 	rpc "github.com/hacash/service/rpc"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 )
 
@@ -203,6 +205,11 @@ func main() {
 		}()
 	}
 
+	//go func() {
+	//	time.Sleep(time.Second * 3)
+	//	Test_print_dmdname(hnode.BlockChain().State())
+	//}()
+
 	s := <-c
 	fmt.Println("Got signal:", s)
 
@@ -220,4 +227,57 @@ func debugTestConfigSetHandle(hinicnf *sys.Inicnf) {
 		mint.EachBlockRequiredTargetTime = eachBlockRequiredTargetTime
 	}
 	// test set end
+}
+
+func Test_print_dmdname(state interfaces.ChainState) {
+
+	store := state.BlockStore()
+
+	efcaddrs := `
+
+
+	`
+
+	adddrs := map[string]bool{}
+	aaas := strings.Split(efcaddrs, "\n")
+	for _, v := range aaas {
+		if len(v) > 10 {
+			adddrs[v] = true
+		}
+	}
+
+	alladdrdmds := map[string][]string{}
+
+	for i := uint32(1); i < 30000; i++ {
+		dmd, e := store.ReadDiamondByNumber(i)
+		if e != nil || dmd == nil {
+			break
+		}
+		dia := state.Diamond(dmd.Diamond)
+		if dia == nil {
+			break
+		}
+		addr := dia.Address.ToReadable()
+		if _, o1 := adddrs[addr]; !o1 {
+			continue
+		}
+		if list, ok := alladdrdmds[addr]; ok {
+			alladdrdmds[addr] = append(list, string(dmd.Diamond))
+		} else {
+			alladdrdmds[addr] = []string{string(dmd.Diamond)}
+		}
+		fmt.Printf(",%d", i)
+	}
+
+	fmt.Println("\n\n\n\n ")
+	// 打印全部
+	for i, v := range alladdrdmds {
+		fmt.Println(i + ":")
+		for _, d := range v {
+			fmt.Printf("%s,", d)
+		}
+		fmt.Println("\n ")
+	}
+	fmt.Println("\n\n\n\n ")
+
 }
