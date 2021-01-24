@@ -35,7 +35,7 @@ go build -o test/pcwallet pcwallet/main/main.go  && ./test/pcwallet
 
 编译发布版本：
 
-go build -ldflags '-w -s' -o hacash_node_2021_01_01_01      miner/run/main/main.go
+go build -ldflags '-w -s' -o hacash_node_2021_01_24_02      miner/run/main/main.go
 go build -ldflags '-w -s' -o miner_poolworker_2021_01_01_01 miner/run/minerworker/main.go
 go build -ldflags '-w -s' -o cmdwallet_2021_01_01_01        cmdwallet/run/main/main.go
 go build -ldflags '-w -s' -o pcwallet_2021_01_01_01          pcwallet/main/main.go
