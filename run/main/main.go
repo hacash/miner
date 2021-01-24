@@ -24,9 +24,10 @@ import (
 
 export GOPATH=/media/yangjie/500GB/hacash/go
 
-go build -o test/test1 miner/run/main/main.go && ./test/test1 test1.ini
-go build -o test/test3 miner/run/main/main.go && ./test/test3 test3.ini
-go build -ldflags '-w -s' -o hacash_node_2020_05_13_01 miner/run/main/main.go
+go build -o test/mainnet  miner/run/main/main.go && ./test/mainnet  mainnet.ini
+go build -o test/test1    miner/run/main/main.go && ./test/test1    test1.ini
+go build -o test/test3    miner/run/main/main.go && ./test/test3    test3.ini
+go build -o test/pcwallet pcwallet/main/main.go  && ./test/pcwallet
 
 */
 
@@ -34,10 +35,10 @@ go build -ldflags '-w -s' -o hacash_node_2020_05_13_01 miner/run/main/main.go
 
 编译发布版本：
 
-go build -ldflags '-w -s' -o hacash_node_2020_10_26_02      miner/run/main/main.go
-go build -ldflags '-w -s' -o miner_poolworker_2020_10_26_02 miner/run/minerworker/main.go
-go build -ldflags '-w -s' -o cmdwallet_2020_10_26_02        cmdwallet/run/main/main.go
-go build -ldflags '-w -s' -o pcwallet_2020_12_13_01          pcwallet/main/main.go
+go build -ldflags '-w -s' -o hacash_node_2021_01_01_01      miner/run/main/main.go
+go build -ldflags '-w -s' -o miner_poolworker_2021_01_01_01 miner/run/minerworker/main.go
+go build -ldflags '-w -s' -o cmdwallet_2021_01_01_01        cmdwallet/run/main/main.go
+go build -ldflags '-w -s' -o pcwallet_2021_01_01_01          pcwallet/main/main.go
 
 */
 
@@ -233,10 +234,7 @@ func Test_print_dmdname(state interfaces.ChainState) {
 
 	store := state.BlockStore()
 
-	efcaddrs := `
-
-
-	`
+	efcaddrs := ``
 
 	adddrs := map[string]bool{}
 	aaas := strings.Split(efcaddrs, "\n")
