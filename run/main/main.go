@@ -230,6 +230,8 @@ func debugTestConfigSetHandle(hinicnf *sys.Inicnf) {
 	// test set end
 }
 
+/////////////////////////////////////////////////////
+
 func Test_print_dmdname(state interfaces.ChainState) {
 
 	store := state.BlockStore()
