@@ -8,18 +8,11 @@ import (
 
 func (mc *MinerConsole) home(response http.ResponseWriter, request *http.Request) {
 
-	// show datas at 
-	htmltext :=""
-	htmltext :=" <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-</head>"
-	htmltext :="  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">"
-	htmltext :=" <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js%22%3E</script>"
-	htmltext :="  <title>Hacashers.Club</title>"
-	htmltext := "<html><head><title>miner pool home</title></head><body>"
+	// show datas at html
+	htmltext := "<html><head><title>hacash miner pool home</title></head><body>"
 	htmltext += `<style>#table{ border-collapse: collapse; } td{padding: 0 5px;} </style>`
 
 	/*
-
 					<p>Latest: %d, Submit: %d, <a href="/minerpool/transactions" target="_blank">show transactions</a></p>
 					<p>TxLatestId: %d, TxConfirm: %d</p>
 					<p>Clients: %d, PrevSendHeight: %d</p>
@@ -30,8 +23,7 @@ func (mc *MinerConsole) home(response http.ResponseWriter, request *http.Request
 					</form>
 	*/
 
-	htmltext += fmt.Sprintf(`<div class="jumbotron text-center">
-	                <h1>Hacashers.Club</h1>
+	htmltext += fmt.Sprintf(`<div>
 			<p>FeeRatio: %.2f %%, Addr: %s</p>
 			<p>Port: %d</p>
 			<p>TotalClients: %d</p>
@@ -42,7 +34,7 @@ func (mc *MinerConsole) home(response http.ResponseWriter, request *http.Request
 		mc.pool.GetCurrentTcpConnectingCount(),
 	)
 
-	htmltext += `<table class="table" id="table" border="1">
+	htmltext += `<table id="table" border="1">
 		<tr>
 			<th>#</th>
 			<th>Address</th>
