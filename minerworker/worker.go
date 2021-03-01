@@ -33,7 +33,7 @@ func NewClient(conn *net.TCPConn) *WorkClient {
 type MinerWorker struct {
 	config *MinerWorkerConfig
 
-	worker *localcpu.LocalCPUPowMaster
+	worker message.PowDeviceWorker
 
 	miningOutputCh          chan message.PowMasterMsg
 	immediateStartConnectCh chan bool
