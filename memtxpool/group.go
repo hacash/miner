@@ -42,12 +42,22 @@ func (g *TxGroup) Add(item *TxItem) bool {
 					g.Tail = item
 					break
 				} else if item.feepurity == curitem.feepurity { // insert after
-					oldnext := curitem.next
-					curitem.next = item
-					item.prev = curitem
-					oldnext.prev = item
-					item.next = oldnext
-					break
+					if item.tx.GetFee().MoreThan(curitem.tx.GetFee()) {
+						// 手续费值大于，则排在前面// insert before
+						previtem.next = item
+						curitem.prev = item
+						item.next = curitem
+						item.prev = previtem
+						break
+					} else {
+						// 手续费含量相同，但费用实际值小于或等于，则排在后面
+						oldnext := curitem.next
+						curitem.next = item
+						item.prev = curitem
+						oldnext.prev = item
+						item.next = oldnext
+						break
+					}
 				} else if item.feepurity > curitem.feepurity {
 					if previtem == nil { // is head
 						item.next = g.Head

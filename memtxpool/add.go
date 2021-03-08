@@ -36,62 +36,78 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 		return fmt.Errorf("Tx pool max size %d and overflow size.", p.maxsize)
 	}
 
+	// 是否为钻石挖矿交易
+	var isDiamondCreateTx *actions.Action_4_DiamondCreate = nil
 	// 是否为全新首次添加
 	isTxFirstAdd := true
 
-	// check exist
-	if havitem := p.diamondCreateTxGroup.Find(txitem.hash); havitem != nil {
-		//fmt.Println(havitem.feepurity, txitem.feepurity)
-		if txitem.feepurity <= havitem.feepurity {
-			return fmt.Errorf("already exist tx %s and fee purity more than or equal the new one.", txitem.hash.ToHex())
-		}
-		// check fee
-		txfee := txitem.tx.GetFee()
-		febls := p.blockchain.State().Balance(txitem.tx.GetAddress())
-		blastr := "ㄜ0:0"
-		if febls != nil {
-			blastr = febls.Hacash.ToFinString()
-		}
-		if febls == nil || febls.Hacash.LessThan(txfee) {
-			// 余额不足以支付手续费
-			return fmt.Errorf("fee address balance need not less than %s but got %s.", txfee.ToFinString(), txitem.tx.GetAddress(), blastr)
-		}
-		// check ok
-		p.diamondCreateTxGroup.RemoveItem(havitem)
-		isTxFirstAdd = false
-	}
-	if havitem := p.simpleTxGroup.Find(txitem.hash); havitem != nil {
-		//fmt.Println(havitem.feepurity, txitem.feepurity)
-		if txitem.feepurity <= havitem.feepurity {
-			return fmt.Errorf("already exist tx %s and fee purity more than or equal the new one.", txitem.hash.ToHex())
-		}
-		if p.simpleTxGroup.RemoveItem(havitem) {
-			// sub count
-			p.txTotalCount -= 1
-			p.txTotalSize -= uint64(havitem.size)
-		}
-		isTxFirstAdd = false
-	}
 	// do add is diamond ?
 	for _, act := range tx.GetActions() {
 		if dcact, ok := act.(*actions.Action_4_DiamondCreate); ok {
-			// is diamond create trs
-			err := p.checkDiamondCreate(tx, dcact)
-			if err != nil {
-				return err
-			}
-			txitem.diamond = dcact // diamond mark
-			p.diamondCreateTxGroup.Add(txitem)
-			// feed send
-			if p.isBanEventSubscribe == false {
-				p.addTxSuccess.Send(tx)
-			}
-			if isTxFirstAdd {
-				fmt.Println("memtxpool add diamond create tx:", tx.Hash().ToHex(), ", diamond:", dcact.Number, string(dcact.Diamond))
-			}
-			return nil // add successfully !
+			isDiamondCreateTx = dcact
 		}
 	}
+
+	// check exist
+	if isDiamondCreateTx != nil {
+		// 钻石交易
+		if havitem := p.diamondCreateTxGroup.Find(txitem.hash); havitem != nil {
+			//fmt.Println(havitem.feepurity, txitem.feepurity)
+			if txitem.feepurity <= havitem.feepurity {
+				return fmt.Errorf("already exist tx %s and fee purity more than or equal the new one.", txitem.hash.ToHex())
+			}
+			// check fee
+			txfee := txitem.tx.GetFee()
+			febls := p.blockchain.State().Balance(txitem.tx.GetAddress())
+			blastr := "ㄜ0:0"
+			if febls != nil {
+				blastr = febls.Hacash.ToFinString()
+			}
+			if febls == nil || febls.Hacash.LessThan(txfee) {
+				// 余额不足以支付手续费
+				return fmt.Errorf("fee address balance need not less than %s but got %s.", txfee.ToFinString(), txitem.tx.GetAddress(), blastr)
+			}
+			// check ok
+			p.diamondCreateTxGroup.RemoveItem(havitem)
+			isTxFirstAdd = false
+		}
+	} else {
+		// 普通交易
+		if havitem := p.simpleTxGroup.Find(txitem.hash); havitem != nil {
+			//fmt.Println(havitem.feepurity, txitem.feepurity)
+			if txitem.feepurity <= havitem.feepurity {
+				return fmt.Errorf("already exist tx %s and fee purity more than or equal the new one.", txitem.hash.ToHex())
+			}
+			if p.simpleTxGroup.RemoveItem(havitem) {
+				// sub count
+				p.txTotalCount -= 1
+				p.txTotalSize -= uint64(havitem.size)
+			}
+			isTxFirstAdd = false
+		}
+
+	}
+	// do add is diamond ?
+	if isDiamondCreateTx != nil {
+		dcact := isDiamondCreateTx
+		// is diamond create trs
+		err := p.checkDiamondCreate(tx, dcact)
+		if err != nil {
+			return err
+		}
+		txitem.diamond = dcact // diamond mark
+		p.diamondCreateTxGroup.Add(txitem)
+		// feed send
+		if p.isBanEventSubscribe == false {
+			p.addTxSuccess.Send(tx)
+		}
+		if isTxFirstAdd {
+			fmt.Println("memtxpool add diamond create tx:", tx.Hash().ToHex(), ", diamond:", dcact.Number, string(dcact.Diamond))
+		}
+		return nil // add successfully !
+	}
+
+	// 普通交易检查和统计
 	// check tx
 	txerr := p.blockchain.ValidateTransaction(tx, func(tmpState interfaces.ChainState) {
 		// 标记是矿池中验证tx
