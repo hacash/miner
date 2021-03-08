@@ -44,7 +44,7 @@ func (p *MemTxPool) checkDiamondCreate(newtx interfaces.Transaction, act *action
 	}
 	if febls == nil || febls.Hacash.LessThan(txfee) {
 		// 余额不足以支付手续费
-		return fmt.Errorf("diamond create tx fee address balance need not less than %s but got %s.", txfee.ToFinString(), newtx.GetAddress(), blastr)
+		return fmt.Errorf("diamond create tx fee address %s balance need not less than %s but got %s.", newtx.GetAddress(), txfee.ToFinString(), blastr)
 	}
 	//return nil
 	return p.blockchain.ValidateDiamondCreateAction(act)

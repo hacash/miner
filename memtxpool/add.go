@@ -65,7 +65,7 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 			}
 			if febls == nil || febls.Hacash.LessThan(txfee) {
 				// 余额不足以支付手续费
-				return fmt.Errorf("fee address balance need not less than %s but got %s.", txfee.ToFinString(), txitem.tx.GetAddress(), blastr)
+				return fmt.Errorf("fee address balance %s need not less than %s but got %s.", txitem.tx.GetAddress(), txfee.ToFinString(), blastr)
 			}
 			// check ok
 			p.diamondCreateTxGroup.RemoveItem(havitem)
