@@ -26,8 +26,6 @@ func (p *MinerWorker) startConnect() error {
 		return err
 	}
 
-	fmt.Print("connecting... ")
-
 	go p.handleConn(conn)
 
 	return nil
@@ -35,9 +33,18 @@ func (p *MinerWorker) startConnect() error {
 }
 
 func (p *MinerWorker) handleConn(conn *net.TCPConn) {
+
+	fmt.Print("connecting miner pool... ")
+
 	// send reward address
 	//fmt.Println([]byte(p.config.Rewards))
-	conn.Write(p.config.Rewards)
+	_, e := conn.Write(p.config.Rewards)
+	if e != nil {
+		fmt.Println("Cannot connect to", conn.RemoteAddr().String())
+		os.Exit(0)
+	}
+
+	fmt.Println("ok.")
 
 	// read msg
 	segdata := make([]byte, 1024)
