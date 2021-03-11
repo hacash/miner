@@ -34,7 +34,7 @@ Hacash Software Download link and Release log
 
 #### Version: 0.1.1
 
-update:
+need resync block data, update log:
 
 > [1] new: HACD biding fee burning of 90%.<br>
 > [2] chg: TxFee purity calculate optimization.<br>
