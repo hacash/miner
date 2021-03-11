@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/hacash/core/blocks"
 	"github.com/hacash/core/interfaces"
 	"github.com/hacash/core/sys"
 	"github.com/hacash/miner/console"
@@ -42,7 +43,17 @@ go build -ldflags '-w -s' -o pcwallet_2021_01_01_01          pcwallet/main/main.
 
 */
 
+const (
+	NodeVersionSuperMain    uint32 = 0            // 主版本号
+	NodeVersionSupport      uint32 = 1            // 兼容版本号
+	NodeVersionFeature      uint32 = 1            // 特征版本号
+	NodeVersionBuildCompile string = "20210311.1" // 编译版本号
+	// 结合成综合版本号体系：   0.1.1(20210310.1)
+)
+
 func main() {
+
+	printAllVersion()
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, os.Kill)
@@ -57,7 +68,7 @@ func main() {
 	target_ini_file = sys.AbsDir(target_ini_file)
 
 	if target_ini_file != "" {
-		fmt.Println("Load ini config file: \"" + target_ini_file + "\" at time:" + time.Now().Format("01/02 15:04:05"))
+		fmt.Println("[Config] Load ini config file: \"" + target_ini_file + "\" at time:" + time.Now().Format("01/02 15:04:05"))
 	}
 
 	hinicnf, err := sys.LoadInicnf(target_ini_file)
@@ -213,6 +224,26 @@ func main() {
 
 	s := <-c
 	fmt.Println("Got signal:", s)
+
+}
+
+////////////////////////////////
+
+func printAllVersion() {
+
+	// 打印版本号
+	fmt.Printf("[Version] Hacash node software: %d.%d.%d(%s), ",
+		NodeVersionSuperMain,
+		NodeVersionSupport,
+		NodeVersionFeature,
+		NodeVersionBuildCompile)
+
+	// p2p
+	fmt.Printf("p2p compatible: block version[%d], transaction type [%d], action kind [%d], repair num [%d]\n",
+		blocks.BlockVersion,
+		blocks.TransactionType,
+		blocks.ActionKind,
+		blocks.RepairVersion)
 
 }
 
