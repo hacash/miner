@@ -38,7 +38,7 @@ need resync block data, update log:
 
 > [1] new: HACD biding fee burning of 90%.<br>
 > [2] chg: TxFee purity calculate optimization.<br>
-> [3] chg: Channel interest calculate fix uint64 overflow bug.
+> [3] chg: Channel interest calculate fix uint64 overflow bug.<br>
 > [4] new: Rpc api add current circulation and more total supply count.
 
 
