@@ -47,7 +47,7 @@ func (m *MinerWorker) Start() {
 	err := m.startConnect()
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(0)
+		fmt.Println("[Miner Worker] Reconnection will be initiated in two minutes...")
 	}
 
 	go m.loop()

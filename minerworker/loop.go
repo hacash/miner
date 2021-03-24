@@ -21,8 +21,18 @@ func (m *MinerWorker) loop() {
 		}
 	}()
 
+	// 10 ～ 60 秒检查一次连接
+	checkTcpConnTiker := time.NewTicker(time.Minute * 2)
+
 	for {
 		select {
+
+		// 检查连接
+		case <-checkTcpConnTiker.C:
+			if m.conn == nil {
+				// 发起重连
+				go m.startConnect()
+			}
 
 		// 等待挖掘成功
 		case result := <-m.miningResultCh:

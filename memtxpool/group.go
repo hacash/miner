@@ -124,7 +124,7 @@ func (g *TxGroup) RemoveByTxHash(hash fields.Hash) *TxItem {
 
 	key := string(hash)
 	if havitem, ok := g.items[key]; ok {
-		g.RemoveItem(havitem)
+		g.removeItemUnsafe(havitem)
 		return havitem
 	}
 	return nil
@@ -134,6 +134,11 @@ func (g *TxGroup) RemoveItem(item *TxItem) bool {
 
 	g.itemsLocker.Lock()
 	defer g.itemsLocker.Unlock()
+
+	return g.removeItemUnsafe(item)
+}
+
+func (g *TxGroup) removeItemUnsafe(item *TxItem) bool {
 
 	key := string(item.hash)
 	if havtx, ok := g.items[key]; ok {
