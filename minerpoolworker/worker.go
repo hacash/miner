@@ -6,7 +6,6 @@ import (
 	"github.com/hacash/miner/localcpu"
 	"github.com/hacash/miner/message"
 	"net"
-	"os"
 	"sync"
 	"time"
 )
@@ -81,8 +80,10 @@ func (p *MinerWorker) Start() {
 
 	err := p.startConnect()
 	if err != nil {
+		fmt.Println("--------[ERROR]--------")
 		fmt.Println(err)
-		os.Exit(0)
+		fmt.Println("--------[ERROR]--------")
+		return
 	}
 
 	go p.loop()

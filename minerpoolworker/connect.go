@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/hacash/miner/message"
 	"net"
-	"os"
 	"time"
 )
 
@@ -40,8 +39,10 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 	//fmt.Println([]byte(p.config.Rewards))
 	_, e := conn.Write(p.config.Rewards)
 	if e != nil {
+		fmt.Println("----------[ERROR]----------")
 		fmt.Println("Cannot connect to", conn.RemoteAddr().String())
-		os.Exit(0)
+		fmt.Println("----------[ERROR]----------")
+		return
 	}
 
 	fmt.Println("ok.")
@@ -83,7 +84,8 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 			fmt.Println("pool return: " + MsgMarkTooMuchConnect)
 			fmt.Println("There are too many ore pool connections. The connection has been refused. Please contact your ore pool service provider.")
 			fmt.Println("矿池连接数太多，已拒绝连接，请联系您的矿池服务商。")
-			os.Exit(0)
+			time.Sleep(time.Second * 30)
+			break
 
 		} else if rn == len(MsgMarkNotReadyYet) && bytes.Compare([]byte(MsgMarkNotReadyYet), data) == 0 {
 			// wait for min
