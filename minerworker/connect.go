@@ -87,7 +87,7 @@ func (m *MinerWorker) handleConn(conn *net.TCPConn) {
 		if err != nil {
 			if strings.Contains(err.Error(), "EOF") {
 				// 服务器关闭
-				fmt.Println("\n[Miner Worker] WARNING: Server close the tcp connect.")
+				fmt.Println("\n[Miner Worker] WARNING: Server close the tcp connect, reconnection will be initiated in two minutes...")
 			} else {
 				fmt.Println(err)
 			}
