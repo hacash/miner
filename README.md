@@ -1,10 +1,10 @@
 # Golang Hacash Full Node Miner
 
-### Software download & release log (软件版本发布下载和日志)
+### Software download & release log (软件下载和版本发布日志)
 
-Compilation build instructions: [software_release_log.md](doc/software_release_log.md)
+Release: [software_release_log.md](doc/software_release_log.md)
 
-### Compilation instructions (编译部署文档)
+### Compilation build instructions (编译部署文档)
 
 Compilation build instructions: [build_compilation_en.md](doc/build_compilation_en.md)
 
