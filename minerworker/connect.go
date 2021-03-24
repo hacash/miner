@@ -5,6 +5,7 @@ import (
 	"github.com/hacash/core/fields"
 	"github.com/hacash/miner/message"
 	"net"
+	"strings"
 )
 
 func (p *MinerWorker) startConnect() error {
@@ -26,7 +27,8 @@ func (m *MinerWorker) handleConn(conn *net.TCPConn) {
 
 	m.conn = conn
 	defer func() {
-		m.conn = nil // 表示断开连接
+		m.powWorker.NextMining(0) // 关闭挖矿
+		m.conn = nil              // 表示断开连接
 	}()
 
 	// 已连接上
@@ -83,7 +85,12 @@ func (m *MinerWorker) handleConn(conn *net.TCPConn) {
 		//fmt.Println("循环收取挖矿消息")
 		msgty, msgbody, err := message.MsgReadFromTcpConn(conn, 0)
 		if err != nil {
-			fmt.Println(err)
+			if strings.Contains(err.Error(), "EOF") {
+				// 服务器关闭
+				fmt.Println("\n[Miner Worker] WARNING: Server close the tcp connect.")
+			} else {
+				fmt.Println(err)
+			}
 			break
 		}
 

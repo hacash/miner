@@ -17,11 +17,7 @@ func (c *CPUWorker) NextMining(pendingHeight uint64) {
 	//fmt.Println("pendingHeight:", pendingHeight)
 
 	// 结束所有之前的挖矿
-	c.nextMarks.Range(func(k interface{}, v interface{}) bool {
-		mk := v.(*byte)
-		*mk = 1 // set stop
-		return false
-	})
+	c.StopAllMining()
 
 	// 流线锁
 	c.miningstreamlock.Lock()
