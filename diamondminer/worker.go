@@ -14,6 +14,8 @@ import (
 )
 
 func (d *DiamondMiner) StopAll() {
+	d.stopMarksLocker.Lock()
+	defer d.stopMarksLocker.Unlock()
 	for _, v := range d.stopMarks {
 		*v = 1 // stop
 	}
@@ -30,8 +32,10 @@ func (d *DiamondMiner) RunMining(prevDiamond *stores.DiamondSmelt, diamondCreate
 
 	fmt.Printf("do diamond mining... number: %d, supervene: %d, start worker:", prevDiamond.Number+1, d.Config.Supervene)
 
+	d.stopMarksLocker.Lock()
 	var stopMark byte = 0
 	d.stopMarks[&stopMark] = &stopMark
+	defer d.stopMarksLocker.Unlock()
 
 	// do mining
 	go func(supervene int, stopMark *byte, prevDiamond *stores.DiamondSmelt, diamondCreateActionCh chan *actions.Action_4_DiamondCreate) {

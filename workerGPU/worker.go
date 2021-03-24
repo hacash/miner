@@ -1,4 +1,4 @@
-package localgpu
+package workerGPU
 
 import (
 	"bytes"

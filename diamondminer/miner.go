@@ -17,7 +17,8 @@ type DiamondMiner struct {
 	blockchain interfaces.BlockChain
 	txpool     interfaces.TxPool
 
-	stopMarks map[*byte]*byte
+	stopMarksLocker sync.Mutex
+	stopMarks       map[*byte]*byte
 
 	newDiamondBeFoundCh    chan *stores.DiamondSmelt
 	successMiningDiamondCh chan *actions.Action_4_DiamondCreate

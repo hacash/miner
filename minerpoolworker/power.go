@@ -1,4 +1,4 @@
-package minerworker
+package minerpoolworker
 
 import (
 	"github.com/hacash/mint/difficulty"

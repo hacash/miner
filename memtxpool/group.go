@@ -2,33 +2,50 @@ package memtxpool
 
 import (
 	"github.com/hacash/core/fields"
+	"sync"
 )
 
 type TxGroup struct {
-	Head  *TxItem
-	Tail  *TxItem
-	Items map[string]*TxItem
-	Count int64
+	Head        *TxItem
+	Tail        *TxItem
+	itemsLocker sync.Mutex
+	items       map[string]*TxItem
+	Count       int64
 }
 
 func NewTxGroup() *TxGroup {
 	return &TxGroup{
-		nil, nil, make(map[string]*TxItem), 0,
+		items: make(map[string]*TxItem),
 	}
 }
 
 //////////////////////////////////////////////////////////////////////
 
+func (g *TxGroup) GetItem(id string) (*TxItem, bool) {
+	g.itemsLocker.Lock()
+	defer g.itemsLocker.Unlock()
+
+	i, h := g.items[id]
+	return i, h
+}
+
 func (g *TxGroup) Clean() {
+	g.itemsLocker.Lock()
+	defer g.itemsLocker.Unlock()
+
 	g.Head = nil
 	g.Tail = nil
-	g.Items = make(map[string]*TxItem)
+	g.items = make(map[string]*TxItem)
 	g.Count = 0
 }
 
 func (g *TxGroup) Add(item *TxItem) bool {
+
+	g.itemsLocker.Lock()
+	defer g.itemsLocker.Unlock()
+
 	key := string(item.hash)
-	if _, ok := g.Items[key]; ok == false {
+	if _, ok := g.items[key]; ok == false {
 		if g.Count == 0 {
 			g.Head = item
 			g.Tail = item
@@ -83,7 +100,7 @@ func (g *TxGroup) Add(item *TxItem) bool {
 				previtem = curitem.prev
 			}
 		}
-		g.Items[key] = item
+		g.items[key] = item
 		g.Count += 1
 		return true
 	}
@@ -91,15 +108,22 @@ func (g *TxGroup) Add(item *TxItem) bool {
 }
 
 func (g *TxGroup) Find(hash fields.Hash) *TxItem {
-	if havtx, ok := g.Items[string(hash)]; ok {
+	g.itemsLocker.Lock()
+	defer g.itemsLocker.Unlock()
+
+	if havtx, ok := g.items[string(hash)]; ok {
 		return havtx
 	}
 	return nil
 }
 
 func (g *TxGroup) RemoveByTxHash(hash fields.Hash) *TxItem {
+
+	g.itemsLocker.Lock()
+	defer g.itemsLocker.Unlock()
+
 	key := string(hash)
-	if havitem, ok := g.Items[key]; ok {
+	if havitem, ok := g.items[key]; ok {
 		g.RemoveItem(havitem)
 		return havitem
 	}
@@ -107,8 +131,12 @@ func (g *TxGroup) RemoveByTxHash(hash fields.Hash) *TxItem {
 }
 
 func (g *TxGroup) RemoveItem(item *TxItem) bool {
+
+	g.itemsLocker.Lock()
+	defer g.itemsLocker.Unlock()
+
 	key := string(item.hash)
-	if havtx, ok := g.Items[key]; ok {
+	if havtx, ok := g.items[key]; ok {
 		if g.Count == 1 {
 			g.Head = nil
 			g.Tail = nil
@@ -122,7 +150,7 @@ func (g *TxGroup) RemoveItem(item *TxItem) bool {
 			havtx.prev.next = havtx.next
 			havtx.next.prev = havtx.prev // drop
 		}
-		delete(g.Items, key)
+		delete(g.items, key)
 		g.Count -= 1
 		return true
 	}

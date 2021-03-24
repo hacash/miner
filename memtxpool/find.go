@@ -10,10 +10,11 @@ func (p *MemTxPool) CheckTxExist(tx interfaces.Transaction) (interfaces.Transact
 }
 
 func (p *MemTxPool) CheckTxExistByHash(txhash fields.Hash) (interfaces.Transaction, bool) {
-	if tx, ok := p.diamondCreateTxGroup.Items[string(txhash)]; ok {
+
+	if tx, ok := p.diamondCreateTxGroup.GetItem(string(txhash)); ok {
 		return tx.tx, true
 	}
-	if tx, ok := p.simpleTxGroup.Items[string(txhash)]; ok {
+	if tx, ok := p.simpleTxGroup.GetItem(string(txhash)); ok {
 		return tx.tx, true
 	}
 	return nil, false

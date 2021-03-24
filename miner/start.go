@@ -62,11 +62,11 @@ func (m *Miner) doStartMining() {
 		)
 	}
 
-	fmt.Printf("do mining... block height: %d, txs: %d, prev: %s..., difficulty: %d, size: %fkb, time: %s\n",
+	fmt.Printf("do mining... block height: %d, txs: %d, prev: %s..., difficulty: %s, size: %fkb, time: %s\n",
 		nextblockHeight,
 		nextblock.GetCustomerTransactionCount(),
 		string([]byte(nextblock.GetPrevHash().ToHex())[0:32]),
-		nextblock.GetDifficulty(),
+		hex.EncodeToString(difficulty.Uint32ToHash(nextblockHeight, nextblock.GetDifficulty())[0:16]),
 		float64(totaltxsize)/1024,
 		time.Unix(int64(nextblock.GetTimestamp()), 0).Format("01/02 15:04:05"),
 	)
@@ -107,7 +107,7 @@ func (m *Miner) doStartMining() {
 			coinbaseStr += coinbasetx.GetAddress().ToReadable()
 			coinbaseStr += " + " + coinbase.BlockCoinBaseReward(miningSuccessBlock.GetHeight()).ToFinString()
 			// show success
-			fmt.Printf("⬤ mining new block height: %d, txs: %d, hash: %s, coinbase: %s, successfully!\n",
+			fmt.Printf("[⬤◆◆] Successfully minted a block height: %d, txs: %d, hash: %s, coinbase: %s, successfully!\n",
 				miningSuccessBlock.GetHeight(),
 				miningSuccessBlock.GetCustomerTransactionCount(),
 				miningSuccessBlock.Hash().ToHex(),
@@ -115,7 +115,7 @@ func (m *Miner) doStartMining() {
 			)
 		} else {
 			fmt.Println("[Miner Error]", inserterr.Error())
-			m.StartMining()
+			//m.StartMining()
 		}
 	}
 }

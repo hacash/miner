@@ -2,100 +2,73 @@ package minerworker
 
 import (
 	"fmt"
-	"github.com/hacash/chain/mapset"
-	"github.com/hacash/miner/localcpu"
+	"github.com/hacash/core/interfaces"
 	"github.com/hacash/miner/message"
 	"net"
 	"os"
-	"sync"
-	"time"
 )
-
-type WorkClient struct {
-	conn            *net.TCPConn
-	workBlockHeight uint64
-	pingtime        *time.Time
-	setend          bool
-	miningStartTime time.Time
-}
-
-func NewClient(conn *net.TCPConn) *WorkClient {
-	cli := &WorkClient{
-		conn:            conn,
-		workBlockHeight: 0,
-		pingtime:        nil,
-		setend:          false,
-	}
-	cli.miningStartTime = time.Now()
-	return cli
-}
 
 type MinerWorker struct {
 	config *MinerWorkerConfig
 
-	worker message.PowDeviceWorker
+	conn *net.TCPConn // 连接
 
-	miningOutputCh          chan message.PowMasterMsg
-	immediateStartConnectCh chan bool
+	pendingMiningBlockStuff *message.MsgPendingMiningBlockStuff
 
-	clients        map[uint64]*WorkClient
-	client         *WorkClient
-	isInConnecting bool
+	miningStuffFeedingCh chan interfaces.PowWorkerMiningStuffItem
+	miningResultCh       chan interfaces.PowWorkerMiningStuffItem
 
-	powerTotalCmx mapset.Set
-
-	statusMutex sync.Mutex
-
-	currentPowMasterMsg        *message.PowMasterMsg
-	currentPowMasterCreateTime time.Time
+	powWorker interfaces.PowWorker // 挖掘器
 }
 
 func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
 
-	pool := &MinerWorker{
-		config:                  cnf,
-		client:                  nil,
-		miningOutputCh:          make(chan message.PowMasterMsg, 2),
-		immediateStartConnectCh: make(chan bool, 2),
-		clients:                 map[uint64]*WorkClient{},
-		powerTotalCmx:           mapset.NewSet(),
-		isInConnecting:          false,
+	worker := &MinerWorker{
+		config:               cnf,
+		miningStuffFeedingCh: make(chan interfaces.PowWorkerMiningStuffItem, 1),
+		miningResultCh:       make(chan interfaces.PowWorkerMiningStuffItem, 1),
 	}
 
-	wkcnf := localcpu.NewEmptyLocalCPUPowMasterConfig()
-	wkcnf.Concurrent = cnf.Concurrent
-	wkcnf.ReturnPowerHash = true // 上报哈希最大值
-	pool.worker = localcpu.NewLocalCPUPowMaster(wkcnf)
-
-	return pool
-
+	return worker
 }
 
-func (p *MinerWorker) Start() {
+///////////////
+
+// 开始
+func (m *MinerWorker) Start() {
 
 	fmt.Printf("[Start] connect: %s, rewards: %s, supervene: %d. \n",
-		p.config.PoolAddress.String(),
-		p.config.Rewards.ToReadable(),
-		p.config.Concurrent,
+		m.config.PoolAddress.String(),
+		m.config.Rewards.ToReadable(),
+		m.config.Supervene,
 	)
 
-	err := p.startConnect()
+	// 拨号连接
+	err := m.startConnect()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(0)
 	}
 
-	go p.loop()
+	go m.loop()
+
+	if m.powWorker == nil {
+		fmt.Println("[Miner Worker] ERROR: must call SetPowWorker() first!")
+		os.Exit(0)
+	}
+
+	err = m.powWorker.InitStart() // 初始化
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(0)
+	}
+
+	// 开始挖矿（投喂）
+	go m.powWorker.Excavate(m.miningStuffFeedingCh, m.miningResultCh)
+
 }
 
-func (p *MinerWorker) pickTargetClient(blkhei uint64) *WorkClient {
-	//fmt.Printf("pickTargetClient  <%d> ", blkhei)
-	for h, v := range p.clients {
-		//fmt.Printf("  %d  ", v.workBlockHeight)
-		if h == blkhei {
-			delete(p.clients, blkhei)
-			return v
-		}
-	}
-	return nil
+// 挖矿执行器
+func (m *MinerWorker) SetPowWorker(worker interfaces.PowWorker) {
+	m.powWorker = worker
 }

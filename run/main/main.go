@@ -11,6 +11,7 @@ import (
 	"github.com/hacash/miner/memtxpool"
 	"github.com/hacash/miner/miner"
 	"github.com/hacash/miner/minerpool"
+	"github.com/hacash/miner/minerserver"
 	"github.com/hacash/mint"
 	"github.com/hacash/node/backend"
 	deprecated "github.com/hacash/service/deprecated"
@@ -36,10 +37,10 @@ go build -o test/pcwallet pcwallet/main/main.go  && ./test/pcwallet
 
 编译发布版本：
 
-go build -ldflags '-w -s' -o hacash_node_2021_01_24_02      miner/run/main/main.go
-go build -ldflags '-w -s' -o miner_poolworker_2021_01_01_01 miner/run/minerworker/main.go
-go build -ldflags '-w -s' -o cmdwallet_2021_01_01_01        cmdwallet/run/main/main.go
-go build -ldflags '-w -s' -o pcwallet_2021_01_01_01          pcwallet/main/main.go
+go build -ldflags '-w -s' -o              hacash_node_2021_03_11_01  miner/run/main/main.go
+go build -ldflags '-w -s' -o hacash_miner_pool_worker_2021_03_11_01  miner/run/minerpoolworker/main.go
+go build -ldflags '-w -s' -o         hacash_cmdwallet_2021_03_11_01  cmdwallet/run/main/main.go
+go build -ldflags '-w -s' -o hacash_pc_offline_wallet_2021_03_11_01  pcwallet/main/main.go
 
 */
 
@@ -102,22 +103,40 @@ func main() {
 	hnode.Start()
 
 	isOpenMiner := hinicnf.Section("miner").Key("enable").MustBool(false)
+	isOpenMinerServer := hinicnf.Section("minerserver").Key("enable").MustBool(false)
 	isOpenMinerPool := hinicnf.Section("minerpool").Key("enable").MustBool(false)
 	isOpenService := hinicnf.Section("service").Key("enable").MustBool(false)
 	isOpenDiamondMiner := hinicnf.Section("diamondminer").Key("enable").MustBool(false)
+
+	if (isOpenMinerServer || isOpenMinerPool) && !isOpenMiner {
+		fmt.Println("[Error Exit] [Config] open [minerserver] or [minerpool] must open [miner] first.")
+		os.Exit(0)
+	}
 
 	if isOpenMiner {
 
 		mcnf := miner.NewMinerConfig(hinicnf)
 		miner := miner.NewMiner(mcnf)
 
-		if isOpenMinerPool {
+		if isOpenMinerServer {
+
+			// miner server
+			mpcnf := minerserver.NewMinerConfig(hinicnf)
+			miner_server := minerserver.NewMinerServer(mpcnf)
+
+			miner_server.Start()
+
+			// 设置 pow server
+			miner.SetPowServer(miner_server)
+
+		} else if isOpenMinerPool {
 
 			mpcnf := minerpool.NewMinerPoolConfig(hinicnf)
 			miner_pool := minerpool.NewMinerPool(mpcnf)
 			miner_pool.SetBlockChain(blockchainobj)
 			miner_pool.SetTxPool(txpool)
 
+			// 设置 pow server
 			miner.SetPowServer(miner_pool)
 
 			// check reward address and password
@@ -140,6 +159,8 @@ func main() {
 			// full node local cpu
 			lccnf := localcpu.NewFullNodePowWrapConfig(hinicnf)
 			powwrap := localcpu.NewFullNodePowWrap(lccnf)
+
+			// 设置 pow server
 			miner.SetPowServer(powwrap)
 
 		}

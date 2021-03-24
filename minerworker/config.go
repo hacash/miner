@@ -8,14 +8,15 @@ import (
 )
 
 type MinerWorkerConfig struct {
-	PoolAddress *net.TCPAddr
-	Concurrent  uint32 // 并发挖矿
-	Rewards     fields.Address
+	PoolAddress   *net.TCPAddr
+	Rewards       fields.Address // 奖励地址
+	Supervene     uint32         // CPU 并发挖矿
+	IsReportPower bool           // 是否上报算力
 }
 
 func NewEmptyMinerPoolWorkerConfig() *MinerWorkerConfig {
 	cnf := &MinerWorkerConfig{
-		Concurrent: 1,
+		Supervene: 1,
 	}
 	return cnf
 }
@@ -40,6 +41,9 @@ func NewMinerWorkerConfig(cnffile *sys.Inicnf) *MinerWorkerConfig {
 	}
 	cnf.Rewards = *rwdaddr
 	// supervene
-	cnf.Concurrent = uint32(cnfsection.Key("supervene").MustUint(1))
+	cnf.Supervene = uint32(cnfsection.Key("supervene").MustUint(1))
+	// IsReportPower
+	cnf.IsReportPower = cnfsection.Key("not_report_power").MustBool(false) == false
+	// ok
 	return cnf
 }
