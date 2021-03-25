@@ -32,7 +32,16 @@ Hacash Software Download link and Release log
 
 ### Historical release log:
 
-#### Version: 0.1.1
+#### Version: 0.1.2  (2021.3.25)
+
+update log:
+
+> [1] fix bug: P2P module that caused the node to exit incorrectly.
+
+
+---
+
+#### Version: 0.1.1 (2021.3.11)
 
 need resync block data, update log:
 

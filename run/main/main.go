@@ -37,10 +37,10 @@ go build -o test/pcwallet pcwallet/main/main.go  && ./test/pcwallet
 
 编译发布版本：
 
-go build -ldflags '-w -s' -o              hacash_node_2021_03_11_01  miner/run/main/main.go
-go build -ldflags '-w -s' -o hacash_miner_pool_worker_2021_03_11_01  miner/run/minerpoolworker/main.go
-go build -ldflags '-w -s' -o         hacash_cmdwallet_2021_03_11_01  cmdwallet/run/main/main.go
-go build -ldflags '-w -s' -o hacash_pc_offline_wallet_2021_03_11_01  pcwallet/main/main.go
+go build -ldflags '-w -s' -o              hacash_node_2021_03_25_01  miner/run/main/main.go
+go build -ldflags '-w -s' -o hacash_miner_pool_worker_2021_03_25_01  miner/run/minerpoolworker/main.go
+go build -ldflags '-w -s' -o         hacash_cmdwallet_2021_03_25_01  cmdwallet/run/main/main.go
+go build -ldflags '-w -s' -o hacash_desktop_offline_wallet_2021_03_25_01  pcwallet/main/main.go
 
 // minerworker
 cd ./x16rs/opencl && node pkgclfilego.js && cd ../../
@@ -53,8 +53,8 @@ go build -ldflags '-w -s' -o hacash_miner_worker_2021_03_24_01  miner/run/minerw
 const (
 	NodeVersionSuperMain    uint32 = 0            // 主版本号
 	NodeVersionSupport      uint32 = 1            // 兼容版本号
-	NodeVersionFeature      uint32 = 1            // 特征版本号
-	NodeVersionBuildCompile string = "20210311.1" // 编译版本号
+	NodeVersionFeature      uint32 = 2            // 特征版本号
+	NodeVersionBuildCompile string = "20210325.1" // 编译版本号
 	// 结合成综合版本号体系：   0.1.1(20210310.1)
 )
 
