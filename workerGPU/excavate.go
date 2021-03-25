@@ -2,16 +2,11 @@ package workerGPU
 
 import (
 	"github.com/hacash/core/interfaces"
-	"github.com/hacash/miner/message"
 )
 
-func (l *LocalGpuWorker) SetCoinbaseMsgNum(coinbaseMsgNum uint32) {
-	l.coinbaseMsgNum = coinbaseMsgNum
-}
-
 // stop mining
-func (l *LocalGpuWorker) StopMining() {
-	l.stopMarks.Range(func(k interface{}, v interface{}) bool {
+func (g *GpuWorker) StopAllMining() {
+	g.stopMarks.Range(func(k interface{}, v interface{}) bool {
 		mk := v.(*byte)
 		*mk = 1 // set stop
 		return false
@@ -19,11 +14,8 @@ func (l *LocalGpuWorker) StopMining() {
 }
 
 // do mining
-func (l *LocalGpuWorker) Excavate(inputblockheadmeta interfaces.Block, outputCh chan message.PowMasterMsg) {
+func (g *GpuWorker) Excavate(miningStuffCh chan interfaces.PowWorkerMiningStuffItem, resultCh chan interfaces.PowWorkerMiningStuffItem) {
 
-	l.stepLock.Lock()
-	defer l.stepLock.Unlock()
-
-	l.StopMining() // stop old all
+	g.StopAllMining() // stop old all
 
 }

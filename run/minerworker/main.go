@@ -5,6 +5,7 @@ import (
 	"github.com/hacash/core/sys"
 	"github.com/hacash/miner/minerworker"
 	"github.com/hacash/miner/workerCPU"
+	"github.com/hacash/miner/workerGPU"
 	"os"
 	"os/signal"
 	"time"
@@ -13,6 +14,11 @@ import (
 /**
 
 go build -ldflags '-w -s' -o miner_worker_2021_3_22 github.com/hacash/miner/run/minerworker
+
+
+TEST:
+
+cd ./x16rs/opencl && node pkgclfilego.js && cd ../../ && go build -ldflags '-w -s' -o hacash_miner_worker_2021_03_24_01  miner/run/minerworker/main.go && ./hacash_miner_worker_2021_03_24_01
 
 */
 
@@ -40,10 +46,18 @@ func main() {
 	cnf := minerworker.NewMinerWorkerConfig(hinicnf)
 	worker := minerworker.NewMinerWorker(cnf)
 
-	// cpu worker
-	cpucnf := workerCPU.NewCPUWorkerConfig(hinicnf)
-	cpuworker := workerCPU.NewCPUWorker(cpucnf)
-	worker.SetPowWorker(cpuworker)
+	if cnf.GPU_Enable {
+		// gpu worker
+		gpucnf := workerGPU.NewGpuWorkerConfig(hinicnf)
+		gpuworker := workerGPU.NewGpuWorker(gpucnf)
+		worker.SetPowWorker(gpuworker)
+
+	} else {
+		// cpu worker
+		cpucnf := workerCPU.NewCPUWorkerConfig(hinicnf)
+		cpuworker := workerCPU.NewCPUWorker(cpucnf)
+		worker.SetPowWorker(cpuworker)
+	}
 
 	worker.Start()
 
