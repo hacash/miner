@@ -18,15 +18,16 @@ func (g *WorkerWrap) DoNextMining(pendingHeight uint64) {
 	g.StopAllMining()
 	//fmt.Println("g.StopAllMining()")
 
-	g.stepLock.Lock()
-	defer g.stepLock.Unlock()
-
-	//fmt.Println("STARTDOMINING....")
-
 	// stop mark
 	var stopmark byte = 0
 	g.stopMarks.Store(&stopmark, &stopmark)
 	defer g.stopMarks.Delete(&stopmark)
+
+	// 串行同步
+	g.stepLock.Lock()
+	defer g.stepLock.Unlock()
+
+	//fmt.Println("STARTDOMINING....")
 
 	// 时间统计
 	timestart := time.Now()
@@ -76,7 +77,9 @@ STARTDOMINING:
 	// 开始挖掘
 	pendingblock := stuffitem.GetHeadMetaBlock()
 	tardiffhash := difficulty.Uint32ToHash(pendingHeight, pendingblock.GetDifficulty())
-
+	if stopmark == 1 {
+		return // 停止当前挖矿
+	}
 	// do mining
 	//fmt.Println(supervene, blockheadmetasary)
 	fmt.Print(".")
