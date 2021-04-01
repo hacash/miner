@@ -10,17 +10,11 @@ import (
 type MinerWorkerConfig struct {
 	PoolAddress   *net.TCPAddr
 	Rewards       fields.Address // 奖励地址
-	Supervene     uint32         // CPU 并发挖矿
 	IsReportPower bool           // 是否上报算力
-	// GPU 配置
-	GPU_Enable     bool
-	GPU_OpenclPath string
 }
 
 func NewEmptyMinerPoolWorkerConfig() *MinerWorkerConfig {
-	cnf := &MinerWorkerConfig{
-		Supervene: 1,
-	}
+	cnf := &MinerWorkerConfig{}
 	return cnf
 }
 
@@ -43,14 +37,8 @@ func NewMinerWorkerConfig(cnffile *sys.Inicnf) *MinerWorkerConfig {
 		panic("reward address is error.")
 	}
 	cnf.Rewards = *rwdaddr
-	// supervene
-	cnf.Supervene = uint32(cnfsection.Key("supervene").MustUint(1))
 	// IsReportPower
 	cnf.IsReportPower = cnfsection.Key("not_report_power").MustBool(false) == false
-	// GPU
-	gpusection := cnffile.Section("GPU")
-	cnf.GPU_Enable = gpusection.Key("enable").MustBool(false)
-	cnf.GPU_OpenclPath = gpusection.Key("opencl_path").MustString("")
 	// ok
 	return cnf
 }

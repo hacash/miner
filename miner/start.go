@@ -57,8 +57,8 @@ func (m *Miner) doStartMining() {
 			nextblockHeight,
 			costtime, targettime,
 			diff1, diff2,
-			strings.TrimRight(string([]byte(tarhx1)[0:32]), "0"),
-			strings.TrimRight(string([]byte(tarhx2)[0:32]), "0"),
+			strings.TrimRight(tarhx1, "0"),
+			strings.TrimRight(tarhx2, "0"),
 		)
 	}
 
@@ -66,7 +66,7 @@ func (m *Miner) doStartMining() {
 		nextblockHeight,
 		nextblock.GetCustomerTransactionCount(),
 		string([]byte(nextblock.GetPrevHash().ToHex())[0:32]),
-		hex.EncodeToString(difficulty.Uint32ToHash(nextblockHeight, nextblock.GetDifficulty())[0:16]),
+		strings.TrimRight(hex.EncodeToString(difficulty.Uint32ToHash(nextblockHeight, nextblock.GetDifficulty())), "0"),
 		float64(totaltxsize)/1024,
 		time.Unix(int64(nextblock.GetTimestamp()), 0).Format("01/02 15:04:05"),
 	)

@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"github.com/hacash/core/sys"
 	"github.com/hacash/miner/minerworker"
-	"github.com/hacash/miner/workerCPU"
-	"github.com/hacash/miner/workerGPU"
+	"github.com/hacash/miner/minerworkerwrap"
 	"os"
 	"os/signal"
 	"time"
@@ -46,19 +45,13 @@ func main() {
 	cnf := minerworker.NewMinerWorkerConfig(hinicnf)
 	worker := minerworker.NewMinerWorker(cnf)
 
-	if cnf.GPU_Enable {
-		// gpu worker
-		gpucnf := workerGPU.NewGpuWorkerConfig(hinicnf)
-		gpuworker := workerGPU.NewGpuWorker(gpucnf)
-		worker.SetPowWorker(gpuworker)
+	// worker wrap
+	wrapcnf := minerworkerwrap.NewWorkerWrapConfig(hinicnf)
+	wkwrap := minerworkerwrap.NewWorkerWrap(wrapcnf)
 
-	} else {
-		// cpu worker
-		cpucnf := workerCPU.NewCPUWorkerConfig(hinicnf)
-		cpuworker := workerCPU.NewCPUWorker(cpucnf)
-		worker.SetPowWorker(cpuworker)
-	}
+	worker.SetPowWorker(wkwrap)
 
+	// 启动
 	worker.Start()
 
 	s := <-c

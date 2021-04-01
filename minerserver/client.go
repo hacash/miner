@@ -3,6 +3,7 @@ package minerserver
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/hacash/core/blocks"
 	"github.com/hacash/miner/message"
 	"github.com/hacash/mint/difficulty"
 	"math/rand"
@@ -59,8 +60,8 @@ func (m *MinerServerClinet) Handle() error {
 				fmt.Println("不满足难度， 什么都不做")
 				diffhash := difficulty.Uint32ToHash(newblock.GetHeight(), newblock.GetDifficulty())
 				diffhex := hex.EncodeToString(diffhash)
-				fmt.Println(newhx.ToHex(), diffhex)
-				fmt.Println(newhx, diffhash)
+				fmt.Println(newblock.GetHeight(), newhx.ToHex(), diffhex, hex.EncodeToString(newblock.GetNonceByte()), newblock.GetNonceByte())
+				fmt.Println(hex.EncodeToString(blocks.CalculateBlockHashBaseStuff(newblock)))
 			}
 
 		} else {

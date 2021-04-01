@@ -27,8 +27,8 @@ func (m *MinerWorker) handleConn(conn *net.TCPConn) {
 
 	m.conn = conn
 	defer func() {
-		m.powWorker.NextMining(0) // 关闭挖矿
-		m.conn = nil              // 表示断开连接
+		m.powWorker.DoNextMining(0) // 关闭挖矿
+		m.conn = nil                // 表示断开连接
 	}()
 
 	// 已连接上
@@ -109,7 +109,7 @@ func (m *MinerWorker) handleConn(conn *net.TCPConn) {
 			}
 
 			// 执行下一个挖矿
-			go m.powWorker.NextMining(stuff.BlockHeadMeta.GetHeight())
+			go m.powWorker.DoNextMining(stuff.BlockHeadMeta.GetHeight())
 
 		} else {
 			fmt.Printf("message type [%d] not supported\n", msgty)

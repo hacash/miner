@@ -8,10 +8,9 @@ import (
 // 开始
 func (m *MinerWorker) Start() {
 
-	fmt.Printf("[Start] connect: %s, rewards: %s, supervene: %d. \n",
+	fmt.Printf("[Start] connect: %s, reward: %s. \n",
 		m.config.PoolAddress.String(),
 		m.config.Rewards.ToReadable(),
-		m.config.Supervene,
 	)
 
 	err := m.powWorker.InitStart() // 初始化
