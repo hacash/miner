@@ -54,6 +54,9 @@ func MsgReadFromTcpConn(conn *net.TCPConn, mustlen uint32) (msgty uint16, msgbod
 // 发送消息
 func MsgSendToTcpConn(conn *net.TCPConn, msgty uint16, msgbody []byte) (err error) {
 	err = nil
+	if conn == nil {
+		return fmt.Errorf("conn is nil")
+	}
 
 	sendbts := make([]byte, 4+2+len(msgbody))
 	binary.BigEndian.PutUint32(sendbts[0:4], 2+uint32(len(msgbody))) // len

@@ -5,7 +5,7 @@ import (
 )
 
 type WorkerWrapConfig struct {
-	IsReportPower bool // 是否上报算力
+	IsReportHashrate bool // 是否上报算力
 	// CPU 配置
 	Supervene uint32 // CPU 并发挖矿
 	// GPU 配置
@@ -32,8 +32,8 @@ func NewWorkerWrapConfig(cnffile *sys.Inicnf) *WorkerWrapConfig {
 	cnfsection := cnffile.Section("")
 	// supervene
 	cnf.Supervene = uint32(cnfsection.Key("supervene").MustUint(1))
-	// IsReportPower
-	cnf.IsReportPower = cnfsection.Key("not_report_power").MustBool(false) == false
+	// IsReportHashrate
+	cnf.IsReportHashrate = cnfsection.Key("not_report_hashrate").MustBool(false) == false
 	// GPU
 	gpusection := cnffile.Section("GPU")
 	cnf.GPU_Enable = gpusection.Key("enable").MustBool(false)

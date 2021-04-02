@@ -8,9 +8,9 @@ import (
 )
 
 type MinerWorkerConfig struct {
-	PoolAddress   *net.TCPAddr
-	Rewards       fields.Address // 奖励地址
-	IsReportPower bool           // 是否上报算力
+	PoolAddress      *net.TCPAddr
+	Rewards          fields.Address // 奖励地址
+	IsReportHashrate bool           // 是否上报算力
 }
 
 func NewEmptyMinerPoolWorkerConfig() *MinerWorkerConfig {
@@ -37,8 +37,8 @@ func NewMinerWorkerConfig(cnffile *sys.Inicnf) *MinerWorkerConfig {
 		panic("reward address is error.")
 	}
 	cnf.Rewards = *rwdaddr
-	// IsReportPower
-	cnf.IsReportPower = cnfsection.Key("not_report_power").MustBool(false) == false
+	// IsReportHashrate
+	cnf.IsReportHashrate = cnfsection.Key("not_report_hashrate").MustBool(false) == false
 	// ok
 	return cnf
 }

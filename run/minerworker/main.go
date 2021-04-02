@@ -17,7 +17,7 @@ go build -ldflags '-w -s' -o miner_worker_2021_3_22 github.com/hacash/miner/run/
 
 TEST:
 
-cd ./x16rs/opencl && node pkgclfilego.js && cd ../../ && go build -ldflags '-w -s' -o hacash_miner_worker_2021_03_24_01  miner/run/minerworker/main.go && ./hacash_miner_worker_2021_03_24_01
+cd ./x16rs/opencl && node pkgclfilego.js && cd ../../ && go build -o hacash_miner_worker_2021_03_24_01  miner/run/minerworker/main.go && ./hacash_miner_worker_2021_03_24_01 ./miner/run/minerworker/minerworker.config.ini
 
 */
 

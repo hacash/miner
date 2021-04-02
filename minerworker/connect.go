@@ -2,7 +2,6 @@ package minerworker
 
 import (
 	"fmt"
-	"github.com/hacash/core/fields"
 	"github.com/hacash/miner/message"
 	"net"
 	"strings"
@@ -32,48 +31,16 @@ func (m *MinerWorker) handleConn(conn *net.TCPConn) {
 	}()
 
 	// 已连接上
-	// 注册
-	var regmsgobj = message.MsgWorkerRegistration{
-		fields.VarUint2(message.PoolAndWorkerAgreementVersionNumber),
-		fields.VarUint1(message.WorkerKindOfBlank),
-		m.config.Rewards,
-	}
-	// 发送注册消息
-	err := message.MsgSendToTcpConn(conn, message.MinerWorkMsgTypeWorkerRegistration, regmsgobj.Serialize())
+	respmsgobj, err := message.HandleConnectToServer(conn, &m.config.Rewards)
 	if err != nil {
 		fmt.Println(err)
-		return
-	}
-
-	// 读取响应
-	//fmt.Println("读取响应")
-	msgty, msgbody, err := message.MsgReadFromTcpConn(conn, message.MsgWorkerServerResponseSize)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	if msgty != message.MinerWorkMsgTypeServerResponse {
-		fmt.Printf("respone from %s is not MinerWorkMsgTypeServerResponse", m.config.PoolAddress.String())
-		return
-	}
-
-	// 响应消息
-	var respmsgobj = message.MsgServerResponse{}
-	_, err = respmsgobj.Parse(msgbody, 0)
-	if err != nil {
-		fmt.Println("message.MsgServerResponse.Parse Error", err)
-		return
-	}
-
-	if respmsgobj.RetCode != 0 {
-		fmt.Println("ServerResponse RetCode Error", respmsgobj.RetCode)
 		return
 	}
 
 	// 是否接受算力统计
 	if respmsgobj.AcceptPowerStatistics.Is(false) {
-		m.config.IsReportPower = false // 不接受统计
-		m.powWorker.CloseUploadPower() // 关闭统计
+		m.config.IsReportHashrate = false // 不接受统计
+		m.powWorker.CloseUploadHashrate() // 关闭统计
 		fmt.Print(" (note: pool is not accept PoW power statistics) ")
 	}
 

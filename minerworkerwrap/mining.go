@@ -83,7 +83,7 @@ STARTDOMINING:
 	// do mining
 	//fmt.Println(supervene, blockheadmetasary)
 	fmt.Print(".")
-	success, endstuffidx, nonce, endhash := g.powdevice.DoMining(pendingHeight, g.config.IsReportPower, &stopmark, tardiffhash, blockheadmetasary)
+	success, endstuffidx, nonce, endhash := g.powdevice.DoMining(pendingHeight, g.config.IsReportHashrate, &stopmark, tardiffhash, blockheadmetasary)
 
 	// 返回的 stuff
 	endstuffitem := stuffitemlist[endstuffidx]
@@ -110,7 +110,7 @@ STARTDOMINING:
 	}
 
 	// 上报算力 // 检查 nonce
-	if g.config.IsReportPower && nonce != nil && len(nonce) == 4 {
+	if g.config.IsReportHashrate && nonce != nil && len(nonce) == 4 {
 		endstuffitem.SetHeadNonce(nonce)
 		// 上报算力
 		g.resultCh <- endstuffitem

@@ -42,9 +42,12 @@ go build -ldflags '-w -s' -o hacash_miner_pool_worker_2021_03_25_01  miner/run/m
 go build -ldflags '-w -s' -o         hacash_cmdwallet_2021_03_25_01  cmdwallet/run/main/main.go
 go build -ldflags '-w -s' -o hacash_desktop_offline_wallet_2021_03_25_01  pcwallet/main/main.go
 
-// minerworker
+// miner worker
 cd ./x16rs/opencl && node pkgclfilego.js && cd ../../
 go build -ldflags '-w -s' -o hacash_miner_worker_2021_03_24_01  miner/run/minerworker/main.go
+
+// miner relay service
+go build -ldflags '-w -s' -o hacash_miner_relay_service_2021_04_02 github.com/hacash/miner/run/minerrelayservice/main.go
 
 
 

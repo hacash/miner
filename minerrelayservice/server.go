@@ -1,4 +1,4 @@
-package minerserver
+package minerrelayservice
 
 import (
 	"fmt"
@@ -6,16 +6,17 @@ import (
 	"net"
 )
 
-func (m *MinerServer) startListen() error {
+func (r *RelayService) startListen() {
 
-	port := int(m.config.TcpListenPort)
+	port := int(r.config.TcpListenPort)
 	listen := net.TCPAddr{IP: net.IPv4zero, Port: port, Zone: ""}
 	server, err := net.ListenTCP("tcp", &listen)
 	if err != nil {
-		return err
+		fmt.Println(err)
+		return
 	}
 
-	fmt.Printf("[Miner Server] Start server and listen on port %d.\n", port)
+	fmt.Printf("[Miner Relay Service] Start server and listen on port %d.\n", port)
 
 	go func() {
 		for {
@@ -23,19 +24,17 @@ func (m *MinerServer) startListen() error {
 			if err != nil {
 				continue
 			}
-			go m.acceptConn(conn)
+			go r.acceptConn(conn)
 		}
 	}()
-
-	return nil
 }
 
-func (m *MinerServer) acceptConn(conn *net.TCPConn) {
+func (r *RelayService) acceptConn(conn *net.TCPConn) {
 
 	defer conn.Close()
 
 	// 连接数过多
-	if len(m.allconns) > m.config.MaxWorkerConnect {
+	if len(r.allconns) > r.config.MaxWorkerConnect {
 		message.SendServerResponseByRetCode(conn, message.MsgErrorRetCodeTooManyConnects)
 		return
 	}
@@ -47,8 +46,8 @@ func (m *MinerServer) acceptConn(conn *net.TCPConn) {
 
 	//fmt.Println("5555")
 	// 发送区块挖掘消息
-	if m.penddingBlockMsg != nil {
-		msgbody := m.penddingBlockMsg.Serialize()
+	if r.penddingBlockStuff != nil {
+		msgbody := r.penddingBlockStuff.Serialize()
 		err := message.MsgSendToTcpConn(conn, message.MinerWorkMsgTypeMiningBlock, msgbody)
 		if err != nil {
 			//fmt.Println("MsgSendToTcpConn error", e0)
@@ -59,20 +58,16 @@ func (m *MinerServer) acceptConn(conn *net.TCPConn) {
 	//fmt.Println("6666")
 
 	// 创建 client
-	client := NewMinerServerClinet(m, conn)
+	client := NewConnClient(r, conn)
 
 	// 添加
-	m.changelock.Lock()
-	m.allconns[client.id] = client
-	m.changelock.Unlock()
+	r.addClient(client)
 
 	//fmt.Println("+++++++++++")
 	client.Handle()
 	//fmt.Println("-----------")
 
 	// 失败或关闭
-	m.changelock.Lock()
-	delete(m.allconns, client.id)
-	m.changelock.Unlock()
+	r.dropClient(client)
 
 }

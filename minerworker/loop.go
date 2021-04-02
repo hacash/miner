@@ -40,7 +40,7 @@ func (m *MinerWorker) loop() {
 			if mintSuuessed {
 				m.pendingMiningBlockStuff = nil // 重置为空
 			}
-			if mintSuuessed || m.config.IsReportPower {
+			if mintSuuessed || m.config.IsReportHashrate {
 				// 上传挖矿结果
 				var resupobj = message.MsgReportMiningResult{
 					fields.CreateBool(mintSuuessed),

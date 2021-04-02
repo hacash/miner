@@ -25,6 +25,6 @@ func NewWorkerWrap(config *WorkerWrapConfig) *WorkerWrap {
 }
 
 // 关闭算力统计
-func (g *WorkerWrap) CloseUploadPower() {
-	g.powdevice.CloseUploadPower()
+func (g *WorkerWrap) CloseUploadHashrate() {
+	g.powdevice.CloseUploadHashrate()
 }
