@@ -40,7 +40,7 @@ func (m *MinerServer) acceptConn(conn *net.TCPConn) {
 		return
 	}
 
-	_, err := message.HandleConnectToClient(conn)
+	_, err := message.HandleConnectToClient(conn, false)
 	if err != nil {
 		return // 注册错误
 	}

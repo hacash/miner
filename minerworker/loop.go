@@ -13,7 +13,7 @@ func (m *MinerWorker) loop() {
 		for {
 			// 持续不断投喂
 			if m.pendingMiningBlockStuff == nil {
-				time.Sleep(time.Millisecond)
+				time.Sleep(time.Millisecond * 50)
 				continue
 			}
 			// 开始投喂
@@ -29,7 +29,9 @@ func (m *MinerWorker) loop() {
 
 		// 检查连接
 		case <-checkTcpConnTiker.C:
+			//fmt.Println("<-checkTcpConnTiker.C:", m.conn)
 			if m.conn == nil {
+				//fmt.Println("go startConnect()")
 				// 发起重连
 				go m.startConnect()
 			}

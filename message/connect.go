@@ -60,10 +60,18 @@ func SendServerResponseByRetCode(conn *net.TCPConn, retcode uint16) {
 	//fmt.Println("sendServerResponseByRetCode", retcode)
 	// 响应消息
 	var sevresMsg = MsgServerResponse{
-		RetCode:               fields.VarUint2(retcode),
-		AcceptPowerStatistics: 0, // 不接受算力统计
+		RetCode:                  fields.VarUint2(retcode),
+		AcceptHashrateStatistics: 0, // 不接受算力统计
 	}
-	msgbodybts := sevresMsg.Serialize()
+	SendServerResponse(conn, &sevresMsg)
+}
+
+// 服务端响应
+func SendServerResponse(conn *net.TCPConn, resmsg *MsgServerResponse) {
+
+	//fmt.Println("sendServerResponseByRetCode", retcode)
+	// 响应消息
+	msgbodybts := resmsg.Serialize()
 	err := MsgSendToTcpConn(conn, MinerWorkMsgTypeServerResponse, msgbodybts)
 	if err != nil {
 		fmt.Println(err)
@@ -71,7 +79,7 @@ func SendServerResponseByRetCode(conn *net.TCPConn, retcode uint16) {
 }
 
 // 连接到客户端
-func HandleConnectToClient(conn *net.TCPConn) (*MsgWorkerRegistration, error) {
+func HandleConnectToClient(conn *net.TCPConn, isAcceptHashrateStatistics bool) (*MsgWorkerRegistration, error) {
 
 	var isreged bool = false // 是否完成报名注册
 	go func() {
@@ -118,7 +126,10 @@ func HandleConnectToClient(conn *net.TCPConn) (*MsgWorkerRegistration, error) {
 
 	//fmt.Println("4444")
 	// 发送连接成功消息 SUCCESS CODE
-	SendServerResponseByRetCode(conn, MsgErrorRetCodeSuccess)
+	SendServerResponse(conn, &MsgServerResponse{
+		RetCode:                  fields.VarUint2(MsgErrorRetCodeSuccess),
+		AcceptHashrateStatistics: fields.CreateBool(isAcceptHashrateStatistics),
+	})
 
 	isreged = true // 注册成功，不关闭
 	// 成功

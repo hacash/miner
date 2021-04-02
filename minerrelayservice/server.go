@@ -39,7 +39,7 @@ func (r *RelayService) acceptConn(conn *net.TCPConn) {
 		return
 	}
 
-	_, err := message.HandleConnectToClient(conn)
+	_, err := message.HandleConnectToClient(conn, r.config.IsAcceptHashrate)
 	if err != nil {
 		return // 注册错误
 	}

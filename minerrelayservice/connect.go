@@ -5,6 +5,7 @@ import (
 	"github.com/hacash/miner/message"
 	"net"
 	"strings"
+	"time"
 )
 
 func (r *RelayService) connectToService() {
@@ -41,13 +42,11 @@ func (r *RelayService) handleServerConn(conn *net.TCPConn) {
 	}
 
 	// 是否接受算力统计
-	if respmsgobj.AcceptPowerStatistics.Is(false) {
+	if respmsgobj.AcceptHashrateStatistics.Is(false) {
 		//m.config.IsReportHashrate = false // 不接受统计
 		//m.powWorker.CloseUploadHashrate()    // 关闭统计
-		fmt.Print(" (note: pool is not accept PoW power statistics) ")
+		fmt.Println("note: pool is not accept PoW power statistics.")
 	}
-
-	firstshowconnectok := true
 
 	// 循环收取挖矿消息
 	for {
@@ -73,14 +72,12 @@ func (r *RelayService) handleServerConn(conn *net.TCPConn) {
 			}
 			r.penddingBlockStuff = stuff // 挖矿 stuff
 
-			if firstshowconnectok {
-				firstshowconnectok = false
-				fmt.Println("connected successfully.")
-			}
-
 			// 通知全部的客户端，新区块到来
-			fmt.Printf("receive and forward new block <%d> mining stuff to %d clients.\n",
-				stuff.BlockHeadMeta.GetHeight(), len(r.allconns))
+			fmt.Printf("receive new block <%d> mining stuff forward to [%d] clients at time %s.\n",
+				stuff.BlockHeadMeta.GetHeight(),
+				len(r.allconns),
+				time.Now().Format("01/02 15:04:05"),
+			)
 			go r.notifyAllClientNewBlockStuffByMsgBytes(msgbody)
 
 		} else {

@@ -120,7 +120,7 @@ STARTDOMINING:
 		hashrate := new(big.Int).Div(hxworth, big.NewInt(usetimesec))
 		hashrateshow := difficulty.ConvertPowPowerToShowFormat(hashrate)
 		fmt.Printf("upload power: %s, time: %ds, hashrate: %s.\n",
-			hex.EncodeToString(endhash[0:20]),
+			hex.EncodeToString(endhash[0:16]),
 			usetimesec, hashrateshow,
 		)
 	} else {

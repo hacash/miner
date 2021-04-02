@@ -25,9 +25,12 @@ func (p *MinerWorker) startConnect() error {
 func (m *MinerWorker) handleConn(conn *net.TCPConn) {
 
 	m.conn = conn
+
+	//fmt.Println("handleConn start", m.conn)
 	defer func() {
-		m.powWorker.DoNextMining(0) // 关闭挖矿
+		m.powWorker.StopAllMining() // 关闭挖矿
 		m.conn = nil                // 表示断开连接
+		//fmt.Println("handleConn end", m.conn)
 	}()
 
 	// 已连接上
@@ -38,7 +41,7 @@ func (m *MinerWorker) handleConn(conn *net.TCPConn) {
 	}
 
 	// 是否接受算力统计
-	if respmsgobj.AcceptPowerStatistics.Is(false) {
+	if respmsgobj.AcceptHashrateStatistics.Is(false) {
 		m.config.IsReportHashrate = false // 不接受统计
 		m.powWorker.CloseUploadHashrate() // 关闭统计
 		fmt.Print(" (note: pool is not accept PoW power statistics) ")
