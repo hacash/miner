@@ -1,40 +1,50 @@
 package minerrelayservice
 
 import (
-	"github.com/hacash/miner/message"
-	"net"
-	"sync"
+	"fmt"
+	"log"
+	"net/http"
+	"strconv"
 )
 
-type RelayService struct {
-	config *MinerRelayServiceConfig
+func (api *RelayService) startHttpApiService() {
 
-	service_tcp *net.TCPConn
+	port := api.config.HttpApiListenPort
+	if port == 0 {
+		// 不启动服务器
+		fmt.Println("config http_api_listen_port==0 do not start http api service.")
+		return
 
-	changelock sync.Mutex
-
-	allconns map[uint64]*ConnClient // 全部 TCP 连接
-
-	penddingBlockStuff *message.MsgPendingMiningBlockStuff // 当前正在挖掘的区块消息
-	//successMintCh    chan interfaces.Block               // 当前正确挖掘区块的返回
-
-}
-
-func NewRelayService(cnf *MinerRelayServiceConfig) *RelayService {
-	return &RelayService{
-		config:             cnf,
-		service_tcp:        nil,
-		allconns:           make(map[uint64]*ConnClient),
-		penddingBlockStuff: nil,
 	}
-}
 
-func (r *RelayService) Start() {
+	api.initRoutes()
 
-	go r.startListen()
+	mux := http.NewServeMux()
 
-	go r.connectToService()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		ResponseData(w, ResponseCreateData("service", "hacash miner relay service"))
+	})
 
-	go r.loop()
+	// 路由
+	mux.HandleFunc("/query", api.dealQuery)         // 查询
+	mux.HandleFunc("/create", api.dealCreate)       // 创建
+	mux.HandleFunc("/submit", api.dealSubmit)       // 提交
+	mux.HandleFunc("/operate", api.dealOperate)     // 修改
+	mux.HandleFunc("/calculate", api.dealCalculate) // 计算
 
+	// 设置监听的端口
+	portstr := strconv.Itoa(port)
+	server := &http.Server{
+		Addr:    ":" + portstr,
+		Handler: mux,
+	}
+
+	fmt.Println("[Miner Relay Service] Http api listen on port: " + portstr)
+
+	go func() {
+		err := server.ListenAndServe()
+		if err != nil {
+			log.Fatal("ListenAndServe: ", err)
+		}
+	}()
 }

@@ -38,14 +38,14 @@ func (m *MinerWorker) loop() {
 
 		// 等待挖掘成功
 		case result := <-m.miningResultCh:
-			var mintSuuessed = result.GetMiningSuccessed()
-			if mintSuuessed {
+			var mintSuccessed = result.GetMiningSuccessed()
+			if mintSuccessed {
 				m.pendingMiningBlockStuff = nil // 重置为空
 			}
-			if mintSuuessed || m.config.IsReportHashrate {
+			if mintSuccessed || m.config.IsReportHashrate {
 				// 上传挖矿结果
 				var resupobj = message.MsgReportMiningResult{
-					fields.CreateBool(mintSuuessed),
+					fields.CreateBool(mintSuccessed),
 					fields.VarUint5(result.GetHeadMetaBlock().GetHeight()),
 					result.GetHeadNonce(),
 					result.GetCoinbaseNonce(),

@@ -13,6 +13,8 @@ type MinerRelayServiceConfig struct {
 
 	TcpListenPort    int // TCP server 监听端口
 	MaxWorkerConnect int // TCP 最大连接数
+
+	HttpApiListenPort int // http api 数据接口服务
 }
 
 func NewEmptyMinerRelayServiceConfig() *MinerRelayServiceConfig {
@@ -33,11 +35,12 @@ func NewMinerRelayServiceConfig(cnffile *sys.Inicnf) *MinerRelayServiceConfig {
 	}
 	cnf.ServerAddress = addr
 	// IsReportHashrate  or  IsAcceptHashrate
-	cnf.IsReportHashrate = cnfsection.Key("not_report_hashrate").MustBool(false) == false
-	cnf.IsAcceptHashrate = cnfsection.Key("not_accept_hashrate").MustBool(false) == false
+	cnf.IsReportHashrate = cnfsection.Key("report_hashrate").MustBool(false)
+	cnf.IsAcceptHashrate = cnfsection.Key("accept_hashrate").MustBool(true)
 	// max
-	cnf.TcpListenPort = cnfsection.Key("listen_port").MustInt(3351)
 	cnf.MaxWorkerConnect = cnfsection.Key("max_connect").MustInt(200)
+	cnf.TcpListenPort = cnfsection.Key("server_listen_port").MustInt(0)
+	cnf.HttpApiListenPort = cnfsection.Key("http_api_listen_port").MustInt(0)
 	// ok
 	return cnf
 }

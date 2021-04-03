@@ -111,6 +111,7 @@ STARTDOMINING:
 
 	// 上报算力 // 检查 nonce
 	if g.config.IsReportHashrate && nonce != nil && len(nonce) == 4 {
+		endstuffitem.SetMiningSuccessed(false)
 		endstuffitem.SetHeadNonce(nonce)
 		// 上报算力
 		g.resultCh <- endstuffitem

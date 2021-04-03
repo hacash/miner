@@ -41,41 +41,43 @@ func (m *ConnClient) Handle() error {
 				return err
 			}
 			// 处理
-			if result.MintSuccessed != 1 {
-				// 没有挖掘成功的话，忽略此消息 或 写入算力统计
-				if m.server.config.IsAcceptHashrate == false {
-					// 不接受算力统计
-					continue
-				}
-				// 上报算力统计
-				if m.server.config.IsReportHashrate == true {
-					// 上报
+			if result.MintSuccessed.Check() {
+				// 挖掘成功，开始验证
+				newstuff, newhx := m.server.penddingBlockStuff.CalculateBlockHashByMiningResult(&result, true)
+				// 判断哈希满足要求
+				newblock := newstuff.GetHeadMetaBlock()
+				if difficulty.CheckHashDifficultySatisfyByBlock(newhx, newblock) {
+					// 满足难度 上报
 					if m.server.service_tcp != nil {
 						message.MsgSendToTcpConn(m.server.service_tcp, message.MinerWorkMsgTypeReportMiningResult, result.Serialize())
 					}
-					continue
-				}
-				// 自己写入算力统计
+				} else {
+					// 不满足难度， 什么都不做
 
+					fmt.Println("relay service 不满足难度， 什么都不做")
+					diffhash := difficulty.Uint32ToHash(newblock.GetHeight(), newblock.GetDifficulty())
+					diffhex := hex.EncodeToString(diffhash)
+					fmt.Println(newblock.GetHeight(), newhx.ToHex(), diffhex, hex.EncodeToString(newblock.GetNonceByte()), newblock.GetNonceByte())
+					fmt.Println(hex.EncodeToString(blocks.CalculateBlockHashBaseStuff(newblock)))
+				}
+				// 处理完毕
+				continue
 			}
-			// 挖掘成功，开始验证
-			newstuff, newhx := m.server.penddingBlockStuff.CalculateBlockHashByMiningResult(&result, true)
-			// 判断哈希满足要求
-			newblock := newstuff.GetHeadMetaBlock()
-			if difficulty.CheckHashDifficultySatisfyByBlock(newhx, newblock) {
-				// 满足难度 上报
+
+			// 没有挖掘成功的话，忽略此消息 或 写入算力统计
+			if m.server.config.IsAcceptHashrate == false {
+				// 不接受算力统计
+				continue
+			}
+			// 上报算力统计
+			if m.server.config.IsReportHashrate == true {
+				// 上报
 				if m.server.service_tcp != nil {
 					message.MsgSendToTcpConn(m.server.service_tcp, message.MinerWorkMsgTypeReportMiningResult, result.Serialize())
 				}
-			} else {
-				// 不满足难度， 什么都不做
-
-				fmt.Println("relay service 不满足难度， 什么都不做")
-				diffhash := difficulty.Uint32ToHash(newblock.GetHeight(), newblock.GetDifficulty())
-				diffhex := hex.EncodeToString(diffhash)
-				fmt.Println(newblock.GetHeight(), newhx.ToHex(), diffhex, hex.EncodeToString(newblock.GetNonceByte()), newblock.GetNonceByte())
-				fmt.Println(hex.EncodeToString(blocks.CalculateBlockHashBaseStuff(newblock)))
+				continue
 			}
+			// TODO: 自己写入算力统计
 
 		} else {
 			return fmt.Errorf("Not supported msg type")

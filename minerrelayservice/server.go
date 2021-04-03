@@ -9,6 +9,12 @@ import (
 func (r *RelayService) startListen() {
 
 	port := int(r.config.TcpListenPort)
+	if port == 0 {
+		// 不启动服务器
+		fmt.Println("config server_listen_port==0 do not start server.")
+		return
+	}
+
 	listen := net.TCPAddr{IP: net.IPv4zero, Port: port, Zone: ""}
 	server, err := net.ListenTCP("tcp", &listen)
 	if err != nil {

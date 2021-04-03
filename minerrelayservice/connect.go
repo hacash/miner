@@ -70,7 +70,8 @@ func (r *RelayService) handleServerConn(conn *net.TCPConn) {
 				fmt.Println("message.MsgPendingMiningBlockStuff.Parse Error", err)
 				continue
 			}
-			r.penddingBlockStuff = stuff // 挖矿 stuff
+			// 挖矿 stuff
+			r.updateNewBlockStuff(stuff)
 
 			// 通知全部的客户端，新区块到来
 			fmt.Printf("receive new block <%d> mining stuff forward to [%d] clients at time %s.\n",
