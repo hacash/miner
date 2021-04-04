@@ -1,6 +1,7 @@
 package minerrelayservice
 
 import (
+	"github.com/hacash/chain/leveldb"
 	"github.com/hacash/miner/message"
 	"net"
 	"net/http"
@@ -26,20 +27,28 @@ type RelayService struct {
 	submitRoutes    map[string]func(*http.Request, http.ResponseWriter, []byte)
 	operateRoutes   map[string]func(*http.Request, http.ResponseWriter, []byte)
 	calculateRoutes map[string]func(*http.Request, http.ResponseWriter, []byte)
+
+	// data
+	ldb *leveldb.DB
+
+	userMiningResultStoreAutoIdxMutex sync.Mutex
+	userMiningResultStoreAutoIdx      uint64
 }
 
 func NewRelayService(cnf *MinerRelayServiceConfig) *RelayService {
 	return &RelayService{
-		config:             cnf,
-		service_tcp:        nil,
-		allconns:           make(map[uint64]*ConnClient),
-		oldprevBlockStuff:  nil,
-		penddingBlockStuff: nil,
-		queryRoutes:        make(map[string]func(*http.Request, http.ResponseWriter, []byte)),
-		createRoutes:       make(map[string]func(*http.Request, http.ResponseWriter, []byte)),
-		submitRoutes:       make(map[string]func(*http.Request, http.ResponseWriter, []byte)),
-		operateRoutes:      make(map[string]func(*http.Request, http.ResponseWriter, []byte)),
-		calculateRoutes:    make(map[string]func(*http.Request, http.ResponseWriter, []byte)),
+		config:                       cnf,
+		service_tcp:                  nil,
+		allconns:                     make(map[uint64]*ConnClient),
+		oldprevBlockStuff:            nil,
+		penddingBlockStuff:           nil,
+		queryRoutes:                  make(map[string]func(*http.Request, http.ResponseWriter, []byte)),
+		createRoutes:                 make(map[string]func(*http.Request, http.ResponseWriter, []byte)),
+		submitRoutes:                 make(map[string]func(*http.Request, http.ResponseWriter, []byte)),
+		operateRoutes:                make(map[string]func(*http.Request, http.ResponseWriter, []byte)),
+		calculateRoutes:              make(map[string]func(*http.Request, http.ResponseWriter, []byte)),
+		ldb:                          nil,
+		userMiningResultStoreAutoIdx: 0,
 	}
 }
 
@@ -47,6 +56,8 @@ func NewRelayService(cnf *MinerRelayServiceConfig) *RelayService {
 func (r *RelayService) updateNewBlockStuff(newstf *message.MsgPendingMiningBlockStuff) {
 	r.oldprevBlockStuff = r.penddingBlockStuff // 保存上一个
 	r.penddingBlockStuff = newstf              // 更新最新的
+	// 储存至磁盘
+	go r.saveMiningBlockStuffToStore(newstf)
 }
 
 // 找出 stuff 通过 区块高度
@@ -66,6 +77,8 @@ func (r *RelayService) checkoutMiningStuff(blkhei uint64) *message.MsgPendingMin
 }
 
 func (r *RelayService) Start() {
+
+	r.initStore()
 
 	go r.startListen() // 启动 server 服务端
 

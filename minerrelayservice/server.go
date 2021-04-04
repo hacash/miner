@@ -8,7 +8,7 @@ import (
 
 func (r *RelayService) startListen() {
 
-	port := int(r.config.TcpListenPort)
+	port := int(r.config.ServerTcpListenPort)
 	if port == 0 {
 		// 不启动服务器
 		fmt.Println("config server_listen_port==0 do not start server.")
@@ -45,7 +45,7 @@ func (r *RelayService) acceptConn(conn *net.TCPConn) {
 		return
 	}
 
-	_, err := message.HandleConnectToClient(conn, r.config.IsAcceptHashrate)
+	regobj, err := message.HandleConnectToClient(conn, r.config.IsAcceptHashrate)
 	if err != nil {
 		return // 注册错误
 	}
@@ -64,7 +64,7 @@ func (r *RelayService) acceptConn(conn *net.TCPConn) {
 	//fmt.Println("6666")
 
 	// 创建 client
-	client := NewConnClient(r, conn)
+	client := NewConnClient(r, conn, regobj.RewardAddress)
 
 	// 添加
 	r.addClient(client)

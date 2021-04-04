@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/hacash/core/blocks"
+	"github.com/hacash/core/fields"
 	"github.com/hacash/miner/message"
 	"github.com/hacash/mint/difficulty"
 	"math/rand"
@@ -11,17 +12,19 @@ import (
 )
 
 type ConnClient struct {
-	server *RelayService
-	id     uint64
-	conn   *net.TCPConn
+	server  *RelayService
+	id      uint64
+	conn    *net.TCPConn
+	rwdaddr fields.Address // 奖励地址
 }
 
-func NewConnClient(server *RelayService, conn *net.TCPConn) *ConnClient {
+func NewConnClient(server *RelayService, conn *net.TCPConn, rwdaddr fields.Address) *ConnClient {
 	cid := rand.Uint64()
 	return &ConnClient{
-		server: server,
-		id:     cid,
-		conn:   conn,
+		server:  server,
+		id:      cid,
+		conn:    conn,
+		rwdaddr: rwdaddr,
 	}
 }
 
@@ -41,9 +44,15 @@ func (m *ConnClient) Handle() error {
 				return err
 			}
 			// 处理
+			pickupstuff := m.server.checkoutMiningStuff(uint64(result.BlockHeight))
+			if pickupstuff == nil {
+				// 区块高度不匹配什么都不做
+				continue
+			}
+			newstuff, newhx := pickupstuff.CalculateBlockHashByMiningResult(&result, true)
+			var isMintSuccess = false // 是否真的挖掘成功
 			if result.MintSuccessed.Check() {
 				// 挖掘成功，开始验证
-				newstuff, newhx := m.server.penddingBlockStuff.CalculateBlockHashByMiningResult(&result, true)
 				// 判断哈希满足要求
 				newblock := newstuff.GetHeadMetaBlock()
 				if difficulty.CheckHashDifficultySatisfyByBlock(newhx, newblock) {
@@ -51,9 +60,9 @@ func (m *ConnClient) Handle() error {
 					if m.server.service_tcp != nil {
 						message.MsgSendToTcpConn(m.server.service_tcp, message.MinerWorkMsgTypeReportMiningResult, result.Serialize())
 					}
+					isMintSuccess = true
 				} else {
 					// 不满足难度， 什么都不做
-
 					fmt.Println("relay service 不满足难度， 什么都不做")
 					diffhash := difficulty.Uint32ToHash(newblock.GetHeight(), newblock.GetDifficulty())
 					diffhex := hex.EncodeToString(diffhash)
@@ -61,7 +70,6 @@ func (m *ConnClient) Handle() error {
 					fmt.Println(hex.EncodeToString(blocks.CalculateBlockHashBaseStuff(newblock)))
 				}
 				// 处理完毕
-				continue
 			}
 
 			// 没有挖掘成功的话，忽略此消息 或 写入算力统计
@@ -75,9 +83,9 @@ func (m *ConnClient) Handle() error {
 				if m.server.service_tcp != nil {
 					message.MsgSendToTcpConn(m.server.service_tcp, message.MinerWorkMsgTypeReportMiningResult, result.Serialize())
 				}
-				continue
 			}
-			// TODO: 自己写入算力统计
+			// 写入算力统计
+			m.server.saveMiningResultToStore(m.rwdaddr, isMintSuccess, newstuff)
 
 		} else {
 			return fmt.Errorf("Not supported msg type")

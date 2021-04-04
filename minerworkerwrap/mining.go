@@ -29,6 +29,12 @@ func (g *WorkerWrap) DoNextMining(pendingHeight uint64) {
 
 	//fmt.Println("STARTDOMINING....")
 
+	// 测试上报
+	//go func() {
+	//	time.Sleep(time.Second * 10)
+	//	stopmark = 1
+	//}()
+
 	// 时间统计
 	timestart := time.Now()
 	hasshowinfo := false

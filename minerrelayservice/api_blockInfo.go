@@ -1,9 +1,38 @@
 package minerrelayservice
 
 import (
+	"fmt"
+	"github.com/hacash/miner/message"
 	"net/http"
 	"time"
 )
+
+// 历史区块信息
+func (api *RelayService) readHistoricalMiningBlockInfo(r *http.Request, w http.ResponseWriter, bodybytes []byte) {
+
+	if api.ldb == nil {
+		ResponseErrorString(w, "config [store] enable not open")
+		return
+	}
+
+	// mei
+	isUnitMei := CheckParamBool(r, "unitmei", false)
+	blkHeight := CheckParamUint64(r, "height", 0)
+	if blkHeight == 0 {
+		ResponseErrorString(w, "height must give")
+		return
+	}
+
+	// 读取
+	stuff := api.readMiningBlockStuffFormStore(blkHeight)
+	if stuff == nil {
+		ResponseError(w, fmt.Errorf("not find height %d", blkHeight))
+		return
+	}
+
+	// 返回
+	returnStuff(w, stuff, isUnitMei)
+}
 
 // 当前正在挖掘的区块信息
 func (api *RelayService) pendingBlockInfo(r *http.Request, w http.ResponseWriter, bodybytes []byte) {
@@ -50,7 +79,6 @@ func (api *RelayService) pendingBlockInfo(r *http.Request, w http.ResponseWriter
 	isOnlyReturnHeight := CheckParamBool(r, "only_height", false)
 
 	cblk := api.penddingBlockStuff.BlockHeadMeta
-	cbtx := api.penddingBlockStuff.CoinbaseTx
 
 	// 仅仅返回区块高度
 	// 用于 wait_block_height 判断下一个挖矿区块已经到来
@@ -62,7 +90,16 @@ func (api *RelayService) pendingBlockInfo(r *http.Request, w http.ResponseWriter
 		return // 返回高度
 	}
 
-	// 返回所有详细信息
+	// 返回
+	returnStuff(w, api.penddingBlockStuff, isUnitMei)
+
+}
+
+// 返回所有详细信息
+func returnStuff(w http.ResponseWriter, stuff *message.MsgPendingMiningBlockStuff, isUnitMei bool) {
+
+	cblk := stuff.BlockHeadMeta
+	cbtx := stuff.CoinbaseTx
 
 	// return
 	blockinfo := make(map[string]interface{})
@@ -82,7 +119,7 @@ func (api *RelayService) pendingBlockInfo(r *http.Request, w http.ResponseWriter
 	data["coinbase"] = cbtx.Describe(isUnitMei, true)
 
 	// Mrkl hash
-	mrklhashs := api.penddingBlockStuff.MrklRelatedTreeListForCoinbaseTxModify
+	mrklhashs := stuff.MrklRelatedTreeListForCoinbaseTxModify
 	mrklshows := make([]string, len(mrklhashs))
 	for i, v := range mrklhashs {
 		mrklshows[i] = v.ToHex()

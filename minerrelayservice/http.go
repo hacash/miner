@@ -8,11 +8,14 @@ import (
 func (api *RelayService) initRoutes() {
 
 	// query
-	api.queryRoutes["pending_block_info"] = api.pendingBlockInfo // 查询当前正在挖掘的区块信息
-	api.queryRoutes["mining_stuff"] = api.miningStuff            // 请求挖矿数据
+
+	api.queryRoutes["pending_block"] = api.pendingBlockInfo                 // 查询当前正在挖掘的区块信息
+	api.queryRoutes["historical_block"] = api.readHistoricalMiningBlockInfo // 查询历史挖掘的区块信息记录
+	api.queryRoutes["mining_stuff"] = api.miningStuff                       // 请求挖矿数据
+	api.queryRoutes["mining_result"] = api.queryMiningResult                // 查询挖矿统计
 
 	// submit
-	api.submitRoutes["mining_result"] = api.miningResult // 提交挖矿结果
+	api.submitRoutes["mining_result"] = api.submitMiningResult // 提交挖矿结果
 
 	//// create
 	//api.createRoutes["accounts"] = api.createAccounts
