@@ -85,7 +85,7 @@ func (m *ConnClient) Handle() error {
 				}
 			}
 			// 写入算力统计
-			m.server.saveMiningResultToStore(m.rwdaddr, isMintSuccess, newstuff)
+			go m.server.saveMiningResultToStore(m.rwdaddr, isMintSuccess, newstuff)
 
 		} else {
 			return fmt.Errorf("Not supported msg type")

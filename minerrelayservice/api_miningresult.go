@@ -204,7 +204,7 @@ func (api *RelayService) submitMiningResult(r *http.Request, w http.ResponseWrit
 	}
 
 	// 统计算力
-	api.saveMiningResultToStore(*rwdaddr, isRealMintSuccess, newstuff)
+	go api.saveMiningResultToStore(*rwdaddr, isRealMintSuccess, newstuff)
 
 	// ok
 	retdata["stat"] = "ok"

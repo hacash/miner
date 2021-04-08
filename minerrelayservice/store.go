@@ -56,6 +56,7 @@ func (api *RelayService) saveMiningResultToStore(rwdaddr fields.Address, isMintS
 
 	//fmt.Println("saveMiningResultToStore start")
 
+	// 串行保存
 	api.userMiningResultStoreAutoIdxMutex.Lock()
 	defer api.userMiningResultStoreAutoIdxMutex.Unlock()
 
