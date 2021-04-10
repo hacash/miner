@@ -45,13 +45,26 @@ func (p *PowMasterMsg) Serialize() ([]byte, error) {
 }
 
 func (p *PowMasterMsg) Parse(buf []byte, seek uint32) (uint32, error) {
+	var e error = nil
 	if uint32(len(buf))-seek < PowMasterMsgSize {
 		return 0, fmt.Errorf("size error.")
 	}
-	seek, _ = p.Status.Parse(buf, seek)
-	seek, _ = p.CoinbaseMsgNum.Parse(buf, seek)
-	seek, _ = p.NonceBytes.Parse(buf, seek)
-	p.BlockHeadMeta, seek, _ = blocks.ParseExcludeTransactions(buf, seek)
+	seek, e = p.Status.Parse(buf, seek)
+	if e != nil {
+		return 0, e
+	}
+	seek, e = p.CoinbaseMsgNum.Parse(buf, seek)
+	if e != nil {
+		return 0, e
+	}
+	seek, e = p.NonceBytes.Parse(buf, seek)
+	if e != nil {
+		return 0, e
+	}
+	p.BlockHeadMeta, seek, e = blocks.ParseExcludeTransactions(buf, seek)
+	if e != nil {
+		return 0, e
+	}
 	return seek, nil
 }
 

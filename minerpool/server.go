@@ -44,7 +44,7 @@ func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 	}
 
 	// 如果还没有挖区块，则返回关闭，隔一段时间再次连接
-	if p.currentRealtimePeriod == nil || p.currentRealtimePeriod.targetBlock == nil{
+	if p.currentRealtimePeriod == nil || p.currentRealtimePeriod.targetBlock == nil {
 		conn.Write([]byte("not_ready_yet"))
 		return
 	}
@@ -68,28 +68,27 @@ func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 
 		readbuf := bytes.NewBuffer([]byte{})
 
-		READNEXTBUF:
+	READNEXTBUF:
 
 		rn, err := conn.Read(segdata)
 		if err != nil {
 			break
 		}
 
-		readbuf.Write( segdata[0:rn] )
+		readbuf.Write(segdata[0:rn])
 
 		newbytes := readbuf.Bytes()
 
-
 		//fmt.Println("MinerPool: rn, err := conn.Read(segdata)", segdata[0:rn])
 
-		if len(newbytes) == 4 + 5 && string(newbytes[0:4]) == "ping" {
+		if len(newbytes) == 4+5 && string(newbytes[0:4]) == "ping" {
 			if client.belongAccount.realtimePeriod.IsOverEndBlock(newbytes[4:]) {
 				conn.Write([]byte("end_current_mining")) // return end mining
-			}else{
+			} else {
 				conn.Write([]byte("pong")) // ok pong
 			}
 
-		}else if len(newbytes) == 21 { // post address
+		} else if len(newbytes) == 21 { // post address
 
 			client.address = fields.Address(newbytes[0:21])
 			// fmt.Println( client.address.ToReadable() )
@@ -105,7 +104,11 @@ func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 			//fmt.Println( "message.PowMasterMsgSize", segdata[0:rn] )
 
 			powresult := message.NewPowMasterMsg()
-			powresult.Parse(newbytes, 0)
+			_, e := powresult.Parse(newbytes, 0)
+			if e != nil {
+				// 解析发生错误，什么也不做
+				continue
+			}
 			client.postPowResult(powresult) // return pow results
 
 		} else {

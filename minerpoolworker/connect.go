@@ -113,7 +113,11 @@ func (p *MinerWorker) handleConn(conn *net.TCPConn) {
 
 			// start mining
 			powmsg := message.NewPowMasterMsg()
-			powmsg.Parse(data, 0)
+			_, e := powmsg.Parse(data, 0)
+			if e != nil {
+				// 解析消息发生错误，什么也不做
+				continue
+			}
 			tarBlockHeight := powmsg.BlockHeadMeta.GetHeight()
 
 			if p.currentPowMasterMsg != nil && p.client != nil && p.isInConnecting &&
