@@ -32,6 +32,13 @@ Hacash Software Download link and Release log
 
 ### Historical release log:
 
+#### Version: 0.1.2  (2021.4.10)
+
+update log:
+
+> [1] fix bug: Minerpool error powmsg crash.
+
+
 #### Version: 0.1.2  (2021.3.25)
 
 update log:
