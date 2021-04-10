@@ -30,7 +30,7 @@ Hacash Software Download link and Release log
     
 ---
 
-### Historical release log:
+### Lastest release log:
 
 #### Version: 0.1.2  (2021.4.10)
 
