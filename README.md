@@ -11,9 +11,9 @@ Compilation build instructions: [build_compilation_en.md](doc/build_compilation_
 ---
 ### RPC API Doc (接口文档)
 
-中文文档：[rpc_api_doc.cn.md](https://github.com/hacash/service/rpc_api_doc.cn.md) 
+中文文档：[rpc_api_doc.cn.md](https://github.com/hacash/service/doc/rpc_api_doc.cn.md) 
 
-English Doc：[rpc_api_doc.en.md](https://github.com/hacash/service/rpc_api_doc.en.md) 
+English Doc：[rpc_api_doc.en.md](https://github.com/hacash/service/doc/rpc_api_doc.en.md) 
 
 ---
 
