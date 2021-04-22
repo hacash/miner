@@ -31,7 +31,7 @@ func (p *MemTxPool) checkDiamondCreate(newtx interfaces.Transaction, act *action
 		return fmt.Errorf("diamond create tx %s handling fee is too low for miners to accept.", txhxhex)
 	}
 	// sign
-	ok, e1 := newtx.VerifyNeedSigns(nil)
+	ok, e1 := newtx.VerifyAllNeedSigns()
 	if !ok || e1 != nil {
 		return fmt.Errorf("diamond create tx %s verify signature error", txhxhex)
 	}
