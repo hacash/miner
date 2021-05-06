@@ -32,6 +32,15 @@ Hacash Software Download link and Release log
 
 ### Lastest release log:
 
+#### Version: 0.1.3  (2021.5.6)
+
+update log:
+
+> [1] fix bug: TrimString16 overflow length bug.
+> [2] new: Open Payment Channel at desktop wallet.
+> [3] new: Sign tx and check tx content at desktop wallet.
+> [4] chg: BTC move check logs download and check func.
+
 #### Version: 0.1.2  (2021.4.10)
 
 update log:
