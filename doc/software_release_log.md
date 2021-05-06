@@ -36,9 +36,9 @@ Hacash Software Download link and Release log
 
 update log:
 
-> [1] fix bug: TrimString16 overflow length bug.
-> [2] new: Open Payment Channel at desktop wallet.
-> [3] new: Sign tx and check tx content at desktop wallet.
+> [1] fix bug: TrimString16 overflow length bug.<br>
+> [2] new: Open Payment Channel at desktop wallet.<br>
+> [3] new: Sign tx and check tx content at desktop wallet.<br>
 > [4] chg: BTC move check logs download and check func.
 
 #### Version: 0.1.2  (2021.4.10)
