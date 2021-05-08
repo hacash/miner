@@ -87,7 +87,7 @@ normally the executables are started with config file as argument.
 cd ~/go/src/github.com/hacash
 
 1. poolworker
-go build -ldflags '-w -s' -o poolworker_2021_02_12.exe  miner/run/minerworker/main.go
+ go build -ldflags '-w -s' -o poolminer_2021-0410.exe miner/run/minerpoolworker/main.go
 
 2. miner
 go build -ldflags '-w -s' -o miner_2021_02_12.exe  miner/run/main/main.go
