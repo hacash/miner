@@ -1,14 +1,59 @@
 package main
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
+	"github.com/hacash/core/account"
 	"github.com/hacash/core/actions"
 	"github.com/hacash/core/blocks"
+	"github.com/hacash/core/crypto/btcec"
+	"github.com/hacash/core/fields"
+	"github.com/hacash/core/transactions"
 	"github.com/hacash/x16rs"
 	"testing"
 )
 
+func Test_taskjhfasjkldf(t *testing.T) {
+
+	trsbody, _ := hex.DecodeString("0200609ac3cb00dc4d0b5266a0b741ce62ccfe7c8d15c96ae1e40bf602011600010004584b4e4949560079da00000000020d47bd7a21c51f025870674857629a47558c31a6d7ebbb177f37da000000007c4b710000dc4d0b5266a0b741ce62ccfe7c8d15c96ae1e40b20e8a18c89c7fd2be2ecde7c445e266965d54cb178bdb0399840b426fcceb4d9000102cf0953a6d81382ee7b7d1ba31d4bfb5c7b9bbdf35e7b641f023d4f1e2c62e4100f3ba4779b54613d859112bd0be965c15cc1a38c9431a9fc2c867dd35fe2e4cd782466a104cc1db17501bc4f8e1d0ab9cee2aa84a7a8c4c57b96580c7ffa4ff70000")
+
+	trs1111, _ := hex.DecodeString("0200609ac3cb00dc4d0b5266a0b741ce62ccfe7c8d15c96ae1e40bf602011600010004584b4e4949560079da00000000020d47bd7a21c51f025870674857629a47558c31a6d7ebbb177f37da000000007c4b710000dc4d0b5266a0b741ce62ccfe7c8d15c96ae1e40b20e8a18c89c7fd2be2ecde7c445e266965d54cb178bdb0399840b426fcceb4d9000102cf0953a6d81382ee7b7d1ba31d4bfb5c7b9bbdf35e7b641f023d4f1e2c62e4100f3ba4779b54613d859112bd0be965c15cc1a38c9431a9fc2c867dd35fe2e4cd782466a104cc1db17501bc4f8e1d0ab9cee2aa84a7a8c4c57b96580c7ffa4ff70000")
+
+	fmt.Println(bytes.Compare(trsbody, trs1111))
+
+	signcon1 := "0f3ba4779b54613d859112bd0be965c15cc1a38c9431a9fc2c867dd35fe2e4cd782466a104cc1db17501bc4f8e1d0ab9cee2aa84a7a8c4c57b96580c7ffa4ff7"
+	fmt.Println(len(signcon1))
+
+	trs, _, e := transactions.ParseTransaction(trsbody, 0)
+	fmt.Println(e)
+
+	tx := trs.(*transactions.Transaction_2_Simple)
+
+	txhx := tx.HashFresh()
+	txhx2 := tx.HashWithFeeFresh()
+	fmt.Println(txhx.ToHex())
+	fmt.Println(txhx2.ToHex())
+
+	pubkey := tx.Signs[0].PublicKey
+	signcon := tx.Signs[0].Signature
+
+	sigobj, e3 := btcec.ParseSignatureByte64(signcon)
+	fmt.Println(e3)
+	pubKey, e4 := btcec.ParsePubKey(pubkey, btcec.S256())
+	fmt.Println(e4)
+	addr := account.NewAddressFromPublicKeyV0(pubkey)
+	address := fields.Address(addr)
+	fmt.Println(address.ToReadable())
+	verok1 := sigobj.Verify(txhx, pubKey)
+	fmt.Println(verok1)
+	verok2 := sigobj.Verify(txhx2, pubKey)
+	fmt.Println(verok2)
+
+	//
+	fmt.Println(tx.GetAddress().ToReadable())
+
+}
 func Test_t1(t *testing.T) {
 	str1 := "010000000001005dfe0346000000077790ba2fcdeaef4a4299d9b667135bac577ce204dee8388f1b97f7e63ddba8b8dce81b2578e5de8c76efaf989c62b5f91505fd39adebcd3ee362fad10000000100000000fffffffe00000000e63c33a796b3032ce6b856f68fccf06608d9ed18f801012020202020202020202020000000000100"
 	str2 := "010000000001005dfe0346000000077790ba2fcdeaef4a4299d9b667135bac577ce204dee8388f1b97f7e63ddba8b8dce81b2578e5de8c76efaf989c62b5f91505fd39adebcd3ee362fad10000000100000000fffffffe00000000e63c33a796b3032ce6b856f68fccf06608d9ed18f801012020202020202020202020000000000100"

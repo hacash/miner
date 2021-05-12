@@ -32,6 +32,13 @@ Hacash Software Download link and Release log
 
 ### Lastest release log:
 
+
+#### Version: 0.1.4  (2021.5.12)
+
+update log:
+
+> [1] fix bug: verify address 1M5qxL6zZANiHNfR8XrKrJjifgjeaVzG8g signature fail.
+
 #### Version: 0.1.3  (2021.5.6)
 
 update log:
