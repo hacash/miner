@@ -63,7 +63,7 @@ func (d *DiamondMiner) RunMining(prevDiamond *stores.DiamondSmelt, diamondCreate
 				retNonce, diamondFullStr := x16rs.MinerHacashDiamond(mnstart, mnend, tarnumber, stopMark, prevDiamond.ContainBlockHash, d.Config.Rewards, retExtMsg)
 				retNonceNum := binary.BigEndian.Uint64(retNonce)
 				if retNonceNum > 0 {
-					fmt.Printf("❂ [Diamond Miner] Success find a diamond: <%s>, number: %d, nonce: %d, extmsg: %s.\n",
+					fmt.Printf("\n❂❂❂❂❂❂ [Diamond Miner] Success find a diamond: <%s>, number: %d, nonce: %d, extmsg: %s.\n\n",
 						diamondFullStr, tarnumber, retNonceNum, hex.EncodeToString(retExtMsg))
 					// success
 					diamondCreateActionCh <- parsediamondCreateAction(diamondFullStr, prevDiamond, retNonce, d.Config.Rewards, retExtMsg)
