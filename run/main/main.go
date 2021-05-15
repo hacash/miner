@@ -37,7 +37,7 @@ go build -o test/pcwallet pcwallet/main/main.go  && ./test/pcwallet
 
 编译发布版本：
 
-go build -ldflags '-w -s' -o                   hacash_node_2021_05_12_01  miner/run/main/main.go
+go build -ldflags '-w -s' -o                   hacash_node_2021_05_15_01  miner/run/main/main.go
 go build -ldflags '-w -s' -o      hacash_miner_pool_worker_2021_05_12_01  miner/run/minerpoolworker/main.go
 go build -ldflags '-w -s' -o              hacash_cmdwallet_2021_05_12_01  cmdwallet/run/main/main.go
 
@@ -53,8 +53,8 @@ const (
 	NodeVersionSuperMain    uint32 = 0            // 主版本号
 	NodeVersionSupport      uint32 = 1            // 兼容版本号
 	NodeVersionFeature      uint32 = 4            // 特征版本号
-	NodeVersionBuildCompile string = "20210512.1" // 编译版本号
-	// 结合成综合版本号体系：   0.1.4(20210512.1)
+	NodeVersionBuildCompile string = "20210515.1" // 编译版本号
+	// 结合成综合版本号体系：   0.1.4(20210515.1)
 )
 
 func main() {
