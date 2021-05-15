@@ -70,6 +70,7 @@ func (d *DiamondMiner) doAutoBidForMyDiamond() {
 	// 更新交易费用
 	newtx := d.currentSuccessMiningDiamondTx
 	newtx.SetFee(myfee)
+	newtx.ClearHash() // 重置哈希缓存
 	// 私钥
 	allPrivateKeyBytes := make(map[string][]byte, 1)
 	allPrivateKeyBytes[string(d.Config.FeeAccount.Address)] = d.Config.FeeAccount.PrivateKey
