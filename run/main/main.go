@@ -44,7 +44,7 @@ go build -ldflags '-w -s' -o              hacash_cmdwallet_2021_05_12_01  cmdwal
 cd ./x16rs/opencl && node pkgclfilego.js && cd ../../
 go build -ldflags '-w -s' -o           hacash_miner_worker_2021_05_12_01  miner/run/minerworker/main.go
 go build -ldflags '-w -s' -o    hacash_miner_relay_service_2021_05_12_01 miner/run/minerrelayservice/main.go
-go build -ldflags '-w -s' -o hacash_desktop_offline_wallet_2021_05_12_01  pcwallet/main/main.go
+go build -ldflags '-w -s' -o hacash_desktop_offline_wallet_2021_05_18_01  pcwallet/main/main.go
 
 
 */
