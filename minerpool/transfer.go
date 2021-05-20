@@ -26,7 +26,7 @@ func (p *MinerPool) startDoTransfer(curblkheight uint64, period *RealtimePeriod)
 	if err != nil {
 		return // error
 	}
-	//transfers := make([]*actions.Action_1_SimpleTransfer, 0)
+	//transfers := make([]*actions.Action_1_SimpleToTransfer, 0)
 	baseFee := fields.NewAmountSmall(5, 243) // base fee
 	totalFee := baseFee.Copy()
 	totalAmount := fields.NewEmptyAmount()
@@ -34,7 +34,7 @@ func (p *MinerPool) startDoTransfer(curblkheight uint64, period *RealtimePeriod)
 		amt, _ := fields.NewAmountByBigIntWithUnit(big.NewInt(int64(acc.storeData.deservedRewards)), 240)
 		totalAmount, _ = totalAmount.Add(amt)
 		totalFee, _ = totalFee.Add(baseFee)
-		trsact := actions.NewAction_1_SimpleTransfer(acc.address, amt)
+		trsact := actions.NewAction_1_SimpleToTransfer(acc.address, amt)
 		//transfers = append(transfers, trsact)
 		_ = tx.AppendAction(trsact)
 	}
