@@ -101,7 +101,7 @@ STARTDOMINING:
 		// 挖矿成功上报
 		g.resultCh <- endstuffitem
 		// 打印
-		fmt.Printf("found success.\n[⬤◆◆] Successfully minted a block height: %d, hash: %s, nonce: %s. \n",
+		fmt.Printf("found success.\n[⬤◆◆] Successfully mined a block height: %d, hash: %s, nonce: %s. \n",
 			endstuffitem.GetHeadMetaBlock().GetHeight(),
 			hex.EncodeToString(endhash),
 			hex.EncodeToString(nonce))
