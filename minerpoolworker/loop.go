@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func (p *MinerWorker) loop() {
+func (p *MinerPoolWorker) loop() {
 
 	sendPingMsgToPoolServer := time.NewTicker(time.Second * 55)
 	checkPongMsgReturn := time.NewTicker(time.Second * 10)
@@ -92,7 +92,7 @@ func (p *MinerWorker) loop() {
 				}
 				if msg.Status == message.PowMasterMsgStatusSuccess {
 					//p.currentMiningStatusSuccess = true // set mining status
-					fmt.Printf("OK.\n[⬤◆◆] Successfully minted a block height: %d, hash: %s, time: %ds, hashrate: %s. \n", block_height, block_hash.ToHex(), usetimesec, hashrateshow)
+					fmt.Printf("OK.\n[⬤◆◆] Successfully mined a block height: %d, hash: %s, time: %ds, hashrate: %s. \n", block_height, block_hash.ToHex(), usetimesec, hashrateshow)
 				}
 				if msg.Status == message.PowMasterMsgStatusMostPowerHash || msg.Status == message.PowMasterMsgStatusMostPowerHashAndRequestNextMining {
 					fmt.Printf("upload hash: %d, %s..., time: %ds, hashrate: %s ok.\n", block_height, hex.EncodeToString(block_hash[0:12]), usetimesec, hashrateshow)

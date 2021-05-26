@@ -15,7 +15,7 @@ const (
 	MsgMarkPong             = "pong"
 )
 
-func (p *MinerWorker) startConnect() error {
+func (p *MinerPoolWorker) startConnect() error {
 
 	p.isInConnecting = true
 
@@ -31,7 +31,7 @@ func (p *MinerWorker) startConnect() error {
 
 }
 
-func (p *MinerWorker) handleConn(conn *net.TCPConn) {
+func (p *MinerPoolWorker) handleConn(conn *net.TCPConn) {
 
 	fmt.Print("connecting miner pool... ")
 
