@@ -29,7 +29,7 @@ func NewClient(conn *net.TCPConn) *WorkClient {
 	return cli
 }
 
-type MinerWorker struct {
+type MinerPoolWorker struct {
 	config *MinerWorkerConfig
 
 	worker message.PowDeviceWorker
@@ -49,9 +49,9 @@ type MinerWorker struct {
 	currentPowMasterCreateTime time.Time
 }
 
-func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
+func NewMinerWorker(cnf *MinerWorkerConfig) *MinerPoolWorker {
 
-	pool := &MinerWorker{
+	pool := &MinerPoolWorker{
 		config:                  cnf,
 		client:                  nil,
 		miningOutputCh:          make(chan message.PowMasterMsg, 2),
@@ -70,7 +70,7 @@ func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
 
 }
 
-func (p *MinerWorker) Start() {
+func (p *MinerPoolWorker) Start() {
 
 	fmt.Printf("[Start] connect: %s, rewards: %s, supervene: %d. \n",
 		p.config.PoolAddress.String(),
@@ -89,7 +89,7 @@ func (p *MinerWorker) Start() {
 	go p.loop()
 }
 
-func (p *MinerWorker) pickTargetClient(blkhei uint64) *WorkClient {
+func (p *MinerPoolWorker) pickTargetClient(blkhei uint64) *WorkClient {
 	//fmt.Printf("pickTargetClient  <%d> ", blkhei)
 	for h, v := range p.clients {
 		//fmt.Printf("  %d  ", v.workBlockHeight)
