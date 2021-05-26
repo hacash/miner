@@ -13,6 +13,7 @@ import (
 	"github.com/hacash/miner/minerpool"
 	"github.com/hacash/miner/minerserver"
 	"github.com/hacash/mint"
+	"github.com/hacash/mint/blockchain"
 	"github.com/hacash/node/backend"
 	deprecated "github.com/hacash/service/deprecated"
 	rpc "github.com/hacash/service/rpc"
@@ -77,12 +78,17 @@ func main() {
 		fmt.Println("[Config] Load ini config file: \"" + target_ini_file + "\" at time:" + time.Now().Format("01/02 15:04:05"))
 	}
 
+	// 解析并载入配置文件
 	hinicnf, err := sys.LoadInicnf(target_ini_file)
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(0)
 	}
 
+	// 判断数据库版本是否需要升级
+	blockchain.CheckAndUpdateBlockchainDatabaseVersion(hinicnf)
+
+	//fmt.Println("=-===debugTestConfigSetHandle--------------")
 	// debug test config set
 	debugTestConfigSetHandle(hinicnf)
 
@@ -92,7 +98,7 @@ func main() {
 	hcnf := backend.NewBackendConfig(hinicnf)
 	hnode, err := backend.NewBackend(hcnf)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("backend.NewBackend Error", err)
 		return
 	}
 	blockchainobj := hnode.BlockChain()
