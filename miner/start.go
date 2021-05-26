@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/hacash/core/blocks"
 	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/sys"
 	"github.com/hacash/mint"
 	"github.com/hacash/mint/coinbase"
 	"github.com/hacash/mint/difficulty"
@@ -70,6 +71,11 @@ func (m *Miner) doStartMining() {
 		float64(totaltxsize)/1024,
 		time.Unix(int64(nextblock.GetTimestamp()), 0).Format("01/02 15:04:05"),
 	)
+
+	if sys.TestDebugLocalDevelopmentMark {
+		// 开发测试时挖矿休眠时间
+		time.Sleep(time.Second * time.Duration(mint.EachBlockRequiredTargetTime))
+	}
 
 	//fmt.Println("m.powserver.Excavate(nextblock, backBlockCh) MrklRoot:", nextblock.GetMrklRoot().ToHex())
 	// excavate block

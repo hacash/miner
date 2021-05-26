@@ -277,11 +277,16 @@ func printAllVersion() {
 
 func debugTestConfigSetHandle(hinicnf *sys.Inicnf) {
 
+	rootsec := hinicnf.Section("")
+
+	// 全局测试标记 TestDebugLocalDevelopmentMark
+	sys.TestDebugLocalDevelopmentMark = rootsec.Key("TestDebugLocalDevelopmentMark").MustBool(false)
+
 	// test set start
-	if adjustTargetDifficultyNumberOfBlocks := hinicnf.Section("").Key("AdjustTargetDifficultyNumberOfBlocks").MustUint64(0); adjustTargetDifficultyNumberOfBlocks > 0 {
+	if adjustTargetDifficultyNumberOfBlocks := rootsec.Key("AdjustTargetDifficultyNumberOfBlocks").MustUint64(0); adjustTargetDifficultyNumberOfBlocks > 0 {
 		mint.AdjustTargetDifficultyNumberOfBlocks = adjustTargetDifficultyNumberOfBlocks
 	}
-	if eachBlockRequiredTargetTime := hinicnf.Section("").Key("EachBlockRequiredTargetTime").MustUint64(0); eachBlockRequiredTargetTime > 0 {
+	if eachBlockRequiredTargetTime := rootsec.Key("EachBlockRequiredTargetTime").MustUint64(0); eachBlockRequiredTargetTime > 0 {
 		mint.EachBlockRequiredTargetTime = eachBlockRequiredTargetTime
 	}
 	// test set end
