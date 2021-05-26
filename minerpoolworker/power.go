@@ -5,7 +5,7 @@ import (
 	"math/big"
 )
 
-func (p *MinerWorker) addPowerLogReturnShow(hxworth *big.Int) string {
+func (p *MinerPoolWorker) addPowerLogReturnShow(hxworth *big.Int) string {
 
 	p.powerTotalCmx.Add(hxworth)
 	if p.powerTotalCmx.Cardinality() > 24 {
