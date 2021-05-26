@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func (p *MinerWorker) loop() {
+func (p *MinerPoolWorker) loop() {
 
 	sendPingMsgToPoolServer := time.NewTicker(time.Second * 55)
 	checkPongMsgReturn := time.NewTicker(time.Second * 10)
