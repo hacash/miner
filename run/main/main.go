@@ -29,6 +29,7 @@ export GOPATH=/media/yangjie/500GB/hacash/go
 
 go build -o test/mainnet  miner/run/main/main.go && ./test/mainnet  mainnet.ini
 go build -o test/test1    miner/run/main/main.go && ./test/test1    test1.ini
+go build -o test/test2    miner/run/main/main.go && ./test/test2    test2.ini
 go build -o test/test3    miner/run/main/main.go && ./test/test3    test3.ini
 go build -o test/pcwallet pcwallet/main/main.go  && ./test/pcwallet
 
