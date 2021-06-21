@@ -40,27 +40,80 @@ func Test_create_base_data_submit(t *testing.T) {
 
 	// 创建钻石
 	post_diamond_tx("AAABBB", 1)
-	time.Sleep(time.Second * 10)
+	time.Sleep(time.Second * 11)
 	post_diamond_tx("XYXYXY", 2)
-	time.Sleep(time.Second * 10)
+	time.Sleep(time.Second * 11)
 	post_diamond_tx("SSSNNN", 3)
-	time.Sleep(time.Second * 10)
+	time.Sleep(time.Second * 11)
 	post_diamond_tx("WTUVSB", 4)
 
 	// 创建比特币转移交易
 	post_btcmove_tx()
+	// 首次转账
+	time.Sleep(time.Second * 30)
+	post_hactrs_tx(33)
 
 }
 
-// 测试比特币转账
-func Test_satoshi_trs(t *testing.T) {
+////////////////////////////////////////////////////////
 
-	mainaddr, _ := fields.CheckReadableAddress("1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y")
-	// 创建钻石
+// 测试 hac 转账
+func Test_hacash_trs(t *testing.T) {
+	post_hactrs_tx(33)
+}
+
+// 测试比特币转账
+func Test_satoshi_trs1(t *testing.T) {
+	toaddr, _ := fields.CheckReadableAddress("1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y")
 	act1 := &actions.Action_8_SimpleSatoshiTransfer{
-		ToAddress: *mainaddr,
+		ToAddress: *toaddr,
 		Amount:    200,
 	}
+	post_1MzNY_tx_for_action(act1, nil)
+}
+func Test_satoshi_trs2(t *testing.T) {
+	addr1, _ := fields.CheckReadableAddress("1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9")
+	addr2, _ := fields.CheckReadableAddress("1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y")
+	act1 := &actions.Action_8_SimpleSatoshiTransfer{
+		ToAddress: *addr1,
+		Amount:    201,
+	}
+	post_tx_for_action(act1, addr2.ToReadable(), nil)
+}
+
+// 测试用户间借贷，测试放款人扣押
+func Test_users_lending_clear(t *testing.T) {
+
+	hash17, _ := hex.DecodeString("530dd68299cf6d2bd68299cf6d2b2bd682")
+	ransomAmt := fields.Amount{
+		0,
+		0,
+		[]byte{},
+	}
+
+	// 赎回
+	act1 := &actions.Action_20_UsersLendingRansom{
+		LendingID:    hash17,
+		RansomAmount: ransomAmt,
+	}
+
+	post_tx_for_action(act1, "1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y", nil)
+}
+
+// 测试用户间借贷，测试自己赎回
+func Test_users_lending_ransom(t *testing.T) {
+
+	hash17, _ := hex.DecodeString("530dd68299cf6d2bd68299cf6d2b2bd682")
+
+	act1 := &actions.Action_20_UsersLendingRansom{
+		LendingID: hash17,
+		RansomAmount: fields.Amount{
+			248,
+			1,
+			[]byte{17},
+		},
+	}
+
 	post_1MzNY_tx_for_action(act1, nil)
 
 }
@@ -77,53 +130,35 @@ func Test_users_lending(t *testing.T) {
 		LendingID:               hash17,
 		IsRedemptionOvertime:    1,
 		IsPublicRedeemable:      1,
-		AgreedExpireBlockHeight: 300,
+		AgreedExpireBlockHeight: 155,
 		MortgagorAddress:        *addr1,
 		LendersAddress:          *addr2,
 		MortgageBitcoin: fields.SatoshiVariation{
 			1,
-			100,
+			50000,
 		},
-		//MortgageDiamondList:      fields.DiamondListMaxLen200{
-		//		2,
-		//		[]fields.Bytes6{[]byte("XYXYXY"),[]byte("WTUVSB")},
-		//},
 		MortgageDiamondList: fields.DiamondListMaxLen200{
-			0,
-			[]fields.Bytes6{},
+			2,
+			[]fields.Bytes6{[]byte("XYXYXY"), []byte("WTUVSB")},
 		},
+		//MortgageDiamondList: fields.DiamondListMaxLen200{
+		//	0,
+		//	[]fields.Bytes6{},
+		//},
 		LoanTotalAmount: fields.Amount{
-			249,
+			248,
 			1,
 			[]byte{15},
 		},
 		AgreedRedemptionAmount: fields.Amount{
-			249,
+			248,
 			1,
 			[]byte{17},
 		},
 		PreBurningInterestAmount: fields.Amount{
-			247,
+			246,
 			1,
 			[]byte{15},
-		},
-	}
-
-	post_1MzNY_tx_for_action(act1, nil)
-
-}
-
-// 测试用户间借贷，测试赎回
-func Test_users_lending_close(t *testing.T) {
-
-	hash17, _ := hex.DecodeString("530dd68299cf6d2bd68299cf6d2b2bd682")
-
-	act1 := &actions.Action_20_UsersLendingRansom{
-		LendingID: hash17,
-		RansomAmount: fields.Amount{
-			0,
-			0,
-			[]byte{},
 		},
 	}
 
@@ -203,24 +238,49 @@ func post_diamond_tx(diamond string, number uint32) {
 
 }
 
+// 基础转账
+func post_hactrs_tx(hacnum int64) {
+
+	addr2, _ := fields.CheckReadableAddress("1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y")
+	amt1 := fields.NewAmountByUnit248(hacnum)
+	// 创建钻石
+	act1 := &actions.Action_1_SimpleToTransfer{
+		ToAddress: *addr2,
+		Amount:    *amt1,
+	}
+	post_1MzNY_tx_for_action(act1, nil)
+
+}
+
+// 基础转账
+
 // 创建基础数据并提交
 func post_1MzNY_tx_for_action(act1 interfaces.Action, accs []account.Account) {
+	post_tx_for_action(act1, "1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9", nil)
+}
+
+// 创建基础数据并提交
+func post_tx_for_action(act1 interfaces.Action, mainAddress string, accs []account.Account) {
 
 	// tx
 	feeamt, _ := fields.NewAmountFromFinString("ㄜ1:248")
-	mainaddr, _ := fields.CheckReadableAddress("1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9")
+	mainaddr, _ := fields.CheckReadableAddress(mainAddress)
 	tx, _ := transactions.NewEmptyTransaction_2_Simple(*mainaddr)
 	tx.Fee = *feeamt
-	tx.Timestamp = 1618839281
+	tx.Timestamp = 1618839282
 
 	tx.AppendAction(act1)
 
 	// 签名
 	acc1 := account.CreateAccountByPassword("123456")
-	acc2 := account.CreateAccountByPassword("12345678")
+	acc2 := account.CreateAccountByPassword("1234567")
+	acc3 := account.CreateAccountByPassword("12345678")
+	acc4 := account.CreateAccountByPassword("123456789")
 	addrPrivateKeys := map[string][]byte{}
 	addrPrivateKeys[string(acc1.Address)] = acc1.PrivateKey
 	addrPrivateKeys[string(acc2.Address)] = acc2.PrivateKey
+	addrPrivateKeys[string(acc3.Address)] = acc3.PrivateKey
+	addrPrivateKeys[string(acc4.Address)] = acc4.PrivateKey
 	for _, v := range accs {
 		addrPrivateKeys[string(v.Address)] = v.PrivateKey
 	}
