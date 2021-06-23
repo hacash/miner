@@ -35,6 +35,13 @@ import (
 
 */
 
+/*
+	acc1 := account.CreateAccountByPassword("123456") // 1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9
+	acc2 := account.CreateAccountByPassword("1234567") // 18q1X1gpUAi97rHeT7NAriKS6ZHP1TVYjj
+	acc3 := account.CreateAccountByPassword("12345678") // 1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y
+	acc4 := account.CreateAccountByPassword("123456789") // 1P6DHQYjP6WygqTCzwXpwo7TxWqhA1SgVY
+*/
+
 // 创建基础数据并提交
 func Test_create_base_data_submit(t *testing.T) {
 
@@ -51,7 +58,7 @@ func Test_create_base_data_submit(t *testing.T) {
 	post_btcmove_tx()
 	// 首次转账
 	time.Sleep(time.Second * 30)
-	post_hactrs_tx(33)
+	post_hactrs_tx(33, "1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y")
 
 }
 
@@ -59,7 +66,48 @@ func Test_create_base_data_submit(t *testing.T) {
 
 // 测试 hac 转账
 func Test_hacash_trs(t *testing.T) {
-	post_hactrs_tx(33)
+	post_hactrs_tx(33, "18q1X1gpUAi97rHeT7NAriKS6ZHP1TVYjj")
+}
+
+// 测试钻石系统借贷，测试赎回
+func Test_syslend_diamond_lending_ransom(t *testing.T) {
+
+	hash14, _ := hex.DecodeString("130dd68299cf6d2bd68299cf6d2b")
+	//addr1, _ := fields.CheckReadableAddress("1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9") // 私有赎回
+	addr1, _ := fields.CheckReadableAddress("1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y") // 公共赎回
+	act1 := &actions.Action_16_DiamondsSystemLendingRansom{
+		LendingID: hash14,
+		RansomAmount: fields.Amount{
+			248,
+			1,
+			[]byte{17},
+		},
+	}
+
+	post_tx_for_action(act1, addr1.ToReadable(), nil)
+}
+
+// 测试钻石系统借贷
+func Test_syslend_diamond_lending(t *testing.T) {
+
+	hash14, _ := hex.DecodeString("130dd68299cf6d2bd68299cf6d2b")
+	//addr1, _ := fields.CheckReadableAddress("1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9")
+	act1 := &actions.Action_15_DiamondsSystemLendingCreate{
+		LendingID: hash14,
+		MortgageDiamondList: fields.DiamondListMaxLen200{
+			2,
+			[]fields.Bytes6{[]byte("AAABBB"), []byte("WTUVSB")},
+		},
+		LoanTotalAmount: fields.Amount{
+			248,
+			1,
+			[]byte{16},
+		},
+		BorrowPeriod: 1,
+	}
+
+	post_tx_for_action(act1, "1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9", nil)
+
 }
 
 // 测试比特币转账
@@ -118,6 +166,24 @@ func Test_users_lending_ransom(t *testing.T) {
 
 }
 
+// 测试用户间借贷，测试公共赎回
+func Test_users_lending_public_ransom(t *testing.T) {
+
+	hash17, _ := hex.DecodeString("530dd68299cf6d2bd68299cf6d2b2bd682")
+
+	act1 := &actions.Action_20_UsersLendingRansom{
+		LendingID: hash17,
+		RansomAmount: fields.Amount{
+			248,
+			1,
+			[]byte{17},
+		},
+	}
+
+	post_tx_for_action(act1, "18q1X1gpUAi97rHeT7NAriKS6ZHP1TVYjj", nil)
+
+}
+
 // 测试用户间借贷
 func Test_users_lending(t *testing.T) {
 
@@ -128,9 +194,9 @@ func Test_users_lending(t *testing.T) {
 
 	act1 := &actions.Action_19_UsersLendingCreate{
 		LendingID:               hash17,
-		IsRedemptionOvertime:    1,
+		IsRedemptionOvertime:    0,
 		IsPublicRedeemable:      1,
-		AgreedExpireBlockHeight: 155,
+		AgreedExpireBlockHeight: 510,
 		MortgagorAddress:        *addr1,
 		LendersAddress:          *addr2,
 		MortgageBitcoin: fields.SatoshiVariation{
@@ -172,22 +238,8 @@ func Test_diamove(t *testing.T) {
 	addr2, _ := fields.CheckReadableAddress("1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y")
 
 	act1 := &actions.Action_5_DiamondTransfer{
-		Diamond:   []byte("AAABBB"),
+		Diamond:   []byte("XYXYXY"),
 		ToAddress: *addr2,
-	}
-
-	post_1MzNY_tx_for_action(act1, nil)
-
-}
-
-// 测试钻石转账
-func Test_btctrs(t *testing.T) {
-
-	addr2, _ := fields.CheckReadableAddress("1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y")
-
-	act1 := &actions.Action_8_SimpleSatoshiTransfer{
-		ToAddress: *addr2,
-		Amount:    400,
 	}
 
 	post_1MzNY_tx_for_action(act1, nil)
@@ -239,9 +291,9 @@ func post_diamond_tx(diamond string, number uint32) {
 }
 
 // 基础转账
-func post_hactrs_tx(hacnum int64) {
+func post_hactrs_tx(hacnum int64, address string) {
 
-	addr2, _ := fields.CheckReadableAddress("1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y")
+	addr2, _ := fields.CheckReadableAddress(address)
 	amt1 := fields.NewAmountByUnit248(hacnum)
 	// 创建钻石
 	act1 := &actions.Action_1_SimpleToTransfer{
@@ -272,10 +324,10 @@ func post_tx_for_action(act1 interfaces.Action, mainAddress string, accs []accou
 	tx.AppendAction(act1)
 
 	// 签名
-	acc1 := account.CreateAccountByPassword("123456")
-	acc2 := account.CreateAccountByPassword("1234567")
-	acc3 := account.CreateAccountByPassword("12345678")
-	acc4 := account.CreateAccountByPassword("123456789")
+	acc1 := account.CreateAccountByPassword("123456")    // 1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9
+	acc2 := account.CreateAccountByPassword("1234567")   // 18q1X1gpUAi97rHeT7NAriKS6ZHP1TVYjj
+	acc3 := account.CreateAccountByPassword("12345678")  // 1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y
+	acc4 := account.CreateAccountByPassword("123456789") // 1P6DHQYjP6WygqTCzwXpwo7TxWqhA1SgVY
 	addrPrivateKeys := map[string][]byte{}
 	addrPrivateKeys[string(acc1.Address)] = acc1.PrivateKey
 	addrPrivateKeys[string(acc2.Address)] = acc2.PrivateKey
