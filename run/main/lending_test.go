@@ -43,6 +43,51 @@ import (
 */
 
 // 创建基础数据并提交
+func Test_create_base_data_submit1(t *testing.T) {
+
+	// 创建比特币转移交易
+	post_btcmove_tx()
+
+}
+
+// 测试比特币系统借贷
+func Test_bitcoin_system_lending_create(t *testing.T) {
+
+	hash15, _ := hex.DecodeString("130dd68299cf6d2bd68299cf6d2b2b")
+
+	amt1 := fields.NewAmountSmall(8, 248)
+	amt2 := fields.NewAmountSmall(1, 248)
+
+	act1 := &actions.Action_17_BitcoinsSystemLendingCreate{
+		LendingID:                hash15,
+		MortgageBitcoinPortion:   10,
+		LoanTotalAmount:          *amt1,
+		PreBurningInterestAmount: *amt2,
+	}
+
+	post_1MzNY_tx_for_action(act1, nil)
+
+}
+
+// 测试比特币系统借贷，赎回
+func Test_bitcoin_system_lending_ransom(t *testing.T) {
+
+	hash15, _ := hex.DecodeString("130dd68299cf6d2bd68299cf6d2b2b")
+	//addr1, _ := fields.CheckReadableAddress("1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9") // 私有赎回
+	addr1, _ := fields.CheckReadableAddress("1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y") // 公共赎回
+
+	amt1 := fields.NewAmountSmall(4, 248)
+
+	act1 := &actions.Action_18_BitcoinsSystemLendingRansom{
+		LendingID:    hash15,
+		RansomAmount: *amt1,
+	}
+
+	post_tx_for_action(act1, addr1.ToReadable(), nil)
+
+}
+
+// 创建基础数据并提交
 func Test_create_base_data_submit(t *testing.T) {
 
 	// 创建钻石
@@ -66,7 +111,8 @@ func Test_create_base_data_submit(t *testing.T) {
 
 // 测试 hac 转账
 func Test_hacash_trs(t *testing.T) {
-	post_hactrs_tx(33, "18q1X1gpUAi97rHeT7NAriKS6ZHP1TVYjj")
+	post_hactrs_tx(10, "1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y")
+	//post_hactrs_tx(33, "18q1X1gpUAi97rHeT7NAriKS6ZHP1TVYjj")
 }
 
 // 测试钻石系统借贷，测试赎回
@@ -254,7 +300,7 @@ func post_btcmove_tx() {
 	mainaddr, _ := fields.CheckReadableAddress("1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9")
 	hash32, _ := hex.DecodeString("8deb5180a3388fee4991674c62705041616980e76288a8888b65530e41ccf90d")
 
-	// 创建钻石
+	// 创建比特币转移
 	act1 := &actions.Action_7_SatoshiGenesis{
 		TransferNo:               1,
 		BitcoinBlockHeight:       1001,
