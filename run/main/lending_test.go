@@ -116,7 +116,20 @@ func Test_hacash_trs(t *testing.T) {
 }
 
 // 测试钻石系统借贷，测试赎回
-func Test_syslend_diamond_lending_ransom(t *testing.T) {
+func Test_syslend_diamond_lending_ransom_loop(t *testing.T) {
+
+	for i := 0; i < 10000; i++ {
+
+		syslend_diamond_lending_ransom()
+
+		fmt.Println(time.Now().Unix(), "--------")
+
+		time.Sleep(time.Second * 3)
+	}
+}
+
+// 测试钻石系统借贷，测试赎回
+func syslend_diamond_lending_ransom() {
 
 	hash14, _ := hex.DecodeString("130dd68299cf6d2bd68299cf6d2b")
 	//addr1, _ := fields.CheckReadableAddress("1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9") // 私有赎回
@@ -124,13 +137,13 @@ func Test_syslend_diamond_lending_ransom(t *testing.T) {
 	act1 := &actions.Action_16_DiamondsSystemLendingRansom{
 		LendingID: hash14,
 		RansomAmount: fields.Amount{
-			248,
+			240,
 			1,
 			[]byte{17},
 		},
 	}
-
 	post_tx_for_action(act1, addr1.ToReadable(), nil)
+
 }
 
 // 测试钻石系统借贷
@@ -142,14 +155,14 @@ func Test_syslend_diamond_lending(t *testing.T) {
 		LendingID: hash14,
 		MortgageDiamondList: fields.DiamondListMaxLen200{
 			2,
-			[]fields.Bytes6{[]byte("AAABBB"), []byte("WTUVSB")},
+			[]fields.Bytes6{[]byte("AAABBB"), []byte("XYXYXY")},
 		},
 		LoanTotalAmount: fields.Amount{
 			248,
 			1,
 			[]byte{16},
 		},
-		BorrowPeriod: 1,
+		BorrowPeriod: 20,
 	}
 
 	post_tx_for_action(act1, "1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9", nil)
