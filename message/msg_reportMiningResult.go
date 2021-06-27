@@ -12,10 +12,10 @@ import (
 */
 
 type MsgReportMiningResult struct {
-	MintSuccessed fields.Bool     // 挖掘成功 或者 报告算力
-	BlockHeight   fields.VarUint5 // 挖掘的区块高度
-	HeadNonce     fields.Bytes4   // block head nonce
-	CoinbaseNonce fields.Bytes32  // coinbase nonce
+	MintSuccessed fields.Bool        // 挖掘成功 或者 报告算力
+	BlockHeight   fields.BlockHeight // 挖掘的区块高度
+	HeadNonce     fields.Bytes4      // block head nonce
+	CoinbaseNonce fields.Bytes32     // coinbase nonce
 }
 
 // 序列化

@@ -46,7 +46,7 @@ func (m *MinerWorker) loop() {
 				// 上传挖矿结果
 				var resupobj = message.MsgReportMiningResult{
 					fields.CreateBool(mintSuccessed),
-					fields.VarUint5(result.GetHeadMetaBlock().GetHeight()),
+					fields.BlockHeight(result.GetHeadMetaBlock().GetHeight()),
 					result.GetHeadNonce(),
 					result.GetCoinbaseNonce(),
 				}

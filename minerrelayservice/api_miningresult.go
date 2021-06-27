@@ -42,7 +42,7 @@ func (api *RelayService) queryMiningResult(r *http.Request, w http.ResponseWrite
 			if v1, e1 := api.ldb.Get(k1, nil); e1 == nil {
 				kk := []byte("mr" + string(v1))
 				queryKeys = append(queryKeys, kk) // append
-				hei := fields.VarUint5(0)
+				hei := fields.BlockHeight(0)
 				hei.Parse(v1, 0)
 				queryHeis = append(queryHeis, uint64(hei)) // append
 				rwdaddr := fields.Address{}
@@ -192,7 +192,7 @@ func (api *RelayService) submitMiningResult(r *http.Request, w http.ResponseWrit
 		if difficulty.CheckHashDifficultySatisfyByBlock(newhx, newblock) {
 			rptmsg := message.MsgReportMiningResult{
 				MintSuccessed: 1,
-				BlockHeight:   fields.VarUint5(blkhei),
+				BlockHeight:   fields.BlockHeight(blkhei),
 				HeadNonce:     headNonce,
 				CoinbaseNonce: coinbaseNonce,
 			}

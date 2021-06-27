@@ -82,7 +82,7 @@ func (api *RelayService) saveMiningResultToStore(rwdaddr fields.Address, isMintS
 	stobts := stoitem.Serialize()
 
 	// key
-	kob1 := fields.VarUint5(resultStuff.BlockHeadMeta.GetHeight())
+	kob1 := fields.BlockHeight(resultStuff.BlockHeadMeta.GetHeight())
 	heikey, _ := kob1.Serialize()
 	keybuf := bytes.NewBuffer(heikey)
 	keybuf.Write(rwdaddr)
@@ -129,7 +129,7 @@ func (api *RelayService) saveMiningBlockStuffToStore(stuff *message.MsgPendingMi
 	// 储存
 	blkhei := stuff.BlockHeadMeta.GetHeight()
 	stodatas := stuff.Serialize()
-	k1 := fields.VarUint5(blkhei)
+	k1 := fields.BlockHeight(blkhei)
 	heikey, _ := k1.Serialize()
 
 	// save
@@ -148,7 +148,7 @@ func (api *RelayService) readMiningBlockStuffFormStore(blkhei uint64) *message.M
 	}
 
 	// 储存
-	k1 := fields.VarUint5(blkhei)
+	k1 := fields.BlockHeight(blkhei)
 	heikey, _ := k1.Serialize()
 
 	// save
