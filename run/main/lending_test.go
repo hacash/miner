@@ -118,7 +118,7 @@ func Test_hacash_trs(t *testing.T) {
 // 测试钻石系统借贷，测试赎回
 func Test_syslend_diamond_lending_ransom_loop(t *testing.T) {
 
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < 1; i++ {
 
 		syslend_diamond_lending_ransom()
 
@@ -137,7 +137,7 @@ func syslend_diamond_lending_ransom() {
 	act1 := &actions.Action_16_DiamondsSystemLendingRansom{
 		LendingID: hash14,
 		RansomAmount: fields.Amount{
-			240,
+			248,
 			1,
 			[]byte{17},
 		},
