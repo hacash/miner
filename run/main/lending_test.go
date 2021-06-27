@@ -73,10 +73,10 @@ func Test_bitcoin_system_lending_create(t *testing.T) {
 func Test_bitcoin_system_lending_ransom(t *testing.T) {
 
 	hash15, _ := hex.DecodeString("130dd68299cf6d2bd68299cf6d2b2b")
-	//addr1, _ := fields.CheckReadableAddress("1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9") // 私有赎回
-	addr1, _ := fields.CheckReadableAddress("1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y") // 公共赎回
+	addr1, _ := fields.CheckReadableAddress("1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9") // 私有赎回
+	//addr1, _ := fields.CheckReadableAddress("1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y") // 公共赎回
 
-	amt1 := fields.NewAmountSmall(4, 248)
+	amt1 := fields.NewAmountSmall(8, 248)
 
 	act1 := &actions.Action_18_BitcoinsSystemLendingRansom{
 		LendingID:    hash15,
@@ -257,7 +257,7 @@ func Test_users_lending(t *testing.T) {
 		IsPublicRedeemable:      1,
 		AgreedExpireBlockHeight: 510,
 		MortgagorAddress:        *addr1,
-		LendersAddress:          *addr2,
+		LenderAddress:           *addr2,
 		MortgageBitcoin: fields.SatoshiVariation{
 			1,
 			50000,
