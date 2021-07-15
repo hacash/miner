@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"github.com/hacash/core/blocks"
+	"github.com/hacash/mint/difficulty"
 	"net/http"
 )
 
@@ -36,11 +37,13 @@ func (api *RelayService) miningStuff(r *http.Request, w http.ResponseWriter, bod
 	stuffbytes := blocks.CalculateBlockHashBaseStuff(newstuff.BlockHeadMeta)
 
 	// 返回
+	height := newstuff.BlockHeadMeta.GetHeight()
 	data := ResponseCreateData("stuff", hex.EncodeToString(stuffbytes))
 	data["coinbase_nonce"] = hex.EncodeToString(coinbasenonce)
 	data["head_nonce_start"] = 79
 	data["head_nonce_len"] = 4
-	data["height"] = newstuff.BlockHeadMeta.GetHeight()
+	data["height"] = height
+	data["target_difficulty_hash"] = hex.EncodeToString(difficulty.Uint32ToHash(height, newstuff.BlockHeadMeta.GetDifficulty()))
 
 	// ok
 	ResponseData(w, data)
