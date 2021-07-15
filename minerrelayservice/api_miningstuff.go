@@ -40,6 +40,7 @@ func (api *RelayService) miningStuff(r *http.Request, w http.ResponseWriter, bod
 	data["coinbase_nonce"] = hex.EncodeToString(coinbasenonce)
 	data["head_nonce_start"] = 79
 	data["head_nonce_len"] = 4
+	data["height"] = newstuff.BlockHeadMeta.GetHeight()
 
 	// ok
 	ResponseData(w, data)

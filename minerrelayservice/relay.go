@@ -80,12 +80,12 @@ func (r *RelayService) Start() {
 
 	r.initStore()
 
-	go r.startListen() // 启动 server 服务端
+	r.startListen() // 启动 server 服务端
 
-	go r.startHttpApiService() // 启动 http api 服务
+	r.startHttpApiService() // 启动 http api 服务
+
+	r.connectToService() // 连接至服务器
 
 	go r.loop() // 启动 loop
-
-	go r.connectToService() // 连接至服务器
 
 }

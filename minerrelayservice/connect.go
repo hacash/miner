@@ -10,7 +10,7 @@ import (
 
 func (r *RelayService) connectToService() {
 
-	fmt.Print("connecting server... ")
+	fmt.Printf("connecting server <%s>... ", r.config.ServerAddress.String())
 
 	conn, e1 := net.DialTCP("tcp", nil, r.config.ServerAddress)
 	if e1 != nil {
