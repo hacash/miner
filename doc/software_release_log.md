@@ -33,12 +33,19 @@ Hacash Software Download link and Release log
 ### Lastest release log:
 
 
+#### Version: 0.1.5  (2021.7.17)
+
+update log:
+
+> [1] fix bug: whole network miner stop.<br>
+> [2] test code: system & user lending testing.
+
 #### Version: 0.1.4  (2021.5.15)
 
 update log:
 
 > [1] fix bug: diamond miner autobid invalid.<br>
-> [1] fix bug: verify address 1M5qxL6zZANiHNfR8XrKrJjifgjeaVzG8g signature fail.
+> [2] fix bug: verify address 1M5qxL6zZANiHNfR8XrKrJjifgjeaVzG8g signature fail.
 
 #### Version: 0.1.3  (2021.5.6)
 

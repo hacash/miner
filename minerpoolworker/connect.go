@@ -120,13 +120,14 @@ func (p *MinerPoolWorker) handleConn(conn *net.TCPConn) {
 			}
 			tarBlockHeight := powmsg.BlockHeadMeta.GetHeight()
 
-			if p.currentPowMasterMsg != nil && p.client != nil && p.isInConnecting &&
+			if (tarBlockHeight == 1) && p.currentPowMasterMsg != nil && p.client != nil && p.isInConnecting &&
 				p.currentPowMasterMsg.BlockHeadMeta.GetHeight() == tarBlockHeight &&
 				p.currentPowMasterCreateTime.Add(time.Second*3).After(time.Now()) {
 				//p.currentPowMasterMsg.CoinbaseMsgNum == powmsg.CoinbaseMsgNum {
 				// 5秒内重复挖矿消息，忽略本次消息
 				//fmt.Print(" -ignore duplicate mining messages- ")
-				fmt.Print("idmm... ")
+				fmt.Print("not ignore yet !!!!")
+				//fmt.Print("idmm... ")
 			} else {
 				// 执行挖矿
 				p.currentPowMasterMsg = powmsg
