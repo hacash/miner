@@ -33,12 +33,13 @@ Hacash Software Download link and Release log
 ### Lastest release log:
 
 
-#### Version: 0.1.5  (2021.7.17)
+#### Version: 0.1.5  (2021.7.19)
 
 update log:
 
-> [1] fix bug: whole network miner stop.<br>
-> [2] test code: system & user lending testing.
+> [1] change: PoW hashrate calculation.<br>
+> [2] fix bug: whole network miner stop.<br>
+> [3] test code: system & user lending testing.
 
 #### Version: 0.1.4  (2021.5.15)
 
