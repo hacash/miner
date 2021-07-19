@@ -7,7 +7,6 @@ import (
 	"github.com/hacash/core/fields"
 	"github.com/hacash/miner/message"
 	"github.com/hacash/mint/difficulty"
-	"math/big"
 	"time"
 )
 
@@ -79,23 +78,21 @@ func (p *MinerPoolWorker) loop() {
 					go client.conn.Write(msgbytes) // send success
 					// power worth
 					block_hash = msg.BlockHeadMeta.Hash()
-					hxworth := difficulty.CalculateHashWorth(msg.BlockHeadMeta.GetHeight(), block_hash)
 					usetimesec = int64(time.Now().Sub(client.miningStartTime).Seconds())
 					if usetimesec == 0 {
 						usetimesec = 1
 					}
 					//fmt.Println( usetimesec )
-					hashrate := new(big.Int).Div(hxworth, big.NewInt(usetimesec))
-					//hashrateshow = difficulty.ConvertPowPowerToShowFormat(hashrate)
+					hashrateshow = difficulty.ConvertHashToRateShow(block_hash, usetimesec)
 					//hashrateshow += ", " + p.addPowerLogReturnShow(hashrate)
-					hashrateshow = p.addPowerLogReturnShow(hashrate)
+					//hashrateshow = p.addPowerLogReturnShow(hashrate)
 				}
 				if msg.Status == message.PowMasterMsgStatusSuccess {
 					//p.currentMiningStatusSuccess = true // set mining status
 					fmt.Printf("OK.\n[⬤◆◆] Successfully mined a block height: %d, hash: %s, time: %ds, hashrate: %s. \n", block_height, block_hash.ToHex(), usetimesec, hashrateshow)
 				}
 				if msg.Status == message.PowMasterMsgStatusMostPowerHash || msg.Status == message.PowMasterMsgStatusMostPowerHashAndRequestNextMining {
-					fmt.Printf("upload hash: %d, %s..., time: %ds, hashrate: %s ok.\n", block_height, hex.EncodeToString(block_hash[0:12]), usetimesec, hashrateshow)
+					fmt.Printf("upload:‹%d›%s..., time: %ds, hashrate: %s ok.\n", block_height, hex.EncodeToString(block_hash[0:12]), usetimesec, hashrateshow)
 					/*if p.client != nil {
 						p.client.conn.notifyClose() // next mining
 					}*/

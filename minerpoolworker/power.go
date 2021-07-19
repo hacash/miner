@@ -1,10 +1,6 @@
 package minerpoolworker
 
-import (
-	"github.com/hacash/mint/difficulty"
-	"math/big"
-)
-
+/*
 func (p *MinerPoolWorker) addPowerLogReturnShow(hxworth *big.Int) string {
 
 	p.powerTotalCmx.Add(hxworth)
@@ -22,3 +18,4 @@ func (p *MinerPoolWorker) addPowerLogReturnShow(hxworth *big.Int) string {
 
 	return difficulty.ConvertPowPowerToShowFormat(resworth)
 }
+*/

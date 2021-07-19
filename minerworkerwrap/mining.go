@@ -6,7 +6,6 @@ import (
 	"github.com/hacash/core/blocks"
 	"github.com/hacash/core/interfaces"
 	"github.com/hacash/mint/difficulty"
-	"math/big"
 	"strings"
 	"time"
 )
@@ -123,9 +122,7 @@ STARTDOMINING:
 		g.resultCh <- endstuffitem
 		// 打印
 		usetimesec := time.Now().Unix() - timestart.Unix()
-		hxworth := difficulty.CalculateHashWorth(endstuffitem.GetHeadMetaBlock().GetHeight(), endhash)
-		hashrate := new(big.Int).Div(hxworth, big.NewInt(usetimesec))
-		hashrateshow := difficulty.ConvertPowPowerToShowFormat(hashrate)
+		hashrateshow := difficulty.ConvertHashToRateShow(endhash, usetimesec)
 		fmt.Printf("upload power: %s, time: %ds, hashrate: %s.\n",
 			hex.EncodeToString(endhash[0:16]),
 			usetimesec, hashrateshow,
