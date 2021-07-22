@@ -9,11 +9,20 @@ Release: [software_release_log.md](doc/software_release_log.md)
 Compilation build instructions: [build_compilation_en.md](doc/build_compilation_en.md)
 
 ---
-### RPC API Doc (接口文档)
 
-中文文档：[rpc_api_doc.cn.md](https://github.com/hacash/service/doc/rpc_api_doc.cn.md) 
+### RPC API Doc (区块链数据接口文档)
 
-English Doc：[rpc_api_doc.en.md](https://github.com/hacash/service/doc/rpc_api_doc.en.md) 
+中文：[rpc_api_doc.cn.md](https://github.com/hacash/service/doc/rpc_api_doc.cn.md) 
+
+English：[rpc_api_doc.en.md](https://github.com/hacash/service/doc/rpc_api_doc.en.md) 
+
+---
+
+### Miner service Doc (挖矿与矿池开发文档)
+
+中文：[miner_service_api.cn.md](https://github.com/hacash/service/doc/miner_service_api.cn.md) 
+
+English： `waiting for translation`
 
 ---
 
