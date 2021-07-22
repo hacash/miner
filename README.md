@@ -12,15 +12,15 @@ Compilation build instructions: [build_compilation_en.md](doc/build_compilation_
 
 ### RPC API Doc (区块链数据接口文档)
 
-中文：[rpc_api_doc.cn.md](https://github.com/hacash/service/doc/rpc_api_doc.cn.md) 
+中文：[rpc_api_doc.cn.md](https://github.com/hacash/service/blob/master/doc/rpc_api_doc.cn.md) 
 
-English：[rpc_api_doc.en.md](https://github.com/hacash/service/doc/rpc_api_doc.en.md) 
+English：[rpc_api_doc.en.md](https://github.com/hacash/service/blob/master/doc/rpc_api_doc.en.md) 
 
 ---
 
 ### Miner service Doc (挖矿与矿池开发文档)
 
-中文：[miner_service_api.cn.md](https://github.com/hacash/service/doc/miner_service_api.cn.md) 
+中文：[miner_service_api.cn.md](https://github.com/hacash/service/blob/master/doc/miner_service_api.cn.md) 
 
 English： `waiting for translation`
 
