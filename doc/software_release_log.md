@@ -15,13 +15,25 @@ Hacash Software Download link and Release log
     <br>
     [miner_pool_worker_ubuntu64.zip](http://download.hacash.org:8080/miner_pool_worker_hacash_ubuntu64.zip)
 
-3. PC desktop offline wallet:
+3. Miner worker:
+
+    [miner_worker_windows64.zip](http://download.hacash.org:8080/miner_worker_hacash_windows64.zip)
+    <br>
+    [miner_worker_ubuntu64.zip](http://download.hacash.org:8080/miner_worker_hacash_ubuntu64.zip)
+
+4. Miner relay service:
+
+    [miner_relay_service_windows64.zip](http://download.hacash.org:8080/miner_relay_service_hacash_windows64.zip)
+    <br>
+    [miner_relay_service_ubuntu64.zip](http://download.hacash.org:8080/miner_relay_service_hacash_ubuntu64.zip)
+
+5. PC desktop offline wallet:
 
     [hacash_desktop_wallet_windows64.zip](http://download.hacash.org:8080/hacash_desktop_wallet_windows64.zip)
     <br>
     [hacash_desktop_wallet_ubuntu64.zip](http://download.hacash.org:8080/hacash_desktop_wallet_ubuntu64.zip)
 
-4. Command line wallet:
+6. Command line wallet:
 
     [hacash_cmdwallet_windows64.zip](http://download.hacash.org:8080/hacash_cmdwallet_windows64.zip)
     <br>
