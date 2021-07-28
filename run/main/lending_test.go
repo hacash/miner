@@ -155,7 +155,7 @@ func Test_syslend_diamond_lending(t *testing.T) {
 		LendingID: hash14,
 		MortgageDiamondList: fields.DiamondListMaxLen200{
 			2,
-			[]fields.Bytes6{[]byte("AAABBB"), []byte("XYXYXY")},
+			[]fields.DiamondName{[]byte("AAABBB"), []byte("XYXYXY")},
 		},
 		LoanTotalAmount: fields.Amount{
 			248,
@@ -264,7 +264,7 @@ func Test_users_lending(t *testing.T) {
 		},
 		MortgageDiamondList: fields.DiamondListMaxLen200{
 			2,
-			[]fields.Bytes6{[]byte("XYXYXY"), []byte("WTUVSB")},
+			[]fields.DiamondName{[]byte("XYXYXY"), []byte("WTUVSB")},
 		},
 		//MortgageDiamondList: fields.DiamondListMaxLen200{
 		//	0,
@@ -338,8 +338,8 @@ func post_diamond_tx(diamond string, number uint32) {
 
 	// 创建钻石
 	act1 := &actions.Action_4_DiamondCreate{
-		Diamond:       fields.Bytes6(diamond),
-		Number:        fields.VarUint3(number),
+		Diamond:       fields.DiamondName(diamond),
+		Number:        fields.DiamondNumber(number),
 		PrevHash:      hash32,
 		Nonce:         hash8,
 		Address:       *mainaddr,
