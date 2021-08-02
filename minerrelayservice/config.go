@@ -48,8 +48,12 @@ func NewMinerRelayServiceConfig(cnffile *sys.Inicnf) *MinerRelayServiceConfig {
 	cnf.IsAcceptHashrate = cnfsection.Key("accept_hashrate").MustBool(true)
 	// max
 	cnf.MaxWorkerConnect = cnfsection.Key("max_connect").MustInt(200)
-	cnf.ServerTcpListenPort = cnfsection.Key("server_listen_port").MustInt(0)
-	cnf.HttpApiListenPort = cnfsection.Key("http_api_listen_port").MustInt(0)
+	cnf.ServerTcpListenPort = cnfsection.Key("server_listen_port").MustInt(19991)
+	if cnf.ServerTcpListenPort == 0 {
+        	panic("Relay service:server listen port is zero")
+      	}
+
+	cnf.HttpApiListenPort = cnfsection.Key("http_api_listen_port").MustInt(8080)
 	// store
 	storesection := cnffile.Section("store")
 	cnf.StoreEnable = storesection.Key("enable").MustBool(false)
