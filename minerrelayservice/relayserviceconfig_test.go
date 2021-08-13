@@ -2,7 +2,7 @@
 +-----------------------------------------------------------------------------------------------------------------------------------------------+
 | RE              : relayserviceconfig_test.go
 |                   Hacash Relay Service configuration Test code
-| DATE			      : Aug-10-2021
+| DATE            : Aug-10-2021
 | AUTHOR          : MKD
 | LOCATION        : hacash/miner/minerrelayservice
 | BUILD STEPS     : go mod init relayserviceconfig_test
@@ -31,9 +31,9 @@ import (
 	"fmt"
 	"github.com/hacash/core/sys"
 	"os"
-  "log"
-  "path/filepath"
-  "testing"
+	"log"
+	"path/filepath"
+	"testing"
 )
 
 
@@ -104,8 +104,8 @@ func TestNewMinerRelayServiceConfig_001(t *testing.T) {
     const tmpDir          string = "/tmp"
     const configFile      string = "relayservice.config.ini"
 
-  // 实际中继服务内容
-	// Actual Relay Service contents
+    // 实际中继服务内容
+    // Actual Relay Service contents
     relayServiceConfig := []string {"server_connect = 127.0.0.1:3350",
                                     "server_listen_port = 19991",
                                     "http_api_listen_port = 8080",
@@ -118,8 +118,8 @@ func TestNewMinerRelayServiceConfig_001(t *testing.T) {
                                     "save_mining_hash = true",
                                     "save_mining_nonce = true"}
 
-  // 要测试的单个参数
-	// Individual parameters to be tested
+        // 要测试的单个参数
+        // Individual parameters to be tested
 	const serverConnectPort         int =  3350
 	const serverListenPort          int = 19991
 	const httpApiListenPort         int =  8080
@@ -146,6 +146,7 @@ func TestNewMinerRelayServiceConfig_001(t *testing.T) {
     // The following block of code creates then populates the Service Relay config file
     handleConfigFile(relayServiceConfig)
 
+    // 以下代码块为我们提供了服务中继配置文件的完全限定的绝对位置
     // The following block of code gives us the fully qualified, absolute location of the Service Relay config file
     abs_target_ini_file := returnAbsConfigFilePath(tmpDir, configFile)
 
