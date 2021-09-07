@@ -18,7 +18,7 @@ type MemTxPool struct {
 	newDiamondCreateCh chan *stores.DiamondSmelt
 	newBlockOnInsertCh chan interfaces.Block
 
-	changeLock sync.Mutex
+	changeLock sync.RWMutex
 
 	////////////////////////////////
 
@@ -50,6 +50,7 @@ func NewMemTxPool(maxcount, maxsize uint64) *MemTxPool {
 		isBanEventSubscribe:                   false,
 		automaticallyCleanInvalidTransactions: false,
 		removeTxsOnNextBlockArrive:            make([]interfaces.Transaction, 0),
+		changeLock:                            sync.RWMutex{},
 	}
 
 	return pool
@@ -83,10 +84,13 @@ func (p *MemTxPool) SetBlockChain(bc interfaces.BlockChain) {
 
 func (p *MemTxPool) GetDiamondCreateTxs(num int) []interfaces.Transaction {
 	restxs := make([]interfaces.Transaction, 0)
+	p.changeLock.RLock()
 	if p.diamondCreateTxGroup.Count <= 0 {
 		return restxs
+		p.changeLock.RUnlock()
 	}
 	head := p.diamondCreateTxGroup.Head
+	p.changeLock.RUnlock()
 	for {
 		restxs = append(restxs, head.tx)
 		if num > 0 {
