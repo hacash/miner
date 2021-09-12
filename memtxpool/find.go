@@ -22,8 +22,8 @@ func (p *MemTxPool) CheckTxExistByHash(txhash fields.Hash) (interfaces.Transacti
 }
 
 func (p *MemTxPool) CopyTxsOrderByFeePurity(targetblockheight uint64, maxcount uint32, maxsize uint32) []interfaces.Transaction {
-	p.changeLock.Lock()
-	defer p.changeLock.Unlock()
+	p.changeLock.RLock()
+	defer p.changeLock.RUnlock()
 
 	restrs := make([]interfaces.Transaction, 0)
 

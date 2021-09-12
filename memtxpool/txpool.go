@@ -83,14 +83,14 @@ func (p *MemTxPool) SetBlockChain(bc interfaces.BlockChain) {
 }
 
 func (p *MemTxPool) GetDiamondCreateTxs(num int) []interfaces.Transaction {
-	restxs := make([]interfaces.Transaction, 0)
 	p.changeLock.RLock()
+	defer p.changeLock.RUnlock()
+
+	restxs := make([]interfaces.Transaction, 0)
 	if p.diamondCreateTxGroup.Count <= 0 {
 		return restxs
-		p.changeLock.RUnlock()
 	}
 	head := p.diamondCreateTxGroup.Head
-	p.changeLock.RUnlock()
 	for {
 		restxs = append(restxs, head.tx)
 		if num > 0 {
