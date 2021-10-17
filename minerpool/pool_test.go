@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/hacash/chain/leveldb"
+	"github.com/hacash/mint/difficulty"
 	"testing"
 )
 
@@ -17,7 +18,7 @@ func Test_t1(t *testing.T) {
 	}
 	for _, v := range hashstrs {
 		hash, _ := hex.DecodeString(v)
-		worth := CalculateHashWorth(hash)
+		worth := difficulty.CalculateHashWorth(hash)
 		fmt.Println(worth.String(), worth.Bytes())
 	}
 

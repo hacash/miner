@@ -46,6 +46,10 @@ go build -ldflags '-w -s' -o    hacash_miner_relay_service_2021_07_17_01  miner/
 go build -ldflags '-w -s' -o hacash_desktop_offline_wallet_2021_07_17_01  pcwallet/main/main.go
 go build -ldflags '-w -s' -o              hacash_cmdwallet_2021_07_17_01  cmdwallet/run/main/main.go
 
+# 通道链支付
+go build -ldflags '-w -s' -o    hacash_channelpay_servicer_2021_07_17_01  channelpay/run/servicer/main.go
+go build -ldflags '-w -s' -o      hacash_channelpay_client_2021_07_17_01  channelpay/run/client/main.go
+
 cd ./x16rs/opencl && node pkgclfilego.js && cd ../../
 go build -ldflags '-w -s' -o           hacash_miner_worker_2021_07_17_01  miner/run/minerworker/main.go
 
