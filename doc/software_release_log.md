@@ -35,15 +35,36 @@ Hacash Software Download link and Release log
 
 6. Command line wallet:
 
-    [hacash_cmdwallet_windows64.zip](http://download.hacash.org:8080/hacash_cmdwallet_windows64.zip)
-    <br>
-    [hacash_cmdwallet_ubuntu64.zip](http://download.hacash.org:8080/hacash_cmdwallet_ubuntu64.zip)
-    
+   [hacash_cmdwallet_windows64.zip](http://download.hacash.org:8080/hacash_cmdwallet_windows64.zip)
+   <br>
+   [hacash_cmdwallet_ubuntu64.zip](http://download.hacash.org:8080/hacash_cmdwallet_ubuntu64.zip)
+
+
+7. Channel Payment Node Servicer:
+
+   [hacash_channelpay_servicer_windows64.zip](http://download.hacash.org:8080/hacash_channelpay_servicer_windows64.zip)
+   <br>
+   [hacash_channelpay_servicer_ubuntu64.zip](http://download.hacash.org:8080/hacash_channelpay_servicer_ubuntu64.zip)
+
+   
+8. Channel Payment User Client:
+
+   [hacash_channelpay_client_windows64.zip](http://download.hacash.org:8080/hacash_channelpay_client_windows64.zip)
+   <br>
+   [hacash_channelpay_client_ubuntu64.zip](http://download.hacash.org:8080/hacash_channelpay_client_ubuntu64.zip)
+
     
 ---
 
 ### Lastest release log:
 
+
+#### Version: 0.1.6  (2021.10.27)
+
+update log:
+
+> [1] new: Channel payment blockchain mainnet arbitration action support.<br>
+> [2] new: Channel payment NodeServicer & UserClient desktop software.
 
 #### Version: 0.1.5  (2021.7.19)
 
