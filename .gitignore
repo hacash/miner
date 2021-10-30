@@ -27,5 +27,6 @@ test
 test*
 
 local_*.go
+go_build_*
 
 
