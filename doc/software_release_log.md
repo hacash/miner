@@ -59,6 +59,13 @@ Hacash Software Download link and Release log
 ### Lastest release log:
 
 
+#### Version: 0.1.7  (2021.11.1)
+
+update log:
+
+> [1] fix bug: Channel payment blockchain mainnet arbitration action support open.<br>
+> [2] fix bug: Diamonds miner difficulty adjustment.
+
 #### Version: 0.1.6  (2021.10.27)
 
 update log:
