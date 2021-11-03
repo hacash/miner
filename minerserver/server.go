@@ -1,10 +1,8 @@
 package minerserver
 
 import (
-	"fmt"
 	"github.com/hacash/core/interfaces"
 	"github.com/hacash/miner/message"
-	"os"
 	"sync"
 )
 
@@ -31,12 +29,6 @@ func NewMinerServer(cnf *MinerServerConfig) *MinerServer {
 }
 
 // 开始
-func (m *MinerServer) Start() {
-	go func() {
-		err := m.startListen()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(0)
-		}
-	}()
+func (m *MinerServer) Start() error {
+	return m.startListen()
 }

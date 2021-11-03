@@ -15,8 +15,10 @@ import (
 	"github.com/hacash/mint"
 	"github.com/hacash/mint/blockchain"
 	"github.com/hacash/node/backend"
+	"github.com/hacash/node/p2pv2"
 	deprecated "github.com/hacash/service/deprecated"
 	rpc "github.com/hacash/service/rpc"
+	"net"
 	"os"
 	"os/signal"
 	"strings"
@@ -63,12 +65,10 @@ const (
 	// 结合成综合版本号体系：   0.1.7(20211101.1)
 )
 
-func main() {
-
-	printAllVersion()
-
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, os.Kill)
+/**
+ * start node
+ */
+func start() error {
 
 	target_ini_file := "hacash.config.ini"
 	//target_ini_file := "/home/shiqiujise/Desktop/Hacash/go/src/github.com/hacash/miner/run/main/test.ini"
@@ -87,11 +87,14 @@ func main() {
 	hinicnf, err := sys.LoadInicnf(target_ini_file)
 	if err != nil {
 		fmt.Println(err.Error())
-		os.Exit(0)
+		return err
 	}
 
 	// 判断数据库版本是否需要升级
-	blockchain.CheckAndUpdateBlockchainDatabaseVersion(hinicnf)
+	err = blockchain.CheckAndUpdateBlockchainDatabaseVersion(hinicnf)
+	if err != nil {
+		return err
+	}
 
 	//fmt.Println("=-===debugTestConfigSetHandle--------------")
 	// debug test config set
@@ -100,11 +103,37 @@ func main() {
 	//test_data_dir := "/home/shiqiujie/Desktop/Hacash/go/src/github.com/hacash/miner/run/minerpool/testdata"
 	//hinicnf.SetMustDataDir(test_data_dir)
 
+	isOpenMiner := hinicnf.Section("miner").Key("enable").MustBool(false)
+	isOpenMinerServer := hinicnf.Section("minerserver").Key("enable").MustBool(false)
+	isOpenMinerPool := hinicnf.Section("minerpool").Key("enable").MustBool(false)
+	isOpenService := hinicnf.Section("service").Key("enable").MustBool(false)
+	isOpenDiamondMiner := hinicnf.Section("diamondminer").Key("enable").MustBool(false)
+
+	if (isOpenMinerServer || isOpenMinerPool) && !isOpenMiner {
+		err := fmt.Errorf("[Error Exit] [Config] open [minerserver] or [minerpool] must open [miner] first.")
+		return err
+	}
+
+	if isOpenDiamondMiner && isOpenMiner {
+		err = fmt.Errorf("[Error Exit] [Config] Both [diamondminer] and [miner] cannot be turned on at the same time.")
+		return err
+	}
+
+	// 检查 port 端口占用情况
+	p2pcnf := p2pv2.NewP2PConfig(hinicnf)
+	p2port := p2pcnf.TCPListenPort
+	portckconn, err := net.DialTimeout("tcp", fmt.Sprintf("127.0.0.1:%d", p2port), time.Second)
+	if err == nil {
+		portckconn.Close() // 关闭端口检查
+		return fmt.Errorf("Hacash P2P listen port %d already be occupied, is the node instance already started?", p2port)
+	}
+
+	// 正式启动节点
 	hcnf := backend.NewBackendConfig(hinicnf)
 	hnode, err := backend.NewBackend(hcnf)
 	if err != nil {
-		fmt.Println("backend.NewBackend Error", err)
-		return
+		err = fmt.Errorf("backend.NewBackend Error: %s", err)
+		return err
 	}
 	blockchainobj := hnode.BlockChain()
 
@@ -116,23 +145,16 @@ func main() {
 	hnode.SetTxPool(txpool)
 
 	// start
-	hnode.Start()
-
-	isOpenMiner := hinicnf.Section("miner").Key("enable").MustBool(false)
-	isOpenMinerServer := hinicnf.Section("minerserver").Key("enable").MustBool(false)
-	isOpenMinerPool := hinicnf.Section("minerpool").Key("enable").MustBool(false)
-	isOpenService := hinicnf.Section("service").Key("enable").MustBool(false)
-	isOpenDiamondMiner := hinicnf.Section("diamondminer").Key("enable").MustBool(false)
-
-	if (isOpenMinerServer || isOpenMinerPool) && !isOpenMiner {
-		fmt.Println("[Error Exit] [Config] open [minerserver] or [minerpool] must open [miner] first.")
-		os.Exit(0)
+	err = hnode.Start()
+	if err != nil {
+		err = fmt.Errorf("backend.NewBackend.Start() Error: %s", err)
+		return err
 	}
 
 	if isOpenMiner {
 
 		mcnf := miner.NewMinerConfig(hinicnf)
-		miner := miner.NewMiner(mcnf)
+		minernode := miner.NewMiner(mcnf)
 
 		if isOpenMinerServer {
 
@@ -140,10 +162,14 @@ func main() {
 			mpcnf := minerserver.NewMinerConfig(hinicnf)
 			miner_server := minerserver.NewMinerServer(mpcnf)
 
-			miner_server.Start()
+			err = miner_server.Start()
+			if err != nil {
+				err = fmt.Errorf("miner_server.Start() Error: %s", err)
+				return err
+			}
 
 			// 设置 pow server
-			miner.SetPowServer(miner_server)
+			minernode.SetPowServer(miner_server)
 
 		} else if isOpenMinerPool {
 
@@ -153,22 +179,31 @@ func main() {
 			miner_pool.SetTxPool(txpool)
 
 			// 设置 pow server
-			miner.SetPowServer(miner_pool)
+			minernode.SetPowServer(miner_pool)
 
 			// check reward address and password
 			if !mcnf.Rewards.Equal(mpcnf.RewardAccount.Address) {
-				fmt.Println("[Config Error] miner rewards address must equal to miner pool rewards passward address.")
+				err = fmt.Errorf("[Config Error] miner rewards address must equal to miner pool rewards passward address.")
+				fmt.Printf(err.Error())
 				fmt.Printf("[配置错误] 矿池自动发送奖励的地址的密码应该是地址 %s 而不是地址 %s 的密码。\n", mcnf.Rewards.ToReadable(), mpcnf.RewardAccount.AddressReadable)
-				os.Exit(0)
+				return err
 			}
 
-			miner_pool.Start()
+			err = miner_pool.Start()
+			if err != nil {
+				err = fmt.Errorf("miner_pool.Start() Error: %s", err)
+				return err
+			}
 
 			cscnf := console.NewMinerConsoleConfig(hinicnf)
 			console_service := console.NewMinerConsole(cscnf)
 			console_service.SetMiningPool(miner_pool)
 
-			console_service.Start() // http service
+			err = console_service.Start() // http service
+			if err != nil {
+				err = fmt.Errorf("miner_server.Start() Error: %s", err)
+				return err
+			}
 
 		} else {
 
@@ -177,15 +212,24 @@ func main() {
 			powwrap := localcpu.NewFullNodePowWrap(lccnf)
 
 			// 设置 pow server
-			miner.SetPowServer(powwrap)
+			minernode.SetPowServer(powwrap)
 
 		}
 
 		// do mining
-		miner.SetBlockChain(blockchainobj)
-		miner.SetTxPool(txpool)
-		miner.Start()
-		miner.StartMining()
+		minernode.SetBlockChain(blockchainobj)
+		minernode.SetTxPool(txpool)
+		err = minernode.Start()
+		if err != nil {
+			err = fmt.Errorf("minernode.Start() Error: %s", err)
+			return err
+		}
+
+		err = minernode.StartMining()
+		if err != nil {
+			err = fmt.Errorf("minernode.StartMining() Error: %s", err)
+			return err
+		}
 
 	} else {
 
@@ -203,7 +247,11 @@ func main() {
 			deprecatedApi.SetBlockChain(blockchainobj)
 			deprecatedApi.SetTxPool(txpool)
 			deprecatedApi.SetBackend(hnode)
-			deprecatedApi.Start()
+			err = deprecatedApi.Start()
+			if err != nil {
+				err = fmt.Errorf("deprecatedApi.Start() Error: %s", err)
+				return err
+			}
 		}
 
 		// rpc api
@@ -212,7 +260,11 @@ func main() {
 			rpcService := rpc.NewRpcService(rpccnf)
 			rpcService.SetTxPool(txpool)
 			rpcService.SetBackend(hnode)
-			rpcService.Start()
+			err = rpcService.Start()
+			if err != nil {
+				err = fmt.Errorf("rpcService.Start() Error: %s", err)
+				return err
+			}
 		}
 	}
 
@@ -224,40 +276,36 @@ func main() {
 		diamondMiner.SetTxPool(txpool)
 		diamondMiner.SetBlockChain(blockchainobj)
 
-		diamondMiner.Start() // start do mining
+		err = diamondMiner.Start() // start do mining
+		if err != nil {
+			err = fmt.Errorf("diamondMiner.Start() Error: %s", err)
+			return err
+		}
 
-	}
-
-	// download block datas
-	wsaddr := hinicnf.Section("").Key("first_download_block_datas_websocket_addr").MustString("")
-	wsurl1 := "ws://" + wsaddr + "/ws/download"
-	if wsaddr != "" {
-		//time.Sleep( time.Second * 3 )
-		hnode.DownloadBlocksDataFromWebSocketApi(wsurl1, 1)
-	}
-
-	// sync block
-	syncblockwsaddr := hinicnf.Section("").Key("sync_block_websocket_addr").MustString("")
-	syncblocktimesleep := hinicnf.Section("").Key("sync_block_websocket_timesleep").MustUint(60 * 3)
-	wssyncurl := "ws://" + syncblockwsaddr + "/ws/sync"
-	if syncblockwsaddr != "" {
-		fmt.Println("Sync new block from", wssyncurl)
-		go func() {
-			for {
-				//time.Sleep(time.Minute * 3)
-				time.Sleep(time.Second * time.Duration(syncblocktimesleep))
-				err := hnode.SyncBlockFromWebSocketApi(wssyncurl)
-				if err != nil {
-					fmt.Println("SyncBlockFromWebSocketApi Error:", err.Error())
-				}
-			}
-		}()
 	}
 
 	//go func() {
 	//	time.Sleep(time.Second * 3)
 	//	Test_print_dmdname(hnode.BlockChain().State())
 	//}()
+
+	return nil
+}
+
+func main() {
+
+	printAllVersion()
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, os.Kill)
+
+	// start miner node
+	err := start()
+	if err != nil {
+		fmt.Println("\n-------- Hacash Node Run Failed Error: --------\n")
+		fmt.Println(err.Error()) // print error
+		fmt.Println("\n-------- Hacash Node Run Failed end.   --------\n")
+	}
 
 	s := <-c
 	fmt.Println("Got signal:", s)

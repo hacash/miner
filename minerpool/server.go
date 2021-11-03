@@ -22,6 +22,7 @@ func (p *MinerPool) startServerListen() error {
 	fmt.Printf("[Miner Pool] Start server and listen on port %d.\n", port)
 
 	go func() {
+		defer server.Close()
 		for {
 			conn, err := server.AcceptTCP()
 			if err != nil {

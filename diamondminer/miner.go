@@ -6,7 +6,6 @@ import (
 	"github.com/hacash/core/genesis"
 	"github.com/hacash/core/interfaces"
 	"github.com/hacash/core/stores"
-	"os"
 	"sync"
 	"time"
 )
@@ -41,12 +40,12 @@ func NewDiamondMiner(cnf *DiamondMinerConfig) *DiamondMiner {
 	return dia
 }
 
-func (d *DiamondMiner) Start() {
+func (d *DiamondMiner) Start() error {
 	if d.blockchain == nil {
-		panic("d.blockchain not be set yet.")
+		return fmt.Errorf("d.blockchain not be set yet.")
 	}
 	if d.txpool == nil {
-		panic("d.txpool not be set yet.")
+		return fmt.Errorf("d.txpool not be set yet.")
 	}
 
 	go d.loop()
@@ -56,7 +55,7 @@ func (d *DiamondMiner) Start() {
 		prev, e := d.blockchain.State().ReadLastestDiamond()
 		if e != nil {
 			fmt.Println("[Diamond Miner Error] miner cannot start: ", e)
-			os.Exit(0)
+			return
 		}
 		// is first
 		if prev == nil {
@@ -69,6 +68,7 @@ func (d *DiamondMiner) Start() {
 		// do mining
 		d.RunMining(prev, d.successMiningDiamondCh)
 	}()
+	return nil
 }
 
 func (m *DiamondMiner) SetTxPool(tp interfaces.TxPool) {

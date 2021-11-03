@@ -1,6 +1,7 @@
 package miner
 
 import (
+	"fmt"
 	"github.com/hacash/core/interfaces"
 	"sync/atomic"
 )
@@ -30,17 +31,19 @@ func NewMiner(cnf *MinerConfig) *Miner {
 	return miner
 }
 
-func (m *Miner) Start() {
+func (m *Miner) Start() error {
 	go m.loop()
+	return nil
 }
 
-func (m *Miner) StartMining() {
+func (m *Miner) StartMining() error {
 	if m.powserver == nil {
-		panic("[Miner] powserver is not be set.")
+		return fmt.Errorf("[Miner] powserver is not be set.")
 	}
 	if atomic.CompareAndSwapUint32(m.isMiningStatus, 0, 1) {
 		go m.doStartMining()
 	}
+	return nil
 }
 
 func (m *Miner) StopMining() {

@@ -72,17 +72,20 @@ func NewMinerPool(cnf *MinerPoolConfig) *MinerPool {
 
 }
 
-func (p *MinerPool) Start() {
+func (p *MinerPool) Start() error {
 	if p.blockchain == nil {
-		panic("p.blockchain not be set yet.")
+		err := fmt.Errorf("p.blockchain not be set yet.")
+		return err
 	}
 
 	err := p.startServerListen()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	go p.loop()
+
+	return nil
 }
 
 func (p *MinerPool) SetBlockChain(blockchain interfaces.BlockChain) {

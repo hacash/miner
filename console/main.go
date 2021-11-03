@@ -3,7 +3,6 @@ package console
 import (
 	"fmt"
 	"github.com/hacash/miner/minerpool"
-	"os"
 )
 
 type MinerConsole struct {
@@ -22,16 +21,18 @@ func NewMinerConsole(cnf *MinerConsoleConfig) *MinerConsole {
 	return cons
 }
 
-func (mc *MinerConsole) Start() {
+func (mc *MinerConsole) Start() error {
 	if mc.pool == nil {
-		panic(fmt.Errorf("miner pool not be set."))
+		return fmt.Errorf("miner pool not be set.")
 	}
 
 	err := mc.startHttpService()
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(0)
+		return err
 	}
+
+	return nil
 
 }
 
