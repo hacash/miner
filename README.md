@@ -22,7 +22,19 @@ English：[rpc_api_doc.en.md](https://github.com/hacash/service/blob/master/doc/
 
 中文：[miner_service_api.cn.md](https://github.com/hacash/service/blob/master/doc/miner_service_api.cn.md) 
 
-English： `waiting for translation`
+English： [miner_service_api.en.md](https://github.com/hacash/service/blob/master/doc/miner_service_api.en.md)
+
+
+---
+
+### X16RS algorithm design explanation (X16RS 算法设计说明)
+
+
+中文：[x16rs_algorithm_description.cn.md](https://github.com/hacash/x16rs/blob/master/doc/x16rs_algorithm_description.cn.md)
+
+English： [x16rs_algorithm_description.en.md](https://github.com/hacash/x16rs/blob/master/doc/x16rs_algorithm_description.en.md)
+
+
 
 ---
 
