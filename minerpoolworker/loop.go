@@ -31,6 +31,7 @@ func (p *MinerPoolWorker) loop() {
 		*/
 
 		case <-sendPingMsgToPoolServer.C:
+			p.statusMutex.Lock()
 			if p.client != nil && p.client.workBlockHeight > 0 {
 				pingmsg := []byte("ping")
 				tarhei := fields.BlockHeight(p.client.workBlockHeight)
@@ -41,7 +42,10 @@ func (p *MinerPoolWorker) loop() {
 				//fmt.Println("send ping", p.client)
 			}
 
+			p.statusMutex.Unlock()
+
 		case <-checkPongMsgReturn.C:
+			p.statusMutex.Lock()
 			//fmt.Print("chenk pong... ", p.client)
 			if p.client != nil && p.client.pingtime != nil {
 				if p.client.pingtime.Add(time.Second * time.Duration(21)).Before(time.Now()) {
@@ -51,6 +55,8 @@ func (p *MinerPoolWorker) loop() {
 					//fmt.Println("ok")
 				}
 			}
+
+			p.statusMutex.Unlock()
 
 		case msg := <-p.miningOutputCh:
 
@@ -115,10 +121,12 @@ func (p *MinerPoolWorker) loop() {
 			}
 
 		case <-restartTick.C:
+			p.statusMutex.Lock()
 			if p.client == nil && p.isInConnecting == false {
 				p.immediateStartConnectCh <- true
 			}
 
+			p.statusMutex.Unlock()
 		}
 	}
 
