@@ -59,7 +59,7 @@ Hacash Software Download link and Release log
 ### Lastest release log:
 
 
-#### Version: 0.1.7-repair  (2021.11.17)
+#### Version: 0.1.7-repair2  (2021.11.17.02)
 
 update log:
 
