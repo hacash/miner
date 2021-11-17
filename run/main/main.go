@@ -42,7 +42,7 @@ go build -o test/poolworkertest1 miner/run/minerpoolworker/main.go  && ./test/po
 
 编译发布版本：
 
-go build -ldflags '-w -s' -o                   hacash_node_2021_11_17_01  miner/run/main/main.go
+go build -ldflags '-w -s' -o                   hacash_node_2021_11_17_02  miner/run/main/main.go
 go build -ldflags '-w -s' -o      hacash_miner_pool_worker_2021_11_17_01  miner/run/minerpoolworker/main.go
 go build -ldflags '-w -s' -o    hacash_miner_relay_service_2021_11_17_01  miner/run/minerrelayservice/main.go
 go build -ldflags '-w -s' -o hacash_desktop_offline_wallet_2021_11_17_01  pcwallet/main/main.go
@@ -61,8 +61,8 @@ const (
 	NodeVersionSuperMain    uint32 = 0            // 主版本号
 	NodeVersionSupport      uint32 = 1            // 兼容版本号
 	NodeVersionFeature      uint32 = 7            // 特征版本号
-	NodeVersionBuildCompile string = "20211117.1" // 编译版本号
-	// 结合成综合版本号体系：   0.1.7(20211117.1)
+	NodeVersionBuildCompile string = "20211117.2" // 编译版本号
+	// 结合成综合版本号体系：   0.1.7(20211117.2)
 )
 
 /**
