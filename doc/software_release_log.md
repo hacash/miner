@@ -59,6 +59,12 @@ Hacash Software Download link and Release log
 ### Lastest release log:
 
 
+#### Version: 0.1.7-repair  (2021.11.17)
+
+update log:
+
+> [1] FIX FORK OF BLOCK HEIGHT 292715!
+
 #### Version: 0.1.7  (2021.11.1)
 
 update log:
