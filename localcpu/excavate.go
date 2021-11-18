@@ -35,7 +35,9 @@ func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 
 		defer func() {
 			//fmt.Println("	l.stopMarks.Delete(&nextstop) // clean  ")
+			l.stepLock.Lock()
 			l.stopMarks.Delete(&nextstop) // clean
+			l.stepLock.Unlock()
 		}()
 
 		var successMiningMark uint32 = 0
@@ -54,7 +56,11 @@ func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 			if l.config.ReturnPowerHash {
 				worker.returnPowerHash = true
 			}
+
+			l.stepLock.RLock()
 			worker.coinbaseMsgNum = l.coinbaseMsgNum
+			l.stepLock.RUnlock()
+
 			//l.currentWorkers.Add( worker )
 			go func(startNonce, endNonce uint32) {
 				//fmt.Println( "start worker.RunMining" )
