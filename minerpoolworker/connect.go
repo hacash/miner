@@ -75,14 +75,16 @@ func (p *MinerPoolWorker) handleConn(conn *net.TCPConn) {
 
 		if rn == len(MsgMarkPong) && bytes.Compare([]byte(MsgMarkPong), data) == 0 {
 
+			p.statusMutex.Lock()
 			if p.client != nil {
 				p.client.pingtime = nil // reset ping time
 			}
+			p.statusMutex.Unlock()
 
 		} else if rn == len(MsgMarkTooMuchConnect) && bytes.Compare([]byte(MsgMarkTooMuchConnect), data) == 0 {
 			// wait for min
 			fmt.Println("pool return: " + MsgMarkTooMuchConnect)
-			fmt.Println("There are too many ore pool connections. The connection has been refused. Please contact your ore pool service provider.")
+			fmt.Println("There are too many connections in the mining pool and the connection has been refused. Please contact your mining pool service provider.")
 			fmt.Println("矿池连接数太多，已拒绝连接，请联系您的矿池服务商。")
 			time.Sleep(time.Second * 30)
 			break
@@ -135,8 +137,11 @@ func (p *MinerPoolWorker) handleConn(conn *net.TCPConn) {
 
 				client := NewClient(conn)
 				client.workBlockHeight = tarBlockHeight
+
+				p.statusMutex.Lock()
 				p.clients[client.workBlockHeight] = client
 				p.client = client
+				p.statusMutex.Unlock()
 
 				// stop prev mining
 				p.worker.StopMining()
@@ -163,8 +168,10 @@ func (p *MinerPoolWorker) handleConn(conn *net.TCPConn) {
 
 	p.worker.StopMining()
 
+	p.statusMutex.Lock()
 	p.client = nil
 	p.isInConnecting = false
+	p.statusMutex.Unlock()
 
 	p.immediateStartConnectCh <- true
 }
