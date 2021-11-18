@@ -12,7 +12,7 @@ type LocalCPUPowMaster struct {
 	//currentWorkers mapset.Set
 	stopMarks sync.Map
 
-	stepLock sync.Mutex
+	stepLock sync.RWMutex
 }
 
 func NewLocalCPUPowMaster(cnf *LocalCPUPowMasterConfig) *LocalCPUPowMaster {
@@ -25,5 +25,7 @@ func NewLocalCPUPowMaster(cnf *LocalCPUPowMasterConfig) *LocalCPUPowMaster {
 }
 
 func (l *LocalCPUPowMaster) SetCoinbaseMsgNum(coinbaseMsgNum uint32) {
+	l.stepLock.Lock()
 	l.coinbaseMsgNum = coinbaseMsgNum
+	l.stepLock.Unlock()
 }
