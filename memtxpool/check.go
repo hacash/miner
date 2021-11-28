@@ -36,7 +36,10 @@ func (p *MemTxPool) checkDiamondCreate(newtx interfaces.Transaction, act *action
 	}
 	// 检查余额 // check fee
 	txfee := newtx.GetFee()
-	febls := p.blockchain.State().Balance(newtx.GetAddress())
+	febls, e := p.blockchain.State().Balance(newtx.GetAddress())
+	if e != nil {
+		return e
+	}
 	blastr := "ㄜ0:0"
 	if febls != nil {
 		blastr = febls.Hacash.ToFinString()

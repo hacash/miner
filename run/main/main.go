@@ -58,11 +58,14 @@ go build -ldflags '-w -s' -o           hacash_miner_worker_2021_11_21_01  miner/
 */
 
 const (
+	DatabaseLowestVersion  int = 7 // 兼容数据库版本号
+	DatabaseCurrentVersion int = 8 // 当前数据库版本号
+	//
 	NodeVersionSuperMain    uint32 = 0            // 主版本号
 	NodeVersionSupport      uint32 = 1            // 兼容版本号
 	NodeVersionFeature      uint32 = 8            // 特征版本号
-	NodeVersionBuildCompile string = "20211121.2" // 编译版本号
-	// 结合成综合版本号体系：   0.1.8(20211121.2)
+	NodeVersionBuildCompile string = "20211127.1" // 编译版本号
+	// 结合成综合版本号体系：   0.1.8(20211127.1)
 )
 
 /**
@@ -89,6 +92,9 @@ func start() error {
 		fmt.Println(err.Error())
 		return err
 	}
+
+	// 设置数据库版本
+	hinicnf.SetDatabaseVersion(DatabaseCurrentVersion, DatabaseLowestVersion)
 
 	// 判断数据库版本是否需要升级
 	err = blockchain.CheckAndUpdateBlockchainDatabaseVersion(hinicnf)
@@ -374,7 +380,7 @@ func Test_print_dmdname(state interfaces.ChainState) {
 		if e != nil || dmd == nil {
 			break
 		}
-		dia := state.Diamond(dmd.Diamond)
+		dia, _ := state.Diamond(dmd.Diamond)
 		if dia == nil {
 			break
 		}

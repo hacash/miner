@@ -58,7 +58,10 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 			}
 			// check fee
 			txfee := txitem.tx.GetFee()
-			febls := p.blockchain.State().Balance(txitem.tx.GetAddress())
+			febls, e := p.blockchain.State().Balance(txitem.tx.GetAddress())
+			if e != nil {
+				return e
+			}
 			blastr := "ㄜ0:0"
 			if febls != nil {
 				blastr = febls.Hacash.ToFinString()
