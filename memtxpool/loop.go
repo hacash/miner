@@ -1,7 +1,7 @@
 package memtxpool
 
 import (
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 	"time"
 )
 
@@ -21,7 +21,7 @@ func (p *MemTxPool) loop() {
 		case newblk := <-p.newBlockOnInsertCh:
 			p.RemoveTxs(newblk.GetTransactions())
 			txs := p.removeTxsOnNextBlockArrive
-			p.removeTxsOnNextBlockArrive = []interfaces.Transaction{}
+			p.removeTxsOnNextBlockArrive = []interfacev2.Transaction{}
 			p.RemoveTxs(txs)
 
 		case <-automaticallyCleanInvalidTransactionsTicker.C:

@@ -37,7 +37,7 @@ func (p *MinerPool) checkBlockHeightMiningSuccess(height uint64) bool {
 		return false
 	}
 	// compare
-	storeHash, err := p.blockchain.State().BlockStore().ReadBlockHashByHeight(height)
+	storeHash, err := p.blockchain.StateRead().BlockStoreRead().ReadBlockHashByHeight(height)
 	if err != nil {
 		return false
 	}

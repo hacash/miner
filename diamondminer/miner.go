@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/hacash/core/actions"
 	"github.com/hacash/core/genesis"
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/core/stores"
 	"sync"
 	"time"
@@ -13,8 +13,8 @@ import (
 type DiamondMiner struct {
 	Config *DiamondMinerConfig
 
-	blockchain interfaces.BlockChain
-	txpool     interfaces.TxPool
+	blockchain interfacev2.BlockChain
+	txpool     interfacev2.TxPool
 
 	stopMarksLocker sync.Mutex
 	stopMarks       map[*byte]*byte
@@ -23,7 +23,7 @@ type DiamondMiner struct {
 	successMiningDiamondCh chan *actions.Action_4_DiamondCreate
 
 	// 当前挖掘成功的钻石交易
-	currentSuccessMiningDiamondTx interfaces.Transaction
+	currentSuccessMiningDiamondTx interfacev2.Transaction
 
 	changeLock sync.Mutex
 }
@@ -52,7 +52,7 @@ func (d *DiamondMiner) Start() error {
 
 	go func() {
 		time.Sleep(time.Second)
-		prev, e := d.blockchain.State().ReadLastestDiamond()
+		prev, e := d.blockchain.StateRead().ReadLastestDiamond()
 		if e != nil {
 			fmt.Println("[Diamond Miner Error] miner cannot start: ", e)
 			return
@@ -71,11 +71,11 @@ func (d *DiamondMiner) Start() error {
 	return nil
 }
 
-func (m *DiamondMiner) SetTxPool(tp interfaces.TxPool) {
+func (m *DiamondMiner) SetTxPool(tp interfacev2.TxPool) {
 	m.txpool = tp
 }
 
-func (d *DiamondMiner) SetBlockChain(blockchain interfaces.BlockChain) {
+func (d *DiamondMiner) SetBlockChain(blockchain interfacev2.BlockChain) {
 	if d.blockchain != nil {
 		panic("d.blockchain already be set.")
 	}

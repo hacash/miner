@@ -1,11 +1,11 @@
 package memtxpool
 
 import (
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/mint"
 )
 
-func (p *MemTxPool) RemoveTxs(txs []interfaces.Transaction) {
+func (p *MemTxPool) RemoveTxs(txs []interfacev2.Transaction) {
 	p.changeLock.Lock()
 	defer p.changeLock.Unlock()
 
@@ -22,7 +22,7 @@ func (p *MemTxPool) RemoveTxs(txs []interfaces.Transaction) {
 
 }
 
-func (p *MemTxPool) RemoveTxsOnNextBlockArrive(txs []interfaces.Transaction) {
+func (p *MemTxPool) RemoveTxsOnNextBlockArrive(txs []interfacev2.Transaction) {
 	p.changeLock.Lock()
 	defer p.changeLock.Unlock()
 

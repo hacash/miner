@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/hacash/core/blocks"
 	"github.com/hacash/core/fields"
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/core/transactions"
 )
 
@@ -18,7 +18,7 @@ import (
 */
 
 type MsgPendingMiningBlockStuff struct {
-	BlockHeadMeta                          interfaces.Block                     // 区块的 head 和 meta
+	BlockHeadMeta                          interfacev2.Block                    // 区块的 head 和 meta
 	CoinbaseTx                             *transactions.Transaction_0_Coinbase // coinbase 交易
 	MrklRelatedTreeListForCoinbaseTxModify []fields.Hash                        // 默克尔树关联哈希
 	// cache data
@@ -33,7 +33,7 @@ func (m *MsgPendingMiningBlockStuff) SetMiningSuccessed(ok bool) {
 func (m MsgPendingMiningBlockStuff) GetMiningSuccessed() bool {
 	return m.mint_successed
 }
-func (m MsgPendingMiningBlockStuff) GetHeadMetaBlock() interfaces.Block {
+func (m MsgPendingMiningBlockStuff) GetHeadMetaBlock() interfacev2.Block {
 	return m.BlockHeadMeta
 }
 func (m MsgPendingMiningBlockStuff) GetCoinbaseNonce() []byte {
@@ -47,7 +47,7 @@ func (m MsgPendingMiningBlockStuff) GetHeadNonce() []byte {
 func (m MsgPendingMiningBlockStuff) SetHeadNonce(nonce []byte) {
 	m.BlockHeadMeta.SetNonce(binary.BigEndian.Uint32(nonce))
 }
-func (m MsgPendingMiningBlockStuff) CopyForMiningByRandomSetCoinbaseNonce() interfaces.PowWorkerMiningStuffItem {
+func (m MsgPendingMiningBlockStuff) CopyForMiningByRandomSetCoinbaseNonce() interfacev2.PowWorkerMiningStuffItem {
 	newcbnonce := make([]byte, 32)
 	rand.Read(newcbnonce)
 	//fmt.Println(newcbnonce)
@@ -57,7 +57,7 @@ func (m MsgPendingMiningBlockStuff) CopyForMiningByRandomSetCoinbaseNonce() inte
 }
 
 // 创建 mining stuff
-func CreatePendingMiningBlockStuffByBlock(block interfaces.Block) (*MsgPendingMiningBlockStuff, error) {
+func CreatePendingMiningBlockStuffByBlock(block interfacev2.Block) (*MsgPendingMiningBlockStuff, error) {
 	stuff := &MsgPendingMiningBlockStuff{
 		BlockHeadMeta: block.CopyForMining(),
 	}
@@ -101,7 +101,7 @@ func (m *MsgPendingMiningBlockStuff) Parse(buf []byte, seek uint32) (uint32, err
 	if e != nil {
 		return 0, e
 	}
-	var trs interfaces.Transaction = nil
+	var trs interfacev2.Transaction = nil
 	trs, seek, e = transactions.ParseTransaction(buf, seek)
 	if e != nil {
 		return 0, e

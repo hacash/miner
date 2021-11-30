@@ -2,7 +2,7 @@ package minerworkerwrap
 
 import (
 	"fmt"
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/x16rs/cpumining"
 	"github.com/hacash/x16rs/opencl/worker"
 )
@@ -12,7 +12,7 @@ func (g *WorkerWrap) InitStart() error {
 
 	// 初始化设备
 	if g.powdevice == nil {
-		var device interfaces.PowDevice = nil
+		var device interfacev2.PowDevice = nil
 		if g.config.GPU_Enable {
 
 			// GPU
@@ -51,6 +51,6 @@ func (g *WorkerWrap) InitStart() error {
 }
 
 // 设置挖矿设备端
-func (g *WorkerWrap) SetPowDevice(device interfaces.PowDevice) {
+func (g *WorkerWrap) SetPowDevice(device interfacev2.PowDevice) {
 	g.powdevice = device
 }

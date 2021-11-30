@@ -5,13 +5,13 @@ import (
 	"encoding/binary"
 	"github.com/hacash/chain/mapset"
 	"github.com/hacash/core/fields"
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 	"math/big"
 	"sync"
 )
 
 type Account struct {
-	miningSuccessBlock interfaces.Block
+	miningSuccessBlock interfacev2.Block
 
 	realtimePeriod *RealtimePeriod // 所属统计周期
 

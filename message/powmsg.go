@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/hacash/core/blocks"
 	"github.com/hacash/core/fields"
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 )
 
 const (
@@ -22,7 +22,7 @@ type PowMasterMsg struct {
 	Status         fields.VarUint1 //
 	CoinbaseMsgNum fields.VarUint4
 	NonceBytes     fields.Bytes4
-	BlockHeadMeta  interfaces.Block
+	BlockHeadMeta  interfacev2.Block
 }
 
 func NewPowMasterMsg() *PowMasterMsg {

@@ -1,7 +1,7 @@
 package minerpool
 
 import (
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 	"sync/atomic"
 	"time"
 )
@@ -11,7 +11,7 @@ func (p *MinerPool) StopMining() {
 	// do nothing
 }
 
-func (p *MinerPool) Excavate(inputBlock interfaces.Block, outputBlockCh chan interfaces.Block) {
+func (p *MinerPool) Excavate(inputBlock interfacev2.Block, outputBlockCh chan interfacev2.Block) {
 	p.periodChange.Lock()
 	defer p.periodChange.Unlock()
 
@@ -76,6 +76,5 @@ func (p *MinerPool) Excavate(inputBlock interfaces.Block, outputBlockCh chan int
 			break
 		}
 	}
-
 
 }

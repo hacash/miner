@@ -1,7 +1,7 @@
 package minerworkerwrap
 
 import (
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 )
 
 // stop mining
@@ -14,7 +14,7 @@ func (g *WorkerWrap) StopAllMining() {
 }
 
 // do mining
-func (g *WorkerWrap) Excavate(miningStuffCh chan interfaces.PowWorkerMiningStuffItem, resultCh chan interfaces.PowWorkerMiningStuffItem) {
+func (g *WorkerWrap) Excavate(miningStuffCh chan interfacev2.PowWorkerMiningStuffItem, resultCh chan interfacev2.PowWorkerMiningStuffItem) {
 
 	g.miningStuffCh = miningStuffCh
 	g.resultCh = resultCh

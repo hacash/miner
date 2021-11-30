@@ -40,7 +40,7 @@ func (p *MinerPool) startDoTransfer(curblkheight uint64, period *RealtimePeriod)
 	}
 	// check balance
 	checkAmt, _ := totalAmount.Add(totalFee)
-	balance, _ := p.blockchain.State().Balance(p.Config.RewardAccount.Address)
+	balance, _ := p.blockchain.StateRead().Balance(p.Config.RewardAccount.Address)
 	if balance == nil {
 		fmt.Printf("[Miner Pool Transfer Error] Balance not is empty.")
 		return

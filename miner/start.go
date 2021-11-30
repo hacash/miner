@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/hacash/core/blocks"
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/core/sys"
 	"github.com/hacash/mint"
 	"github.com/hacash/mint/coinbase"
@@ -22,7 +22,7 @@ func (m *Miner) doStartMining() {
 	}()
 
 	// start mining
-	last, err := m.blockchain.State().ReadLastestBlockHeadAndMeta()
+	last, err := m.blockchain.StateRead().ReadLastestBlockHeadMetaForRead()
 	if err != nil {
 		panic(err)
 	}
@@ -79,12 +79,12 @@ func (m *Miner) doStartMining() {
 
 	//fmt.Println("m.powserver.Excavate(nextblock, backBlockCh) MrklRoot:", nextblock.GetMrklRoot().ToHex())
 	// excavate block
-	backBlockCh := make(chan interfaces.Block, 1)
+	backBlockCh := make(chan interfacev2.Block, 1)
 	m.powserver.Excavate(nextblock, backBlockCh)
 
 	//fmt.Println("finifsh m.powserver.Excavate nextblock")
 
-	var miningSuccessBlock interfaces.Block = nil
+	var miningSuccessBlock interfacev2.Block = nil
 	select {
 	case miningSuccessBlock = <-backBlockCh:
 	case <-m.stopSignCh:

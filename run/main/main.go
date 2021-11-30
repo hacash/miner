@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/hacash/core/blocks"
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/core/sys"
 	"github.com/hacash/miner/console"
 	"github.com/hacash/miner/diamondminer"
@@ -359,7 +359,7 @@ func debugTestConfigSetHandle(hinicnf *sys.Inicnf) {
 
 /////////////////////////////////////////////////////
 
-func Test_print_dmdname(state interfaces.ChainState) {
+func Test_print_dmdname(state interfacev2.ChainState) {
 
 	store := state.BlockStore()
 

@@ -1,10 +1,10 @@
 package memtxpool
 
 import (
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 )
 
-func (p *MemTxPool) SubscribeOnAddTxSuccess(addtxCh chan interfaces.Transaction) {
+func (p *MemTxPool) SubscribeOnAddTxSuccess(addtxCh chan interfacev2.Transaction) {
 	p.addTxSuccess.Subscribe(addtxCh)
 }
 

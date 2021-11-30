@@ -5,7 +5,7 @@ import (
 	"github.com/hacash/chain/leveldb"
 	"github.com/hacash/chain/mapset"
 	"github.com/hacash/core/fields"
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/miner/message"
 	"sync"
 )
@@ -20,8 +20,8 @@ type MinerPool struct {
 
 	currentTcpConnectingCount int32 // 当前连接tcp数量
 
-	blockchain interfaces.BlockChain
-	txpool     interfaces.TxPool
+	blockchain interfacev2.BlockChain
+	txpool     interfacev2.TxPool
 
 	storedb *leveldb.DB
 
@@ -88,14 +88,14 @@ func (p *MinerPool) Start() error {
 	return nil
 }
 
-func (p *MinerPool) SetBlockChain(blockchain interfaces.BlockChain) {
+func (p *MinerPool) SetBlockChain(blockchain interfacev2.BlockChain) {
 	if p.blockchain != nil {
 		panic("p.blockchain already be set.")
 	}
 	p.blockchain = blockchain
 }
 
-func (p *MinerPool) SetTxPool(tp interfaces.TxPool) {
+func (p *MinerPool) SetTxPool(tp interfacev2.TxPool) {
 	p.txpool = tp
 }
 

@@ -1,22 +1,22 @@
 package memtxpool
 
 import (
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/core/stores"
 	"github.com/hacash/mint/event"
 	"sync"
 )
 
 type MemTxPool struct {
-	blockchain interfaces.BlockChain
+	blockchain interfacev2.BlockChain
 
 	diamondCreateTxGroup *TxGroup
 	simpleTxGroup        *TxGroup
 
-	removeTxsOnNextBlockArrive []interfaces.Transaction
+	removeTxsOnNextBlockArrive []interfacev2.Transaction
 
 	newDiamondCreateCh chan *stores.DiamondSmelt
-	newBlockOnInsertCh chan interfaces.Block
+	newBlockOnInsertCh chan interfacev2.Block
 
 	changeLock sync.RWMutex
 
@@ -42,14 +42,14 @@ func NewMemTxPool(maxcount, maxsize uint64) *MemTxPool {
 		diamondCreateTxGroup:                  NewTxGroup(),
 		simpleTxGroup:                         NewTxGroup(),
 		newDiamondCreateCh:                    make(chan *stores.DiamondSmelt, 4),
-		newBlockOnInsertCh:                    make(chan interfaces.Block, 4),
+		newBlockOnInsertCh:                    make(chan interfacev2.Block, 4),
 		txTotalCount:                          0,
 		txTotalSize:                           0,
 		maxcount:                              maxcount,
 		maxsize:                               maxsize,
 		isBanEventSubscribe:                   false,
 		automaticallyCleanInvalidTransactions: false,
-		removeTxsOnNextBlockArrive:            make([]interfaces.Transaction, 0),
+		removeTxsOnNextBlockArrive:            make([]interfacev2.Transaction, 0),
 		changeLock:                            sync.RWMutex{},
 	}
 
@@ -72,7 +72,7 @@ func (p *MemTxPool) GetDiamondCreateTxGroup() *TxGroup {
 	return p.diamondCreateTxGroup
 }
 
-func (p *MemTxPool) SetBlockChain(bc interfaces.BlockChain) {
+func (p *MemTxPool) SetBlockChain(bc interfacev2.BlockChain) {
 
 	p.blockchain = bc
 
@@ -82,11 +82,11 @@ func (p *MemTxPool) SetBlockChain(bc interfaces.BlockChain) {
 
 }
 
-func (p *MemTxPool) GetDiamondCreateTxs(num int) []interfaces.Transaction {
+func (p *MemTxPool) GetDiamondCreateTxs(num int) []interfacev2.Transaction {
 	p.changeLock.RLock()
 	defer p.changeLock.RUnlock()
 
-	restxs := make([]interfaces.Transaction, 0)
+	restxs := make([]interfacev2.Transaction, 0)
 	if p.diamondCreateTxGroup.Count <= 0 {
 		return restxs
 	}

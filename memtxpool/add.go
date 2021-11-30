@@ -3,11 +3,11 @@ package memtxpool
 import (
 	"fmt"
 	"github.com/hacash/core/actions"
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 	"time"
 )
 
-func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
+func (p *MemTxPool) AddTx(tx interfacev2.Transaction) error {
 	p.changeLock.Lock()
 	defer p.changeLock.Unlock()
 
@@ -58,7 +58,7 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 			}
 			// check fee
 			txfee := txitem.tx.GetFee()
-			febls, e := p.blockchain.State().Balance(txitem.tx.GetAddress())
+			febls, e := p.blockchain.StateRead().Balance(txitem.tx.GetAddress())
 			if e != nil {
 				return e
 			}
@@ -112,10 +112,11 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 
 	// 普通交易检查和统计
 	// check tx
-	txerr := p.blockchain.ValidateTransaction(tx, func(tmpState interfaces.ChainState) {
-		// 标记是矿池中验证tx
-		tmpState.SetInMemTxPool(true)
-	})
+	txerr := p.blockchain.ValidateTransactionForTxPool(tx)
+	//, func(tmpState interfacev2.ChainState) {
+	//	// 标记是矿池中验证tx
+	//	tmpState.SetInMemTxPool(true)
+	//})
 	if txerr != nil {
 		return txerr
 	}

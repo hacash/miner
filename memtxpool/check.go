@@ -3,16 +3,16 @@ package memtxpool
 import (
 	"fmt"
 	"github.com/hacash/core/actions"
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/mint"
 	"time"
 )
 
-func (p *MemTxPool) checkDiamondCreate(newtx interfaces.Transaction, act *actions.Action_4_DiamondCreate) error {
+func (p *MemTxPool) checkDiamondCreate(newtx interfacev2.Transaction, act *actions.Action_4_DiamondCreate) error {
 
 	newtxhash := newtx.Hash()
 	txhxhex := newtxhash.ToHex()
-	blockstate := p.blockchain.State()
+	blockstate := p.blockchain.StateRead()
 	exist, e0 := blockstate.CheckTxHash(newtxhash)
 	//fmt.Println(exist, exist_tx_bytes)
 	if e0 != nil {
@@ -36,7 +36,7 @@ func (p *MemTxPool) checkDiamondCreate(newtx interfaces.Transaction, act *action
 	}
 	// 检查余额 // check fee
 	txfee := newtx.GetFee()
-	febls, e := p.blockchain.State().Balance(newtx.GetAddress())
+	febls, e := p.blockchain.StateRead().Balance(newtx.GetAddress())
 	if e != nil {
 		return e
 	}

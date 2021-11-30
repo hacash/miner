@@ -1,21 +1,21 @@
 package minerworkerwrap
 
 import (
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 	"sync"
 )
 
 type WorkerWrap struct {
 	config    *WorkerWrapConfig
-	powdevice interfaces.PowDevice
+	powdevice interfacev2.PowDevice
 
 	//currentWorkers mapset.Set
 	stopMarks sync.Map
 	stepLock  sync.Mutex
 
 	// chan
-	miningStuffCh chan interfaces.PowWorkerMiningStuffItem
-	resultCh      chan interfaces.PowWorkerMiningStuffItem
+	miningStuffCh chan interfacev2.PowWorkerMiningStuffItem
+	resultCh      chan interfacev2.PowWorkerMiningStuffItem
 }
 
 func NewWorkerWrap(config *WorkerWrapConfig) *WorkerWrap {

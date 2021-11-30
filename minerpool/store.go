@@ -3,7 +3,7 @@ package minerpool
 import (
 	"encoding/binary"
 	"github.com/hacash/core/fields"
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 )
 
 // 保存状态
@@ -104,7 +104,7 @@ func (p *MinerPool) loadAccountStoreData(curblkhei uint64, address fields.Addres
 }
 
 // store tx
-func (p *MinerPool) saveTransferTx(tx interfaces.Transaction) error {
+func (p *MinerPool) saveTransferTx(tx interfacev2.Transaction) error {
 	p.status.TransferHashTableLastestNumber += 1
 	err := p.saveStatus()
 	if err != nil {

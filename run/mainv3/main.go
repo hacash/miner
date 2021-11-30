@@ -14,7 +14,7 @@ import (
 
 const (
 	// 数据库版本号
-	DatabaseLowestVersion  int = 10 // 兼容版本号
+	DatabaseLowestVersion  int = 9  // 兼容版本号
 	DatabaseCurrentVersion int = 10 // 版本号
 	// 软件版本号
 	NodeVersionSuperMain    uint32 = 0            // 主版本号
@@ -77,6 +77,12 @@ func start() error {
 	// 创建区块链实例
 	bccnf := blockchainv3.NewBlockChainConfig(hinicnf)
 	blockChainObj, e := blockchainv3.NewBlockChain(bccnf)
+	if e != nil {
+		return e
+	}
+
+	// 运行区块链实例
+	e = blockChainObj.Start()
 	if e != nil {
 		return e
 	}

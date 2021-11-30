@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"github.com/hacash/core/blocks"
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/core/sys"
 	"github.com/hacash/miner/message"
 	"github.com/hacash/mint/coinbase"
@@ -61,7 +61,7 @@ func (p *FullNodePowWrap) StopMining() {
 	p.master.StopMining()
 }
 
-func (p *FullNodePowWrap) Excavate(inputBlock interfaces.Block, outputBlockCh chan interfaces.Block) {
+func (p *FullNodePowWrap) Excavate(inputBlock interfacev2.Block, outputBlockCh chan interfacev2.Block) {
 
 	var coinbaseMsgNum uint32 = 0
 

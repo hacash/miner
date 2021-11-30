@@ -2,7 +2,7 @@ package localcpu
 
 import (
 	"github.com/hacash/core/blocks"
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/mint/difficulty"
 	"github.com/hacash/x16rs"
 	"sync/atomic"
@@ -14,7 +14,7 @@ type miningBlockReturn struct {
 	coinbaseMsgNum uint32
 	nonceBytes     []byte
 	powerHash      []byte
-	blockHeadMeta  interfaces.Block
+	blockHeadMeta  interfacev2.Block
 }
 
 type CPUWorker struct {
@@ -40,7 +40,7 @@ func NewCPUWorker(successMiningMark *uint32, successBlockCh chan miningBlockRetu
 	return worker
 }
 
-func (c *CPUWorker) RunMining(newblockheadmeta interfaces.Block, startNonce uint32, endNonce uint32) bool {
+func (c *CPUWorker) RunMining(newblockheadmeta interfacev2.Block, startNonce uint32, endNonce uint32) bool {
 	workStuff := blocks.CalculateBlockHashBaseStuff(newblockheadmeta)
 	targethashdiff := difficulty.Uint32ToHash(newblockheadmeta.GetHeight(), newblockheadmeta.GetDifficulty())
 	// run

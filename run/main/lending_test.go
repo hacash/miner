@@ -7,7 +7,7 @@ import (
 	"github.com/hacash/core/account"
 	"github.com/hacash/core/actions"
 	"github.com/hacash/core/fields"
-	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/core/transactions"
 	"io/ioutil"
 	"net/http"
@@ -366,12 +366,12 @@ func post_hactrs_tx(hacnum int64, address string) {
 // 基础转账
 
 // 创建基础数据并提交
-func post_1MzNY_tx_for_action(act1 interfaces.Action, accs []account.Account) {
+func post_1MzNY_tx_for_action(act1 interfacev2.Action, accs []account.Account) {
 	post_tx_for_action(act1, "1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9", nil)
 }
 
 // 创建基础数据并提交
-func post_tx_for_action(act1 interfaces.Action, mainAddress string, accs []account.Account) {
+func post_tx_for_action(act1 interfacev2.Action, mainAddress string, accs []account.Account) {
 
 	// tx
 	feeamt, _ := fields.NewAmountFromFinString("ㄜ1:248")
