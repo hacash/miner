@@ -27,7 +27,7 @@ type PowMasterMsg struct {
 
 func NewPowMasterMsg() *PowMasterMsg {
 	return &PowMasterMsg{
-		0, 0, []byte{0, 0, 0, 0}, blocks.NewEmptyBlock_v1(nil),
+		0, 0, []byte{0, 0, 0, 0}, blocks.NewEmptyBlockVersion1(nil),
 	}
 }
 

@@ -35,11 +35,13 @@ func (p *MemTxPool) doCleanInvalidTransactions() {
 	p.changeLock.Lock()
 	defer p.changeLock.Unlock()
 
-	tempState, err := p.blockchain.State().Fork()
-	if err != nil {
-		return
-	}
-	defer tempState.Destory()
+	/*
+		tempState, err := p.blockchain.State().Fork()
+		if err != nil {
+			return
+		}
+		defer tempState.Destory()
+	*/
 
 	sizeCount := uint32(0)
 	head := p.simpleTxGroup.Head
@@ -51,16 +53,23 @@ func (p *MemTxPool) doCleanInvalidTransactions() {
 			break
 		}
 		sizeCount += head.size
-		txState, e1 := tempState.Fork()
-		if e1 != nil {
-			return
-		}
-		e2 := head.tx.WriteinChainState(txState)
+		// check
+		e2 := p.blockchain.ValidateTransactionForTxPool(head.tx)
 		if e2 != nil {
 			p.removeTxsOnNextBlockArrive = append(p.removeTxsOnNextBlockArrive, head.tx)
 		}
-		// clean data
-		txState.Destory()
+		/*
+			txState, e1 := tempState.Fork()
+			if e1 != nil {
+				return
+			}
+			e2 := head.tx.WriteinChainState(txState)
+			if e2 != nil {
+				p.removeTxsOnNextBlockArrive = append(p.removeTxsOnNextBlockArrive, head.tx)
+			}
+			// clean data
+			txState.Destory()
+		*/
 	}
 
 }
