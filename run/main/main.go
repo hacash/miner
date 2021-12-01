@@ -14,6 +14,7 @@ import (
 	"github.com/hacash/miner/minerserver"
 	"github.com/hacash/mint"
 	"github.com/hacash/mint/blockchain"
+	"github.com/hacash/mint/blockchainv3"
 	"github.com/hacash/node/backend"
 	"github.com/hacash/node/p2pv2"
 	deprecated "github.com/hacash/service/deprecated"
@@ -97,7 +98,11 @@ func start() error {
 	hinicnf.SetDatabaseVersion(DatabaseCurrentVersion, DatabaseLowestVersion)
 
 	// 判断数据库版本是否需要升级
-	err = blockchain.CheckAndUpdateBlockchainDatabaseVersion(hinicnf)
+	if hinicnf.Section("").Key("UseBlockChainV3").MustBool(false) {
+		err = blockchainv3.CheckAndUpdateBlockchainDatabaseVersion(hinicnf)
+	} else {
+		err = blockchain.CheckAndUpdateBlockchainDatabaseVersion(hinicnf)
+	}
 	if err != nil {
 		return err
 	}
