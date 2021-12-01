@@ -1,14 +1,16 @@
 package minerpool
 
-import "github.com/hacash/core/interfacev2"
+import (
+	"github.com/hacash/core/interfaces"
+)
 
 type WorkItem struct {
 	belongClient         *Client
-	miningBlock          interfacev2.Block
+	miningBlock          interfaces.Block
 	miningCoinbaseMsgNum uint32
 }
 
-func NewWorkItem(cli *Client, blk interfacev2.Block, num uint32) *WorkItem {
+func NewWorkItem(cli *Client, blk interfaces.Block, num uint32) *WorkItem {
 	return &WorkItem{
 		belongClient:         cli,
 		miningBlock:          blk,

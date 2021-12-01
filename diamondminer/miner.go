@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/hacash/core/actions"
 	"github.com/hacash/core/genesis"
+	"github.com/hacash/core/interfaces"
 	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/core/stores"
 	"sync"
@@ -13,8 +14,8 @@ import (
 type DiamondMiner struct {
 	Config *DiamondMinerConfig
 
-	blockchain interfacev2.BlockChain
-	txpool     interfacev2.TxPool
+	blockchain interfaces.BlockChain
+	txpool     interfaces.TxPool
 
 	stopMarksLocker sync.Mutex
 	stopMarks       map[*byte]*byte
@@ -52,7 +53,7 @@ func (d *DiamondMiner) Start() error {
 
 	go func() {
 		time.Sleep(time.Second)
-		prev, e := d.blockchain.StateRead().ReadLastestDiamond()
+		prev, e := d.blockchain.GetChainEngineKernel().StateRead().ReadLastestDiamond()
 		if e != nil {
 			fmt.Println("[Diamond Miner Error] miner cannot start: ", e)
 			return
@@ -71,15 +72,15 @@ func (d *DiamondMiner) Start() error {
 	return nil
 }
 
-func (m *DiamondMiner) SetTxPool(tp interfacev2.TxPool) {
+func (m *DiamondMiner) SetTxPool(tp interfaces.TxPool) {
 	m.txpool = tp
 }
 
-func (d *DiamondMiner) SetBlockChain(blockchain interfacev2.BlockChain) {
+func (d *DiamondMiner) SetBlockChain(blockchain interfaces.BlockChain) {
 	if d.blockchain != nil {
 		panic("d.blockchain already be set.")
 	}
 	d.blockchain = blockchain
 	// feed event
-	blockchain.SubscribeDiamondOnCreate(d.newDiamondBeFoundCh)
+	blockchain.GetChainEngineKernel().SubscribeDiamondOnCreate(d.newDiamondBeFoundCh)
 }

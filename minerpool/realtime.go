@@ -3,7 +3,7 @@ package minerpool
 import (
 	"github.com/hacash/core/blocks"
 	"github.com/hacash/core/fields"
-	"github.com/hacash/core/interfacev2"
+	"github.com/hacash/core/interfaces"
 	"github.com/hacash/miner/message"
 	"github.com/hacash/mint/coinbase"
 	"sync"
@@ -13,20 +13,20 @@ import (
 type RealtimePeriod struct {
 	minerpool *MinerPool
 
-	miningSuccessBlock interfacev2.Block
+	miningSuccessBlock interfaces.Block
 
-	targetBlock interfacev2.Block
+	targetBlock interfaces.Block
 
 	realtimeAccounts map[string]*Account // [*Account]
 
 	autoIncrementCoinbaseMsgNum uint32
 
-	outputBlockCh *chan interfacev2.Block
+	outputBlockCh *chan interfaces.Block
 
 	changeLock sync.Mutex
 }
 
-func NewRealtimePeriod(minerpool *MinerPool, block interfacev2.Block) *RealtimePeriod {
+func NewRealtimePeriod(minerpool *MinerPool, block interfaces.Block) *RealtimePeriod {
 	per := &RealtimePeriod{
 		miningSuccessBlock:          nil,
 		minerpool:                   minerpool,
@@ -66,7 +66,7 @@ func (r *RealtimePeriod) sendMiningStuffMsg(client *Client) {
 	msgobj.CoinbaseMsgNum = fields.VarUint4(cbmsgnum)
 	//fmt.Println("sendMiningStuffMsg", uint32(msgobj.CoinbaseMsgNum) )
 	coinbase.UpdateBlockCoinbaseMessageForMiner(r.targetBlock, uint32(msgobj.CoinbaseMsgNum))
-	r.targetBlock.SetMrklRoot(blocks.CalculateMrklRoot(r.targetBlock.GetTransactions()))
+	r.targetBlock.SetMrklRoot(blocks.CalculateMrklRoot(r.targetBlock.GetTrsList()))
 	msgobj.BlockHeadMeta = r.targetBlock
 	// create work item
 	wkitem := NewWorkItem(client, r.targetBlock, cbmsgnum)
@@ -77,7 +77,7 @@ func (r *RealtimePeriod) sendMiningStuffMsg(client *Client) {
 }
 
 // find ok
-func (r *RealtimePeriod) successFindNewBlock(block interfacev2.Block) {
+func (r *RealtimePeriod) successFindNewBlock(block interfaces.Block) {
 	if r.outputBlockCh != nil {
 		go func() {
 			*r.outputBlockCh <- block // 挖出区块，传递给miner

@@ -2,13 +2,13 @@ package localcpu
 
 import (
 	"github.com/hacash/core/fields"
-	"github.com/hacash/core/interfacev2"
+	"github.com/hacash/core/interfaces"
 	"github.com/hacash/miner/message"
 	"sync"
 )
 
 // do mining
-func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfacev2.Block, outputCh chan message.PowMasterMsg) {
+func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, outputCh chan message.PowMasterMsg) {
 
 	//fmt.Println(" --------------------  (l *LocalCPUPowMaster) Excavate")
 

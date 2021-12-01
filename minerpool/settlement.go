@@ -3,7 +3,7 @@ package minerpool
 import (
 	"fmt"
 	"github.com/hacash/core/fields"
-	"github.com/hacash/core/interfacev2"
+	"github.com/hacash/core/interfaces"
 	"github.com/hacash/mint/coinbase"
 	"math/big"
 	"time"
@@ -16,7 +16,7 @@ type SettlementPeriod struct {
 	successBlockHash     fields.Hash
 }
 
-func (p *MinerPool) createSettlementPeriod(account *Account, period *RealtimePeriod, successBlock interfacev2.Block) {
+func (p *MinerPool) createSettlementPeriod(account *Account, period *RealtimePeriod, successBlock interfaces.Block) {
 	p.periodChange.Lock()
 	defer p.periodChange.Unlock()
 
@@ -43,7 +43,7 @@ func (p *MinerPool) createSettlementPeriod(account *Account, period *RealtimePer
 func (p *MinerPool) settleOneSuccessPeriod(period *SettlementPeriod) {
 	blockHeight := period.successBlockHeight
 	// read block from store
-	storeBlockHash, err := p.blockchain.StateRead().BlockStoreRead().ReadBlockHashByHeight(blockHeight)
+	storeBlockHash, err := p.blockchain.GetChainEngineKernel().StateRead().BlockStoreRead().ReadBlockHashByHeight(blockHeight)
 	if err != nil {
 		return
 	}

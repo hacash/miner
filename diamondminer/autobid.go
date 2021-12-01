@@ -3,6 +3,8 @@ package diamondminer
 import (
 	"bytes"
 	"fmt"
+	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/core/transactions"
 )
 
@@ -40,7 +42,7 @@ func (d *DiamondMiner) doAutoBidForMyDiamond() {
 	}
 	// 比较钻石序号
 	curact := transactions.CheckoutAction_4_DiamondCreateFromTx(d.currentSuccessMiningDiamondTx)
-	firstact := transactions.CheckoutAction_4_DiamondCreateFromTx(firstFeeTx)
+	firstact := transactions.CheckoutAction_4_DiamondCreateFromTx(firstFeeTx.(interfacev2.Transaction))
 	if curact == nil || firstact == nil {
 		return
 	}
@@ -77,7 +79,7 @@ func (d *DiamondMiner) doAutoBidForMyDiamond() {
 	// do sign
 	newtx.FillNeedSigns(allPrivateKeyBytes, nil)
 	// add to pool
-	err4 := d.txpool.AddTx(newtx)
+	err4 := d.txpool.AddTx(newtx.(interfaces.Transaction))
 	if err4 != nil {
 		fmt.Println("doAutoBidForMyDiamond Add to Tx Pool, Error: ", err4.Error())
 		return

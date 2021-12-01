@@ -3,11 +3,11 @@ package memtxpool
 import (
 	"github.com/hacash/core/actions"
 	"github.com/hacash/core/fields"
-	"github.com/hacash/core/interfacev2"
+	"github.com/hacash/core/interfaces"
 )
 
 type TxItem struct {
-	tx        interfacev2.Transaction
+	tx        interfaces.Transaction
 	hash      fields.Hash
 	size      uint32
 	feepurity uint64
@@ -18,7 +18,7 @@ type TxItem struct {
 	diamond *actions.Action_4_DiamondCreate
 }
 
-func (p *TxItem) GetTx() interfacev2.Transaction {
+func (p *TxItem) GetTx() interfaces.Transaction {
 	return p.tx
 }
 

@@ -58,8 +58,8 @@ go build -ldflags '-w -s' -o           hacash_miner_worker_2021_11_21_01  miner/
 */
 
 const (
-	DatabaseLowestVersion  int = 7 // 兼容数据库版本号
-	DatabaseCurrentVersion int = 8 // 当前数据库版本号
+	DatabaseLowestVersion  int = 9  // 兼容数据库版本号
+	DatabaseCurrentVersion int = 10 // 当前数据库版本号
 	//
 	NodeVersionSuperMain    uint32 = 0            // 主版本号
 	NodeVersionSupport      uint32 = 1            // 兼容版本号

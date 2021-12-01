@@ -2,29 +2,29 @@ package miner
 
 import (
 	"fmt"
-	"github.com/hacash/core/interfacev2"
+	"github.com/hacash/core/interfaces"
 	"sync/atomic"
 )
 
 type Miner struct {
 	config *MinerConfig
 
-	blockchain interfacev2.BlockChain
+	blockchain interfaces.BlockChain
 
-	txpool interfacev2.TxPool
+	txpool interfaces.TxPool
 
-	powserver interfacev2.PowServer
+	powserver interfaces.PowServer
 
 	isMiningStatus     *uint32
 	stopSignCh         chan bool
-	newBlockOnInsertCh chan interfacev2.Block
+	newBlockOnInsertCh chan interfaces.Block
 }
 
 func NewMiner(cnf *MinerConfig) *Miner {
 	miner := &Miner{
 		config:             cnf,
 		stopSignCh:         make(chan bool, 1),
-		newBlockOnInsertCh: make(chan interfacev2.Block, 4),
+		newBlockOnInsertCh: make(chan interfaces.Block, 4),
 	}
 	var sm uint32 = 0
 	miner.isMiningStatus = &sm
@@ -53,20 +53,20 @@ func (m *Miner) StopMining() {
 	}
 }
 
-func (m *Miner) SetBlockChain(bc interfacev2.BlockChain) {
+func (m *Miner) SetBlockChain(bc interfaces.BlockChain) {
 	m.blockchain = bc
-	bc.SubscribeValidatedBlockOnInsert(m.newBlockOnInsertCh)
+	bc.GetChainEngineKernel().SubscribeValidatedBlockOnInsert(m.newBlockOnInsertCh)
 }
 
-func (m *Miner) SetPowServer(pm interfacev2.PowServer) {
+func (m *Miner) SetPowServer(pm interfaces.PowServer) {
 	m.powserver = pm
 }
 
-func (m *Miner) SetTxPool(tp interfacev2.TxPool) {
+func (m *Miner) SetTxPool(tp interfaces.TxPool) {
 	m.txpool = tp
 }
 
-func (m *Miner) SubmitTx(tx interfacev2.Transaction) {
+func (m *Miner) SubmitTx(tx interfaces.Transaction) {
 	if m.blockchain == nil {
 		panic("[Miner] blockchain is not be set.")
 	}
@@ -75,7 +75,7 @@ func (m *Miner) SubmitTx(tx interfacev2.Transaction) {
 	}
 	// add tx to pool
 	go func() {
-		err := m.txpool.AddTx(tx)
+		err := m.txpool.AddTx(tx.(interfaces.Transaction))
 		if err != nil {
 
 		}

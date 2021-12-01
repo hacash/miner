@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/hacash/core/blocks"
-	"github.com/hacash/core/interfacev2"
+	"github.com/hacash/core/interfaces"
 	"github.com/hacash/core/sys"
 	"github.com/hacash/mint"
 	"github.com/hacash/mint/coinbase"
@@ -22,7 +22,7 @@ func (m *Miner) doStartMining() {
 	}()
 
 	// start mining
-	last, err := m.blockchain.StateRead().ReadLastestBlockHeadMetaForRead()
+	last, _, err := m.blockchain.GetChainEngineKernel().LatestBlock()
 	if err != nil {
 		panic(err)
 	}
@@ -30,7 +30,11 @@ func (m *Miner) doStartMining() {
 	pikuptxs := m.txpool.CopyTxsOrderByFeePurity(last.GetHeight()+1, 2000, mint.SingleBlockMaxSize*2)
 	//fmt.Println("doStartMining pikuptxs", pikuptxs)
 	// create next block
-	nextblock, removetxs, totaltxsize, e1 := m.blockchain.CreateNextBlockByValidateTxs(pikuptxs)
+	pikuptxsList := make([]interfaces.Transaction, len(pikuptxs))
+	for i, v := range pikuptxs {
+		pikuptxsList[i] = v.(interfaces.Transaction)
+	}
+	nextblock, removetxs, totaltxsize, e1 := m.blockchain.CreateNextBlockByValidateTxs(pikuptxsList)
 	if e1 != nil {
 		panic(e1)
 	}
@@ -40,7 +44,7 @@ func (m *Miner) doStartMining() {
 	coinbase.UpdateBlockCoinbaseAddress(nextblock, m.config.Rewards)
 
 	// update mkrl root
-	nextblock.SetMrklRoot(blocks.CalculateMrklRoot(nextblock.GetTransactions()))
+	nextblock.SetMrklRoot(blocks.CalculateMrklRoot(nextblock.GetTrsList()))
 
 	nextblockHeight := nextblock.GetHeight()
 
@@ -49,7 +53,7 @@ func (m *Miner) doStartMining() {
 		diff2 := nextblock.GetDifficulty()
 		tarhx1 := hex.EncodeToString(difficulty.Uint32ToHash(last.GetHeight(), diff1))
 		tarhx2 := hex.EncodeToString(difficulty.Uint32ToHash(nextblockHeight, diff2))
-		costtime, err := m.blockchain.ReadPrev288BlockTimestamp(nextblockHeight)
+		costtime, err := difficulty.ReadPrev288BlockTimestamp(m.blockchain.GetChainEngineKernel().StateRead().BlockStoreRead(), nextblockHeight)
 		if err == nil {
 			costtime = nextblock.GetTimestamp() - costtime
 		}
@@ -79,12 +83,12 @@ func (m *Miner) doStartMining() {
 
 	//fmt.Println("m.powserver.Excavate(nextblock, backBlockCh) MrklRoot:", nextblock.GetMrklRoot().ToHex())
 	// excavate block
-	backBlockCh := make(chan interfacev2.Block, 1)
+	backBlockCh := make(chan interfaces.Block, 1)
 	m.powserver.Excavate(nextblock, backBlockCh)
 
 	//fmt.Println("finifsh m.powserver.Excavate nextblock")
 
-	var miningSuccessBlock interfacev2.Block = nil
+	var miningSuccessBlock interfaces.Block = nil
 	select {
 	case miningSuccessBlock = <-backBlockCh:
 	case <-m.stopSignCh:
@@ -106,10 +110,10 @@ func (m *Miner) doStartMining() {
 	}
 	// mining success
 	if miningSuccessBlock != nil {
-		inserterr := m.blockchain.InsertBlock(miningSuccessBlock, "mining")
+		inserterr := m.blockchain.GetChainEngineKernel().InsertBlock(miningSuccessBlock.(interfaces.Block), "mining")
 		if inserterr == nil {
 			coinbaseStr := ""
-			coinbasetx := miningSuccessBlock.GetTransactions()[0]
+			coinbasetx := miningSuccessBlock.GetTrsList()[0]
 			coinbaseStr += coinbasetx.GetAddress().ToReadable()
 			coinbaseStr += " + " + coinbase.BlockCoinBaseReward(miningSuccessBlock.GetHeight()).ToFinString()
 			// show success

@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"github.com/hacash/core/blocks"
-	"github.com/hacash/core/interfacev2"
+	"github.com/hacash/core/interfaces"
 	"github.com/hacash/core/sys"
 	"github.com/hacash/miner/message"
 	"github.com/hacash/mint/coinbase"
@@ -61,14 +61,14 @@ func (p *FullNodePowWrap) StopMining() {
 	p.master.StopMining()
 }
 
-func (p *FullNodePowWrap) Excavate(inputBlock interfacev2.Block, outputBlockCh chan interfacev2.Block) {
+func (p *FullNodePowWrap) Excavate(inputBlock interfaces.Block, outputBlockCh chan interfaces.Block) {
 
 	var coinbaseMsgNum uint32 = 0
 
 	for {
 		if coinbaseMsgNum > 0 {
 			coinbase.UpdateBlockCoinbaseMessageForMiner(inputBlock, coinbaseMsgNum)
-			inputBlock.SetMrklRoot(blocks.CalculateMrklRoot(inputBlock.GetTransactions())) // update mrkl
+			inputBlock.SetMrklRoot(blocks.CalculateMrklRoot(inputBlock.GetTrsList())) // update mrkl
 		}
 		p.master.SetCoinbaseMsgNum(coinbaseMsgNum)
 		var outputCh = make(chan message.PowMasterMsg, 1)

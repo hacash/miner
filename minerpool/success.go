@@ -14,7 +14,7 @@ func (a *Account) successFindNewBlock(msg *message.PowMasterMsg) {
 	//defer minerpool.periodChange.Unlock()
 
 	// copy data
-	copyblock := a.realtimePeriod.targetBlock.CopyForMining()
+	copyblock := a.realtimePeriod.targetBlock.CopyForMiningV3()
 
 	//fmt.Println("========================================")
 	//fmt.Println(msg.BlockHeadMeta)
@@ -26,7 +26,7 @@ func (a *Account) successFindNewBlock(msg *message.PowMasterMsg) {
 	// update
 	coinbase.UpdateBlockCoinbaseMessageForMiner(copyblock, uint32(msg.CoinbaseMsgNum))
 	copyblock.SetNonce(binary.BigEndian.Uint32(msg.NonceBytes))
-	copyblock.SetMrklRoot(blocks.CalculateMrklRoot(copyblock.GetTransactions()))
+	copyblock.SetMrklRoot(blocks.CalculateMrklRoot(copyblock.GetTrsList()))
 	copyblock.SetOriginMark("mining") // set origin
 	copyblock.Fresh()
 
@@ -42,11 +42,11 @@ func (a *Account) successFindNewBlock(msg *message.PowMasterMsg) {
 	//fmt.Println("a.realtimePeriod.successFindNewBlock MrklRoot:", copyblock.GetMrklRoot().ToHex())
 	a.realtimePeriod.successFindNewBlock(copyblock)
 	// settle 结算
-	minerpool.createSettlementPeriod( a, a.realtimePeriod, copyblock )
+	minerpool.createSettlementPeriod(a, a.realtimePeriod, copyblock)
 	/*
-	go func() {
-		<-time.Tick(time.Second * 33) // 33 秒后去结算 period
-		minerpool.settleRealtimePeriodCh <- a.realtimePeriod
-	}()
+		go func() {
+			<-time.Tick(time.Second * 33) // 33 秒后去结算 period
+			minerpool.settleRealtimePeriodCh <- a.realtimePeriod
+		}()
 	*/
 }

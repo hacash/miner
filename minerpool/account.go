@@ -5,13 +5,13 @@ import (
 	"encoding/binary"
 	"github.com/hacash/chain/mapset"
 	"github.com/hacash/core/fields"
-	"github.com/hacash/core/interfacev2"
+	"github.com/hacash/core/interfaces"
 	"math/big"
 	"sync"
 )
 
 type Account struct {
-	miningSuccessBlock interfacev2.Block
+	miningSuccessBlock interfaces.Block
 
 	realtimePeriod *RealtimePeriod // 所属统计周期
 
@@ -43,7 +43,7 @@ func NewAccountByPeriod(address fields.Address, period *RealtimePeriod) *Account
 	return acc
 }
 
-func (a Account) CopyByPeriod(period *RealtimePeriod) *Account {
+func (a *Account) CopyByPeriod(period *RealtimePeriod) *Account {
 	acc := &Account{
 		realtimePeriod: period,
 		address:        append([]byte{}, a.address...),

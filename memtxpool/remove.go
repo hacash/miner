@@ -1,11 +1,11 @@
 package memtxpool
 
 import (
-	"github.com/hacash/core/interfacev2"
+	"github.com/hacash/core/interfaces"
 	"github.com/hacash/mint"
 )
 
-func (p *MemTxPool) RemoveTxs(txs []interfacev2.Transaction) {
+func (p *MemTxPool) RemoveTxs(txs []interfaces.Transaction) {
 	p.changeLock.Lock()
 	defer p.changeLock.Unlock()
 
@@ -22,7 +22,7 @@ func (p *MemTxPool) RemoveTxs(txs []interfacev2.Transaction) {
 
 }
 
-func (p *MemTxPool) RemoveTxsOnNextBlockArrive(txs []interfacev2.Transaction) {
+func (p *MemTxPool) RemoveTxsOnNextBlockArrive(txs []interfaces.Transaction) {
 	p.changeLock.Lock()
 	defer p.changeLock.Unlock()
 
@@ -54,9 +54,9 @@ func (p *MemTxPool) doCleanInvalidTransactions() {
 		}
 		sizeCount += head.size
 		// check
-		e2 := p.blockchain.ValidateTransactionForTxPool(head.tx)
+		e2 := p.blockchain.ValidateTransactionForTxPool(head.tx.(interfaces.Transaction))
 		if e2 != nil {
-			p.removeTxsOnNextBlockArrive = append(p.removeTxsOnNextBlockArrive, head.tx)
+			p.removeTxsOnNextBlockArrive = append(p.removeTxsOnNextBlockArrive, head.tx.(interfaces.Transaction))
 		}
 		/*
 			txState, e1 := tempState.Fork()

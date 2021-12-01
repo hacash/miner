@@ -2,20 +2,20 @@ package minerserver
 
 import (
 	"fmt"
-	"github.com/hacash/core/interfacev2"
+	"github.com/hacash/core/interfaces"
 	"github.com/hacash/miner/message"
 )
 
 // find block nonce or change coinbase message
 // 下发
-func (m *MinerServer) Excavate(input interfacev2.Block, resCh chan interfacev2.Block) {
+func (m *MinerServer) Excavate(input interfaces.Block, resCh chan interfaces.Block) {
 	// 开始挖掘新的区块
 	m.changelock.Lock()
 	defer m.changelock.Unlock()
 
 	// 解析挖矿消息
 	var err error = nil
-	m.penddingBlockMsg, err = message.CreatePendingMiningBlockStuffByBlock(input)
+	m.penddingBlockMsg, err = message.CreatePendingMiningBlockStuffByBlock(input.(interfaces.Block))
 	if err != nil {
 		fmt.Println("MinerServer Excavate Error:", err)
 		return

@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/hacash/core/blocks"
+	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/miner/message"
 	"github.com/hacash/mint/difficulty"
 	"math/rand"
@@ -49,7 +50,7 @@ func (m *MinerServerClinet) Handle() error {
 			newstuff, newhx := m.server.penddingBlockMsg.CalculateBlockHashByMiningResult(&result, true)
 			// 判断哈希满足要求
 			newblock := newstuff.GetHeadMetaBlock()
-			if difficulty.CheckHashDifficultySatisfyByBlock(newhx, newblock) {
+			if difficulty.CheckHashDifficultySatisfyByBlock(newhx, newblock.(interfacev2.Block)) {
 				// 满足难度 写入区块链
 				//fmt.Println( "GetTransactionCount:", newblock.GetTransactionCount(), )
 				newblock.SetOriginMark("mining") // set origin

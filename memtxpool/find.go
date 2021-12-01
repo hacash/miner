@@ -2,30 +2,30 @@ package memtxpool
 
 import (
 	"github.com/hacash/core/fields"
-	"github.com/hacash/core/interfacev2"
+	"github.com/hacash/core/interfaces"
 )
 
-func (p *MemTxPool) CheckTxExist(tx interfacev2.Transaction) (interfacev2.Transaction, bool) {
+func (p *MemTxPool) CheckTxExist(tx interfaces.Transaction) (interfaces.Transaction, bool) {
 	return p.CheckTxExistByHash(tx.Hash())
 }
 
-func (p *MemTxPool) CheckTxExistByHash(txhash fields.Hash) (interfacev2.Transaction, bool) {
+func (p *MemTxPool) CheckTxExistByHash(txhash fields.Hash) (interfaces.Transaction, bool) {
 
 	if tx, ok := p.diamondCreateTxGroup.GetItem(string(txhash)); ok {
-		return tx.tx, true
+		return tx.tx.(interfaces.Transaction), true
 	}
 	if tx, ok := p.simpleTxGroup.GetItem(string(txhash)); ok {
-		return tx.tx, true
+		return tx.tx.(interfaces.Transaction), true
 	}
 	return nil, false
 
 }
 
-func (p *MemTxPool) CopyTxsOrderByFeePurity(targetblockheight uint64, maxcount uint32, maxsize uint32) []interfacev2.Transaction {
+func (p *MemTxPool) CopyTxsOrderByFeePurity(targetblockheight uint64, maxcount uint32, maxsize uint32) []interfaces.Transaction {
 	p.changeLock.RLock()
 	defer p.changeLock.RUnlock()
 
-	restrs := make([]interfacev2.Transaction, 0)
+	restrs := make([]interfaces.Transaction, 0)
 
 	totalcount := uint32(0)
 	totalsize := uint32(0)
