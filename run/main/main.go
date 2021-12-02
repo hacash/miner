@@ -98,10 +98,10 @@ func start() error {
 	hinicnf.SetDatabaseVersion(DatabaseCurrentVersion, DatabaseLowestVersion)
 
 	// 判断数据库版本是否需要升级
-	if hinicnf.Section("").Key("UseBlockChainV3").MustBool(false) {
-		err = blockchainv3.CheckAndUpdateBlockchainDatabaseVersion(hinicnf)
-	} else {
+	if hinicnf.Section("").Key("UseBlockChainV2").MustBool(false) {
 		err = blockchain.CheckAndUpdateBlockchainDatabaseVersion(hinicnf)
+	} else {
+		err = blockchainv3.CheckAndUpdateBlockchainDatabaseVersion(hinicnf)
 	}
 	if err != nil {
 		return err
