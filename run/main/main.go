@@ -90,7 +90,7 @@ func start() error {
 	// 解析并载入配置文件
 	hinicnf, err := sys.LoadInicnf(target_ini_file)
 	if err != nil {
-		fmt.Println(err.Error())
+		fmt.Println("[Config] ERROR TO LOAD CONFIG FILE: ", err.Error())
 		return err
 	}
 
