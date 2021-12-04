@@ -4,7 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/hacash/core/blocks"
-	"github.com/hacash/core/interfacev2"
+	"github.com/hacash/core/interfaces"
 	"github.com/hacash/mint/difficulty"
 	"strings"
 	"time"
@@ -47,10 +47,10 @@ STARTDOMINING:
 	// 取出 stuff 直到于挖掘目标一致
 	// 并发数量
 	supervene := g.powdevice.GetSuperveneWide()
-	stuffitemlist := make([]interfacev2.PowWorkerMiningStuffItem, supervene)
+	stuffitemlist := make([]interfaces.PowWorkerMiningStuffItem, supervene)
 	blockheadmetasary := make([][]byte, supervene)
 	oksuffnum := 0
-	var stuffitem interfacev2.PowWorkerMiningStuffItem = nil
+	var stuffitem interfaces.PowWorkerMiningStuffItem = nil
 	for {
 		if stopmark == 1 {
 			return // 停止当前挖矿

@@ -1,9 +1,11 @@
 package message
 
-import "github.com/hacash/core/interfacev2"
+import (
+	"github.com/hacash/core/interfaces"
+)
 
 type PowDeviceWorker interface {
-	Excavate(inputblockheadmeta interfacev2.Block, outputCh chan PowMasterMsg)
+	Excavate(inputblockheadmeta interfaces.Block, outputCh chan PowMasterMsg)
 
 	SetCoinbaseMsgNum(coinbaseMsgNum uint32)
 

@@ -1,7 +1,7 @@
 package minerworker
 
 import (
-	"github.com/hacash/core/interfacev2"
+	"github.com/hacash/core/interfaces"
 	"github.com/hacash/miner/message"
 	"net"
 )
@@ -13,18 +13,18 @@ type MinerWorker struct {
 
 	pendingMiningBlockStuff *message.MsgPendingMiningBlockStuff
 
-	miningStuffFeedingCh chan interfacev2.PowWorkerMiningStuffItem
-	miningResultCh       chan interfacev2.PowWorkerMiningStuffItem
+	miningStuffFeedingCh chan interfaces.PowWorkerMiningStuffItem
+	miningResultCh       chan interfaces.PowWorkerMiningStuffItem
 
-	powWorker interfacev2.PowWorker // 挖掘器
+	powWorker interfaces.PowWorker // 挖掘器
 }
 
 func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
 
 	worker := &MinerWorker{
 		config:               cnf,
-		miningStuffFeedingCh: make(chan interfacev2.PowWorkerMiningStuffItem, 1),
-		miningResultCh:       make(chan interfacev2.PowWorkerMiningStuffItem, 1),
+		miningStuffFeedingCh: make(chan interfaces.PowWorkerMiningStuffItem, 1),
+		miningResultCh:       make(chan interfaces.PowWorkerMiningStuffItem, 1),
 	}
 
 	return worker
@@ -33,6 +33,6 @@ func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
 ///////////////
 
 // 挖矿执行器
-func (m *MinerWorker) SetPowWorker(worker interfacev2.PowWorker) {
+func (m *MinerWorker) SetPowWorker(worker interfaces.PowWorker) {
 	m.powWorker = worker
 }
