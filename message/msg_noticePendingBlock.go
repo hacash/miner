@@ -59,7 +59,7 @@ func (m MsgPendingMiningBlockStuff) CopyForMiningByRandomSetCoinbaseNonce() inte
 // 创建 mining stuff
 func CreatePendingMiningBlockStuffByBlock(block interfaces.Block) (*MsgPendingMiningBlockStuff, error) {
 	stuff := &MsgPendingMiningBlockStuff{
-		BlockHeadMeta: block.CopyForMiningV3(),
+		BlockHeadMeta: block.CopyForMining(),
 	}
 
 	trxs := block.GetTrsList()
@@ -134,7 +134,7 @@ func (m *MsgPendingMiningBlockStuff) Parse(buf []byte, seek uint32) (uint32, err
 // 通过设置nonce值计算 区块哈希
 func (m MsgPendingMiningBlockStuff) CalculateBlockHashByBothNonce(headNonce fields.Bytes4, coinbaseNonce fields.Bytes32, retcopy bool) (*MsgPendingMiningBlockStuff, fields.Hash) {
 	//
-	newblock := m.BlockHeadMeta.CopyForMiningV3()
+	newblock := m.BlockHeadMeta.CopyForMining()
 	newblock.SetNonce(binary.BigEndian.Uint32(headNonce))
 	/// copy coinbase hash
 	cbnonce := make([]byte, 32)
