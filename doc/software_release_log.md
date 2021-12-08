@@ -59,6 +59,13 @@ Hacash Software Download link and Release log
 ### Lastest release log:
 
 
+#### Version: 0.1.9  (2021.12.08.01)
+
+update log:
+
+> [1] new: rewrite the blockchain core engine.<br>
+> [2] new: HIP-7 "The First Layer Solution" base development and test.
+
 #### Version: 0.1.8  (2021.11.21.01)
 
 update log:
