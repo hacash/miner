@@ -59,6 +59,12 @@ Hacash Software Download link and Release log
 ### Lastest release log:
 
 
+#### Version: 0.1.10  (2021.12.10.01)
+
+update log:
+
+> [1] fix bug: Miner cannot pack and mine blocks containing transactions.
+
 #### Version: 0.1.9  (2021.12.08.01)
 
 update log:
