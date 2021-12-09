@@ -110,7 +110,7 @@ func (m *Miner) doStartMining() {
 	}
 	// mining success
 	if miningSuccessBlock != nil {
-		inserterr := m.blockchain.GetChainEngineKernel().InsertBlock(miningSuccessBlock.(interfaces.Block), "mining")
+		inserterr := m.blockchain.GetChainEngineKernel().InsertBlock(miningSuccessBlock, "mining")
 		if inserterr == nil {
 			coinbaseStr := ""
 			coinbasetx := miningSuccessBlock.GetTrsList()[0]

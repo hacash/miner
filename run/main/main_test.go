@@ -66,7 +66,7 @@ func Test_t1(t *testing.T) {
 
 	fmt.Println(bbb.GetMrklRoot().ToHex())
 
-	trs := bbb.GetTransactions()
+	trs := bbb.GetTrsList()
 	fmt.Println(blocks.CalculateMrklRoot(trs).ToHex())
 	fmt.Println(trs[0].Hash().ToHex())
 
@@ -107,14 +107,14 @@ func Test_fxibug3(t *testing.T) {
 
 	bbb_181455, _, _ := blocks.ParseBlock(data1, 0)
 
-	trs := bbb_181455.GetTransactions()
+	trs := bbb_181455.GetTrsList()
 
 	//fmt.Println(trs[0].Hash().ToHex())
 	fmt.Println(trs[1].Hash().ToHex())
 	fmt.Println(trs[1].GetFee().ToFinString())
 	fmt.Println(trs[1].GetAddress().ToReadable())
 
-	act := trs[1].GetActions()
+	act := trs[1].GetActionList()
 	fmt.Println(act[0].Kind())
 
 	diacrt := act[0].(*actions.Action_4_DiamondCreate)
