@@ -65,7 +65,7 @@ const (
 	NodeVersionSuperMain    uint32 = 0            // 主版本号
 	NodeVersionSupport      uint32 = 1            // 兼容版本号
 	NodeVersionFeature      uint32 = 10           // 特征版本号
-	NodeVersionBuildCompile string = "20211209.1" // 编译版本号
+	NodeVersionBuildCompile string = "20211210.1" // 编译版本号
 	// 结合成综合版本号体系：   0.1.10(20211210.1)
 )
 
