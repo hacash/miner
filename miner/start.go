@@ -27,7 +27,7 @@ func (m *Miner) doStartMining() {
 		panic(err)
 	}
 	// pick up txs from pool
-	pikuptxs := m.txpool.CopyTxsOrderByFeePurity(last.GetHeight()+1, 2000, mint.SingleBlockMaxSize*2)
+	pikuptxs := m.txpool.CopyTxsOrderByFeePurity(last.GetHeight()+1, mint.SingleBlockMaxTxCount, mint.SingleBlockMaxSize*2)
 	//fmt.Println("doStartMining pikuptxs", pikuptxs)
 	// create next block
 	pikuptxsList := make([]interfaces.Transaction, len(pikuptxs))
