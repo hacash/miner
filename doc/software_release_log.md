@@ -59,6 +59,13 @@ Hacash Software Download link and Release log
 ### Lastest release log:
 
 
+#### Version: 0.1.11  (2021.12.18.01)
+
+update log:
+
+> [1] fix bug: isChangeCurrentForkHead cannot change refer height.<br>
+> [2] new: add action support 'Action_29_SubmitTimeLimit'.
+
 #### Version: 0.1.10  (2021.12.10.01)
 
 update log:
