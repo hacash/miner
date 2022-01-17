@@ -27,6 +27,7 @@ import (
 )
 
 /**
+# window and macOS need to build 'libx16rs_hash.a' by gcc in the first time!
 
 export GOPATH=/media/yangjie/500GB/hacash/go
 
