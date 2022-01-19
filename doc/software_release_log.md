@@ -8,36 +8,48 @@ Hacash Software Download link and Release log
     [miner_node_hacash_windows64.zip](https://download.hacash.org/miner_node_hacash_windows64.zip)
     <br>
     [miner_node_hacash_ubuntu64.zip](https://download.hacash.org/miner_node_hacash_ubuntu64.zip)
+    <br>
+    [miner_node_hacash_MacOS_64.zip](https://download.hacash.org/miner_node_hacash_macos64.zip)
 
 2. Miner pool worker:
 
     [miner_pool_worker_windows64.zip](https://download.hacash.org/miner_pool_worker_hacash_windows64.zip)
     <br>
     [miner_pool_worker_ubuntu64.zip](https://download.hacash.org/miner_pool_worker_hacash_ubuntu64.zip)
+    <br>
+    [miner_pool_worker_MacOS_64.zip](https://download.hacash.org/miner_pool_worker_hacash_macos64.zip)
 
 3. Miner worker:
 
     [miner_worker_windows64.zip](https://download.hacash.org/miner_worker_hacash_windows64.zip)
     <br>
     [miner_worker_ubuntu64.zip](https://download.hacash.org/miner_worker_hacash_ubuntu64.zip)
+    <br>
+    [miner_worker_MacOS_64.zip](https://download.hacash.org/miner_worker_hacash_macos64.zip)
 
 4. Miner relay service:
 
     [miner_relay_service_windows64.zip](https://download.hacash.org/miner_relay_service_hacash_windows64.zip)
     <br>
     [miner_relay_service_ubuntu64.zip](https://download.hacash.org/miner_relay_service_hacash_ubuntu64.zip)
+    <br>
+    [miner_relay_service_MacOS_64.zip](https://download.hacash.org/miner_relay_service_hacash_macos64.zip)
 
 5. PC desktop offline wallet:
 
     [hacash_desktop_wallet_windows64.zip](https://download.hacash.org/hacash_desktop_wallet_windows64.zip)
     <br>
     [hacash_desktop_wallet_ubuntu64.zip](https://download.hacash.org/hacash_desktop_wallet_ubuntu64.zip)
+    <br>
+    [hacash_desktop_wallet_MacOS_64.zip](https://download.hacash.org/hacash_desktop_wallet_macos64.zip)
 
 6. Command line wallet:
 
    [hacash_cmdwallet_windows64.zip](https://download.hacash.org/hacash_cmdwallet_windows64.zip)
    <br>
    [hacash_cmdwallet_ubuntu64.zip](https://download.hacash.org/hacash_cmdwallet_ubuntu64.zip)
+   <br>
+   [hacash_cmdwallet_MacOS_64.zip](https://download.hacash.org/hacash_cmdwallet_macos64.zip)
 
 
 7. Channel Payment Node Servicer:
@@ -45,6 +57,8 @@ Hacash Software Download link and Release log
    [hacash_channelpay_servicer_windows64.zip](https://download.hacash.org/hacash_channelpay_servicer_windows64.zip)
    <br>
    [hacash_channelpay_servicer_ubuntu64.zip](https://download.hacash.org/hacash_channelpay_servicer_ubuntu64.zip)
+   <br>
+   [hacash_channelpay_servicer_MacOS_64.zip](https://download.hacash.org/hacash_channelpay_servicer_macos64.zip)
 
    
 8. Channel Payment User Client:
@@ -52,6 +66,8 @@ Hacash Software Download link and Release log
    [hacash_channelpay_client_windows64.zip](https://download.hacash.org/hacash_channelpay_client_windows64.zip)
    <br>
    [hacash_channelpay_client_ubuntu64.zip](https://download.hacash.org/hacash_channelpay_client_ubuntu64.zip)
+   <br>
+   [hacash_channelpay_client_MacOS_64.zip](https://download.hacash.org/hacash_channelpay_client_macos64.zip)
 
     
 ---
@@ -59,10 +75,11 @@ Hacash Software Download link and Release log
 ### Lastest release log:
 
 
-#### Version: 0.1.11  (2021.12.18.01)
+#### Version: 0.1.11  (2022.01.18.01)
 
 update log:
 
+> [1] add: MacOS support!<br>
 > [1] fix bug: isChangeCurrentForkHead cannot change refer height.<br>
 > [2] new: add action support 'Action_29_SubmitTimeLimit'.
 
