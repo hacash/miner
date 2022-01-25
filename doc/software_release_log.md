@@ -75,6 +75,13 @@ Hacash Software Download link and Release log
 ### Lastest release log:
 
 
+#### Version: 0.1.12  (2022.01.25.01)
+
+update log:
+
+> [1] add: Diamond miner automatic bidding supports custom inspection time, the minimum support is 0.1 seconds, config field is `autobid_check_interval`, unit is seconds.<br>
+> [1] fix bug: Some blocks packaged by miner cannot contain any transactions.
+
 #### Version: 0.1.11  (2022.01.18.01)
 
 update log:
