@@ -4,7 +4,8 @@ import "time"
 
 func (d *DiamondMiner) loop() {
 
-	var autobidTimeout = time.NewTicker(time.Second * 10)
+	cktm := time.Duration(d.Config.AutoCheckInterval*1000) * time.Millisecond
+	var autobidInterval = time.NewTicker(cktm)
 
 	for {
 		select {
@@ -14,9 +15,9 @@ func (d *DiamondMiner) loop() {
 		case findsuccess := <-d.successMiningDiamondCh:
 			go d.successFindDiamondAddTxPool(findsuccess)
 
-		case <-autobidTimeout.C:
+		case <-autobidInterval.C:
 			if d.Config.AutoBid {
-				go d.doAutoBidForMyDiamond()
+				d.doAutoBidForMyDiamond()
 			}
 		}
 	}

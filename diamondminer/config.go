@@ -19,6 +19,7 @@ type DiamondMinerConfig struct {
 	Continued  bool // 连续不停的挖矿钻石
 	// 自动竞价
 	AutoBid                bool              // 是否开启
+	AutoCheckInterval      float64           // 竞价检查间隔时间，最低支持0.1秒
 	AutoBidMaxFee          *fields.Amount    // 单枚钻石最高报价
 	AutoBidMarginFee       *fields.Amount    // 单次报价提高幅度
 	AutoBidIgnoreAddresses []*fields.Address // 放弃与之竞争的地址
@@ -32,6 +33,7 @@ func NewEmptyDiamondMinerConfig() *DiamondMinerConfig {
 		Rewards:                nil,
 		Continued:              false,
 		AutoBid:                false,
+		AutoCheckInterval:      5,
 		AutoBidMaxFee:          fields.NewAmountSmall(10, 250), // 1000枚
 		AutoBidMarginFee:       fields.NewAmountSmall(1, 246),
 		AutoBidIgnoreAddresses: make([]*fields.Address, 0),
@@ -70,6 +72,10 @@ func NewDiamondMinerConfig(cnffile *sys.Inicnf) *DiamondMinerConfig {
 	// 自动竞价
 	cnf.AutoBid = cnfsection.Key("autobid").MustBool(false)
 	if cnf.AutoBid {
+		cnf.AutoCheckInterval = cnfsection.Key("autobid_check_interval").MustFloat64(5)
+		if cnf.AutoCheckInterval < 0.1 {
+			cnf.AutoCheckInterval = 0.1 // 最快0.1秒检查一次
+		}
 		autobidMaxFee, err3 := fields.NewAmountFromFinString(cnfsection.Key("autobid_fee_max").MustString("ㄜ10:250"))
 		if err3 == nil {
 			cnf.AutoBidMaxFee = autobidMaxFee
