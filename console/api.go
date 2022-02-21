@@ -14,24 +14,22 @@ var render_cache_console string = ""
 
 func (mc *MinerConsole) console(response http.ResponseWriter, request *http.Request) {
 	if render_cache_console == "" {
-		//fmt.Println("do render_cache_console")
 		jsonstring := []string{}
+
 		jsonstring = append(jsonstring, fmt.Sprintf(`"fee_ratio":"%.2f%%"`, mc.pool.Config.FeePercentage*100))
 		jsonstring = append(jsonstring, fmt.Sprintf(`"server_port":%d`, mc.pool.Config.TcpListenPort))
 		jsonstring = append(jsonstring, fmt.Sprintf(`"total_addresses":%d`, mc.pool.GetCurrentAddressCount()))
 		jsonstring = append(jsonstring, fmt.Sprintf(`"total_clients":%d`, mc.pool.GetCurrentTcpConnectingCount()))
 		jsonstring = append(jsonstring, fmt.Sprintf(`"miner_account":"%s"`, mc.pool.Config.RewardAccount.AddressReadable))
 		render_cache_console = "{" + strings.Join(jsonstring, ",") + "}"
+
 		go func() {
 			time.Sleep(time.Second * 10)
 			render_cache_console = ""
 		}()
 	}
-	// return
 	mc.renderJsonString(response, render_cache_console)
 }
-
-/**********************************************************************************/
 
 type AccountWithPowerRatio struct {
 	Account    *minerpool.Account
@@ -70,35 +68,31 @@ func (by sortBy) Sort(datalist []*minerpool.Account) {
 func (mc *MinerConsole) addresses(response http.ResponseWriter, request *http.Request) {
 	if data_cache_current_mining_accounts == nil {
 		accmaps := mc.pool.GetCurrentMiningAccounts()
-		//fmt.Println(accmaps)
 		acclist := []*minerpool.Account{}
 		accExtList := []*AccountWithPowerRatio{}
+
 		// 排序
 		if len(accmaps) > 0 {
 			var totalPower uint64 = 0
+
 			for _, v := range accmaps {
 				acclist = append(acclist, v)
 				totalPower += v.GetRealtimePowWorth().Uint64()
 			}
+
 			if totalPower <= 0 {
 				totalPower = 10000 * 10000
 			}
-			// 排序
-			//by_sort_clients := func(a1, a2 *minerpool.Account) bool {
-			//	return a1.GetClientCount() < a2.GetClientCount()
-			//}
-			//sortBy(by_sort_clients).Sort(acclist)
-			//by_sort_addr := func(a1, a2 *minerpool.Account) bool {
-			//	return a1.GetAddress().ToReadable() < a2.GetAddress().ToReadable()
-			//}
-			//sortBy(by_sort_addr).Sort(acclist)
+
 			by_sort_findblocks := func(a1, a2 *minerpool.Account) bool {
 				b1, _ := a1.GetStoreData().GetFinds()
 				b2, _ := a2.GetStoreData().GetFinds()
 				return b1 > b2
 			}
+
 			sortBy(by_sort_findblocks).Sort(acclist)
 			accExtList = make([]*AccountWithPowerRatio, len(acclist))
+
 			for i, v := range acclist {
 				accExtList[i] = &AccountWithPowerRatio{
 					Account:    v,

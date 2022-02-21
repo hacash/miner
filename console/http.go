@@ -42,8 +42,6 @@ func parseRequestQuery(request *http.Request) map[string]string {
 	request.ParseForm()
 	params := make(map[string]string, 0)
 	for k, v := range request.Form {
-		//fmt.Println("key:", k)
-		//fmt.Println("val:", strings.Join(v, ""))
 		params[k] = strings.Join(v, "")
 	}
 	return params
