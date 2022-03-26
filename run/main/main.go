@@ -314,9 +314,9 @@ func main() {
 	// start miner node
 	err := start()
 	if err != nil {
-		fmt.Println("\n-------- Hacash Node Run Failed Error: --------\n")
+		fmt.Printf("\n-------- Hacash Node Run Failed Error: --------\n\n")
 		fmt.Println(err.Error()) // print error
-		fmt.Println("\n-------- Hacash Node Run Failed end.   --------\n")
+		fmt.Printf("\n-------- Hacash Node Run Failed end.   --------\n\n")
 	}
 
 	s := <-c
