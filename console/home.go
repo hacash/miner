@@ -12,22 +12,11 @@ func (mc *MinerConsole) home(response http.ResponseWriter, request *http.Request
 	htmltext := "<html><head><title>hacash miner pool home</title></head><body>"
 	htmltext += `<style>#table{ border-collapse: collapse; } td{padding: 0 5px;} </style>`
 
-	/*
-					<p>Latest: %d, Submit: %d, <a href="/minerpool/transactions" target="_blank">show transactions</a></p>
-					<p>TxLatestId: %d, TxConfirm: %d</p>
-					<p>Clients: %d, PrevSendHeight: %d</p>
-					<form action="?" method="get" target="_blank">
-		  				<p>Address: <input type="text" name="address" placeholder="find undisplayed address" style="width:320px" value="%s" />
-		  				<input type="submit" value="Search" />
-						</p>
-					</form>
-	*/
-
 	htmltext += fmt.Sprintf(`<div>
 			<p>FeeRatio: %.2f %%, Addr: %s</p>
 			<p>Port: %d</p>
 			<p>TotalClients: %d</p>
-		</div>`,
+			</div>`,
 		mc.pool.Config.FeePercentage*100,
 		mc.pool.Config.RewardAccount.AddressReadable,
 		mc.pool.Config.TcpListenPort,
@@ -45,7 +34,7 @@ func (mc *MinerConsole) home(response http.ResponseWriter, request *http.Request
 			<th>DeservedRewards</th>
 			<th>UnconfirmedRewards</th>
 		</tr>
-    `
+    	`
 	curperiod := mc.pool.GetCurrentRealtimePeriod()
 	if curperiod != nil {
 		for i, acc := range curperiod.GetAccounts() {
