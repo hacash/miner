@@ -21,7 +21,9 @@ x16rs library.  The author has used gcc >= 6.3 and cmake >= 3.7.2 and go1.15.2 h
 ```bash
 mkdir -p ~/go/src/github.com/hacash
 cd ~/go/src/github.com/hacash
-for d in blockmint  chain  cmdwallet  core  explorer  miner  mint  node service wallet  web_base_framework  www x16rs ; do
+for d in blockmint  chain  cmdwallet  core  explorer  miner  mint  node service wallet  web_base_framework  www x16rs \
+	pcwallet jssdk channelpay paper PaymentChannelChainNetServiceNodeRoutes bitcoin web_base_framework;
+do
 git clone https://github.com/hacash/${d}.git
 done
 ```
@@ -33,7 +35,9 @@ You can also update the git source at any time using the following script -
 
 ```bash
 cd ~/go/src/github.com/hacash
-for d in blockmint  chain  cmdwallet  core  explorer  miner  mint  node service wallet  web_base_framework  www x16rs ; do
+for d in blockmint  chain  cmdwallet  core  explorer  miner  mint  node service wallet  web_base_framework  www x16rs \
+	pcwallet jssdk channelpay paper PaymentChannelChainNetServiceNodeRoutes bitcoin web_base_framework;
+do
 cd ${d}
 git pull
 cd ..
@@ -45,7 +49,7 @@ This step is only necessary if you are compiling on a new architecture (differen
 
 
 ```bash
-cd go/src/github.com/hacash/x16rs
+cd ~go/src/github.com/hacash/x16rs
 mv libx16rs_hash.a libx16rs_hash.a-old
 cd sha3
 for f in *.c ; do ofile=$(basename ${f});  gcc -c -o ${ofile}.o -Ofast -march=native ${f} ; done
