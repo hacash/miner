@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-// 监听端口
+// Listening port
 func (p *MinerPool) startServerListen() error {
 	port := p.Config.TcpListenPort
 	listen := net.TCPAddr{IP: net.IPv4zero, Port: port, Zone: ""}
@@ -44,7 +44,7 @@ func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 		return
 	}
 
-	// 如果还没有挖区块，则返回关闭，隔一段时间再次连接
+	// If the block has not been excavated, it will be closed and connected again after a period of time
 	if p.currentRealtimePeriod == nil || p.currentRealtimePeriod.targetBlock == nil {
 		conn.Write([]byte("not_ready_yet"))
 		return
@@ -53,7 +53,7 @@ func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 	client := NewClient(nil, conn)
 
 	atomic.AddInt32(&p.currentTcpConnectingCount, 1)
-	defer atomic.AddInt32(&p.currentTcpConnectingCount, -1) // 减法
+	defer atomic.AddInt32(&p.currentTcpConnectingCount, -1) // subtraction
 
 	go func() {
 		time.Sleep(time.Second * 17)
@@ -107,7 +107,7 @@ func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 			powresult := message.NewPowMasterMsg()
 			_, e := powresult.Parse(newbytes, 0)
 			if e != nil {
-				// 解析发生错误，什么也不做
+				// Parsing error, do nothing
 				continue
 			}
 			client.postPowResult(powresult) // return pow results

@@ -67,7 +67,7 @@ func (g *TxGroup) Add(item *TxItem) bool {
 						item.prev = previtem
 						break
 					} else {
-						// 手续费含量相同，但费用实际值小于或等于，则排在后面
+						// If the service charge content is the same, but the actual value of the charge is less than or equal to
 						oldnext := curitem.next
 						curitem.next = item
 						item.prev = curitem

@@ -11,8 +11,8 @@ const (
 )
 
 type MinerPoolStatus struct {
-	FindBlockHashHeightTableLastestNumber fields.VarUint4 // 挖出的区块id表 最新值
-	TransferHashTableLastestNumber        fields.VarUint4 // 转账的序号表 最新值
+	FindBlockHashHeightTableLastestNumber fields.VarUint4 // Latest value of excavated block ID table
+	TransferHashTableLastestNumber        fields.VarUint4 // Latest value of transfer serial number table
 }
 
 func NewEmptyMinerPoolStatus() *MinerPoolStatus {

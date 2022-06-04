@@ -13,14 +13,14 @@ import (
 
 const KeyAutoIdxUserMiningResult = "autoidx1"
 
-// 初始化存储
+// Initialize storage
 func (api *RelayService) initStore() {
 
 	if api.config.StoreEnable == false {
 		return
 	}
 
-	// 初始化
+	// initialization
 	absDataDir := sys.AbsDir(api.config.DataDir)
 	err := os.MkdirAll(absDataDir, os.ModePerm)
 	if err != nil {
@@ -39,24 +39,24 @@ func (api *RelayService) initStore() {
 
 	api.ldb = ldb
 
-	// 读取自增索引
+	// Read auto incrementing index
 	idx1bts, e3 := ldb.Get([]byte(KeyAutoIdxUserMiningResult), nil)
 	if e3 != nil {
 		idx1bts = []byte{0, 0, 0, 0, 0, 0, 0, 0}
 	}
 	idx1 := binary.BigEndian.Uint64(idx1bts)
 
-	// 自增索引
+	// Auto increment index
 	api.userMiningResultStoreAutoIdx = idx1
 
 }
 
-// 储存用户挖矿统计
+// Save user mining statistics
 func (api *RelayService) saveMiningResultToStore(rwdaddr fields.Address, isMintSuccessed bool, resultStuff *message.MsgPendingMiningBlockStuff) {
 
 	//fmt.Println("saveMiningResultToStore start")
 
-	// 串行保存
+	// Serial save
 	api.userMiningResultStoreAutoIdxMutex.Lock()
 	defer api.userMiningResultStoreAutoIdxMutex.Unlock()
 
@@ -65,7 +65,7 @@ func (api *RelayService) saveMiningResultToStore(rwdaddr fields.Address, isMintS
 	}
 
 	//fmt.Println("NewStoreItemUserMiningResultV0")
-	// 组件储存单元
+	// Component storage unit
 	stoitem := NewStoreItemUserMiningResultV0()
 	if isMintSuccessed {
 		stoitem.IsMintSuccessed = 1
@@ -94,13 +94,13 @@ func (api *RelayService) saveMiningResultToStore(rwdaddr fields.Address, isMintS
 	_, e1 := api.ldb.Get(k1, nil)
 	if e1 == nil {
 		//fmt.Println("if e1 == nil { api.ldb.Put(k1, stobts, nil)")
-		// 已经存在，则只需要替换
+		// If it already exists, you only need to replace it
 		api.ldb.Put(k1, stobts, nil) // mr
-		return                       // 替换了即返回
+		return                       // Replace and return
 	}
 
 	//fmt.Println("api.ldb.Put(k1, stobts, nil)")
-	// 保存新的
+	// Save new
 	api.ldb.Put(k1, stobts, nil) // mr
 
 	// save idx
@@ -119,14 +119,14 @@ func (api *RelayService) saveMiningResultToStore(rwdaddr fields.Address, isMintS
 	// save ok
 }
 
-// 储存挖矿stuff
+// Storage of mining stuffs
 func (api *RelayService) saveMiningBlockStuffToStore(stuff *message.MsgPendingMiningBlockStuff) {
 
 	if api.ldb == nil || api.config.StoreEnable == false || api.config.SaveMiningBlockStuff == false {
 		return
 	}
 
-	// 储存
+	// Storage
 	blkhei := stuff.BlockHeadMeta.GetHeight()
 	stodatas := stuff.Serialize()
 	k1 := fields.BlockHeight(blkhei)
@@ -140,14 +140,14 @@ func (api *RelayService) saveMiningBlockStuffToStore(stuff *message.MsgPendingMi
 	}
 }
 
-// 读取储存挖矿stuff
+// Read and store mining stuff
 func (api *RelayService) readMiningBlockStuffFormStore(blkhei uint64) *message.MsgPendingMiningBlockStuff {
 
 	if api.ldb == nil || api.config.StoreEnable == false || api.config.SaveMiningBlockStuff == false {
 		return nil
 	}
 
-	// 储存
+	// Storage
 	k1 := fields.BlockHeight(blkhei)
 	heikey, _ := k1.Serialize()
 

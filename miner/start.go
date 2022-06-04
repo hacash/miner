@@ -77,7 +77,7 @@ func (m *Miner) doStartMining() {
 	)
 
 	if sys.TestDebugLocalDevelopmentMark {
-		// 开发测试时挖矿休眠时间
+		// Mining sleep time during development test
 		time.Sleep(time.Second * time.Duration(mint.EachBlockRequiredTargetTime))
 	}
 

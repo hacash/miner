@@ -42,15 +42,15 @@ import (
 	acc4 := account.CreateAccountByPassword("123456789") // 1P6DHQYjP6WygqTCzwXpwo7TxWqhA1SgVY
 */
 
-// 创建基础数据并提交
+// Create basic data and submit
 func Test_create_base_data_submit1(t *testing.T) {
 
-	// 创建比特币转移交易
+	// Create bitcoin transfer transaction
 	post_btcmove_tx()
 
 }
 
-// 测试比特币系统借贷
+// Test bitcoin system lending
 func Test_bitcoin_system_lending_create(t *testing.T) {
 
 	hash15, _ := hex.DecodeString("130dd68299cf6d2bd68299cf6d2b2b")
@@ -69,12 +69,12 @@ func Test_bitcoin_system_lending_create(t *testing.T) {
 
 }
 
-// 测试比特币系统借贷，赎回
+// Test bitcoin system lending and redemption
 func Test_bitcoin_system_lending_ransom(t *testing.T) {
 
 	hash15, _ := hex.DecodeString("130dd68299cf6d2bd68299cf6d2b2b")
 	addr1, _ := fields.CheckReadableAddress("1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9") // 私有赎回
-	//addr1, _ := fields.CheckReadableAddress("1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y") // 公共赎回
+	// addr1, _:= fields.CheckReadableAddress("1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y") // 公共赎回
 
 	amt1 := fields.NewAmountSmall(8, 248)
 
@@ -87,10 +87,10 @@ func Test_bitcoin_system_lending_ransom(t *testing.T) {
 
 }
 
-// 创建基础数据并提交
+// Create basic data and submit
 func Test_create_base_data_submit(t *testing.T) {
 
-	// 创建钻石
+	// Create diamond
 	post_diamond_tx("AAABBB", 1)
 	time.Sleep(time.Second * 11)
 	post_diamond_tx("XYXYXY", 2)
@@ -99,9 +99,9 @@ func Test_create_base_data_submit(t *testing.T) {
 	time.Sleep(time.Second * 11)
 	post_diamond_tx("WTUVSB", 4)
 
-	// 创建比特币转移交易
+	// Create bitcoin transfer transaction
 	post_btcmove_tx()
-	// 首次转账
+	// First transfer
 	time.Sleep(time.Second * 30)
 	post_hactrs_tx(33, "1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y")
 
@@ -109,13 +109,13 @@ func Test_create_base_data_submit(t *testing.T) {
 
 ////////////////////////////////////////////////////////
 
-// 测试 hac 转账
+// Test HAC transfer
 func Test_hacash_trs(t *testing.T) {
 	post_hactrs_tx(10, "1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y")
 	//post_hactrs_tx(33, "18q1X1gpUAi97rHeT7NAriKS6ZHP1TVYjj")
 }
 
-// 测试钻石系统借贷，测试赎回
+// Test diamond system lending, test redemption
 func Test_syslend_diamond_lending_ransom_loop(t *testing.T) {
 
 	for i := 0; i < 1; i++ {
@@ -128,11 +128,11 @@ func Test_syslend_diamond_lending_ransom_loop(t *testing.T) {
 	}
 }
 
-// 测试钻石系统借贷，测试赎回
+// Test diamond system lending, test redemption
 func syslend_diamond_lending_ransom() {
 
 	hash14, _ := hex.DecodeString("130dd68299cf6d2bd68299cf6d2b")
-	//addr1, _ := fields.CheckReadableAddress("1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9") // 私有赎回
+	// addr1, _:= fields.CheckReadableAddress("1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9") // 私有赎回
 	addr1, _ := fields.CheckReadableAddress("1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y") // 公共赎回
 	act1 := &actions.Action_16_DiamondsSystemLendingRansom{
 		LendingID: hash14,
@@ -146,7 +146,7 @@ func syslend_diamond_lending_ransom() {
 
 }
 
-// 测试钻石系统借贷
+// Test diamond system lending
 func Test_syslend_diamond_lending(t *testing.T) {
 
 	hash14, _ := hex.DecodeString("130dd68299cf6d2bd68299cf6d2b")
@@ -169,7 +169,7 @@ func Test_syslend_diamond_lending(t *testing.T) {
 
 }
 
-// 测试比特币转账
+// Test bitcoin transfer
 func Test_satoshi_trs1(t *testing.T) {
 	toaddr, _ := fields.CheckReadableAddress("1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y")
 	act1 := &actions.Action_8_SimpleSatoshiTransfer{
@@ -188,7 +188,7 @@ func Test_satoshi_trs2(t *testing.T) {
 	post_tx_for_action(act1, addr2.ToReadable(), nil)
 }
 
-// 测试用户间借贷，测试放款人扣押
+// Test inter user lending, test lender seizure
 func Test_users_lending_clear(t *testing.T) {
 
 	hash17, _ := hex.DecodeString("530dd68299cf6d2bd68299cf6d2b2bd682")
@@ -198,7 +198,7 @@ func Test_users_lending_clear(t *testing.T) {
 		[]byte{},
 	}
 
-	// 赎回
+	// redeem
 	act1 := &actions.Action_20_UsersLendingRansom{
 		LendingID:    hash17,
 		RansomAmount: ransomAmt,
@@ -207,7 +207,7 @@ func Test_users_lending_clear(t *testing.T) {
 	post_tx_for_action(act1, "1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y", nil)
 }
 
-// 测试用户间借贷，测试自己赎回
+// Test inter user lending and self redemption
 func Test_users_lending_ransom(t *testing.T) {
 
 	hash17, _ := hex.DecodeString("530dd68299cf6d2bd68299cf6d2b2bd682")
@@ -225,7 +225,7 @@ func Test_users_lending_ransom(t *testing.T) {
 
 }
 
-// 测试用户间借贷，测试公共赎回
+// Test inter user lending and public redemption
 func Test_users_lending_public_ransom(t *testing.T) {
 
 	hash17, _ := hex.DecodeString("530dd68299cf6d2bd68299cf6d2b2bd682")
@@ -243,7 +243,7 @@ func Test_users_lending_public_ransom(t *testing.T) {
 
 }
 
-// 测试用户间借贷
+// Test inter user lending
 func Test_users_lending(t *testing.T) {
 
 	hash17, _ := hex.DecodeString("530dd68299cf6d2bd68299cf6d2b2bd682")
@@ -291,7 +291,7 @@ func Test_users_lending(t *testing.T) {
 
 }
 
-// 测试钻石转账
+// Test diamond transfer
 func Test_diamove(t *testing.T) {
 
 	addr2, _ := fields.CheckReadableAddress("1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y")
@@ -307,13 +307,13 @@ func Test_diamove(t *testing.T) {
 
 ////////////////////////////////////////////////////////////////
 
-// 创建比特币交易
+// Create bitcoin transaction
 func post_btcmove_tx() {
 
 	mainaddr, _ := fields.CheckReadableAddress("1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9")
 	hash32, _ := hex.DecodeString("8deb5180a3388fee4991674c62705041616980e76288a8888b65530e41ccf90d")
 
-	// 创建比特币转移
+	// Create bitcoin transfer
 	act1 := &actions.Action_7_SatoshiGenesis{
 		TransferNo:               1,
 		BitcoinBlockHeight:       1001,
@@ -329,14 +329,14 @@ func post_btcmove_tx() {
 
 }
 
-// 创建钻石交易
+// Create a diamond transaction
 func post_diamond_tx(diamond string, number uint32) {
 
 	mainaddr, _ := fields.CheckReadableAddress("1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9")
 	hash8, _ := hex.DecodeString("530dd68299cf6d2b")
 	hash32, _ := hex.DecodeString("000000000e8ca4376218601120e12b6724a8c174087b9614530dd68299cf6d2b")
 
-	// 创建钻石
+	// Create diamond
 	act1 := &actions.Action_4_DiamondCreate{
 		Diamond:       fields.DiamondName(diamond),
 		Number:        fields.DiamondNumber(number),
@@ -349,12 +349,12 @@ func post_diamond_tx(diamond string, number uint32) {
 
 }
 
-// 基础转账
+// Basic transfer
 func post_hactrs_tx(hacnum int64, address string) {
 
 	addr2, _ := fields.CheckReadableAddress(address)
 	amt1 := fields.NewAmountByUnit248(hacnum)
-	// 创建钻石
+	// Create diamond
 	act1 := &actions.Action_1_SimpleToTransfer{
 		ToAddress: *addr2,
 		Amount:    *amt1,
@@ -363,14 +363,14 @@ func post_hactrs_tx(hacnum int64, address string) {
 
 }
 
-// 基础转账
+// Basic transfer
 
-// 创建基础数据并提交
+// Create basic data and submit
 func post_1MzNY_tx_for_action(act1 interfacev2.Action, accs []account.Account) {
 	post_tx_for_action(act1, "1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9", nil)
 }
 
-// 创建基础数据并提交
+// Create basic data and submit
 func post_tx_for_action(act1 interfacev2.Action, mainAddress string, accs []account.Account) {
 
 	// tx
@@ -382,7 +382,7 @@ func post_tx_for_action(act1 interfacev2.Action, mainAddress string, accs []acco
 
 	tx.AppendAction(act1)
 
-	// 签名
+	// autograph
 	acc1 := account.CreateAccountByPassword("123456")    // 1MzNY1oA3kfgYi75zquj3SRUPYztzXHzK9
 	acc2 := account.CreateAccountByPassword("1234567")   // 18q1X1gpUAi97rHeT7NAriKS6ZHP1TVYjj
 	acc3 := account.CreateAccountByPassword("12345678")  // 1EDUeK8NAjrgYhgDFv9NJecn8dNyJJsu3y
@@ -397,11 +397,11 @@ func post_tx_for_action(act1 interfacev2.Action, mainAddress string, accs []acco
 	}
 	tx.FillNeedSigns(addrPrivateKeys, nil)
 
-	// 序列化
+	// serialize
 	txbody, _ := tx.Serialize()
 	fmt.Println("tx body:", hex.EncodeToString(txbody))
 
-	// 提交交易
+	// Submit transaction
 	postbts := bytes.NewBuffer([]byte{0, 0, 0, 1})
 	postbts.Write(txbody)
 	resp, e3 := doBytesPost("http://127.0.0.1:33381/operate", postbts.Bytes())

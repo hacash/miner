@@ -58,7 +58,7 @@ func (c *Client) addWorkItem(wkit *WorkItem) {
 	c.workItems.Add(wkit)
 }
 
-// 上报挖矿结果
+// Report mining results
 
 func (c *Client) postPowResult(msg *message.PowMasterMsg) {
 	//fmt.Println("postPowResult")
@@ -82,10 +82,10 @@ func (c *Client) postPowResult(msg *message.PowMasterMsg) {
 
 	minerpool := c.belongAccount.realtimePeriod.minerpool
 
-	// 添加算力统计
+	// Add force statistics
 	c.belongAccount.addPowWorth(blkhash)
 
-	// 挖出区块
+	// Excavated block
 	if msg.Status == message.PowMasterMsgStatusSuccess {
 		targetdiffhash := difficulty.Uint32ToHash(block.GetHeight(), block.GetDifficulty())
 
@@ -96,7 +96,7 @@ func (c *Client) postPowResult(msg *message.PowMasterMsg) {
 		blkbig := new(big.Int).SetBytes(blkhash)
 		if blkbig.Cmp(targetbig) == 1 {
 			fmt.Println("fail mining pool pow worker result check: need %s but got %s", hex.EncodeToString(targetdiffhash), hex.EncodeToString(blkhash))
-			c.conn.Close() // 关闭连接
+			c.conn.Close() // Close connection
 			return
 		}
 
@@ -110,7 +110,7 @@ func (c *Client) postPowResult(msg *message.PowMasterMsg) {
 		return
 	} else {
 
-		// 收到请求，发送继续挖矿
+		// Receive the request and send it to continue mining
 		if msg.Status == message.PowMasterMsgStatusMostPowerHashAndRequestNextMining {
 			minerpool.currentRealtimePeriod.sendMiningStuffMsg(c)
 		}

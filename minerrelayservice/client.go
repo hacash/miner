@@ -15,7 +15,7 @@ type ConnClient struct {
 	server  *RelayService
 	id      uint64
 	conn    *net.TCPConn
-	rwdaddr fields.Address // 奖励地址
+	rwdaddr fields.Address // Reward address
 }
 
 func NewConnClient(server *RelayService, conn *net.TCPConn, rwdaddr fields.Address) *ConnClient {
@@ -31,32 +31,32 @@ func NewConnClient(server *RelayService, conn *net.TCPConn, rwdaddr fields.Addre
 // Handle
 func (m *ConnClient) Handle() error {
 	for {
-		// 读取消息
+		// Read message
 		msgty, msgbody, err := message.MsgReadFromTcpConn(m.conn, 0)
 		if err != nil {
 			return err
 		}
-		// 解析消息
+		// Parse message
 		if msgty == message.MinerWorkMsgTypeReportMiningResult {
 			var result = message.MsgReportMiningResult{}
 			_, err := result.Parse(msgbody, 0)
 			if err != nil {
 				return err
 			}
-			// 处理
+			// handle
 			pickupstuff := m.server.checkoutMiningStuff(uint64(result.BlockHeight))
 			if pickupstuff == nil {
-				// 区块高度不匹配什么都不做
+				// Block height mismatch do nothing
 				continue
 			}
 			newstuff, newhx := pickupstuff.CalculateBlockHashByMiningResult(&result, true)
-			var isMintSuccess = false // 是否真的挖掘成功
+			var isMintSuccess = false // Whether the mining is really successful
 			if result.MintSuccessed.Check() {
-				// 挖掘成功，开始验证
-				// 判断哈希满足要求
+				// Mining succeeded, start verification
+				// Judge whether the hash meets the requirements
 				newblock := newstuff.GetHeadMetaBlock()
 				if difficulty.CheckHashDifficultySatisfyByBlock(newhx, newblock) {
-					// 满足难度 上报
+					// Meet the difficulty Report
 					if m.server.service_tcp != nil {
 						message.MsgSendToTcpConn(m.server.service_tcp, message.MinerWorkMsgTypeReportMiningResult, result.Serialize())
 					}
@@ -69,22 +69,22 @@ func (m *ConnClient) Handle() error {
 					fmt.Println(newblock.GetHeight(), newhx.ToHex(), diffhex, hex.EncodeToString(newblock.GetNonceByte()), newblock.GetNonceByte())
 					fmt.Println(hex.EncodeToString(blocks.CalculateBlockHashBaseStuff(newblock)))
 				}
-				// 处理完毕
+				// Processing completed
 			}
 
-			// 没有挖掘成功的话，忽略此消息 或 写入算力统计
+			// If the mining is not successful, ignore this message or write the calculation force statistics
 			if m.server.config.IsAcceptHashrate == false {
-				// 不接受算力统计
+				// Calculation force statistics are not acceptable
 				continue
 			}
-			// 上报算力统计
+			// Submit calculation force statistics
 			if m.server.config.IsReportHashrate == true {
-				// 上报
+				// Escalation
 				if m.server.service_tcp != nil {
 					message.MsgSendToTcpConn(m.server.service_tcp, message.MinerWorkMsgTypeReportMiningResult, result.Serialize())
 				}
 			}
-			// 写入算力统计
+			// Write calculation force statistics
 			go m.server.saveMiningResultToStore(m.rwdaddr, isMintSuccess, newstuff)
 
 		} else {

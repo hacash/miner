@@ -18,9 +18,9 @@ import (
 */
 
 type MsgPendingMiningBlockStuff struct {
-	BlockHeadMeta                          interfaces.Block                     // 区块的 head 和 meta
-	CoinbaseTx                             *transactions.Transaction_0_Coinbase // coinbase 交易
-	MrklRelatedTreeListForCoinbaseTxModify []fields.Hash                        // 默克尔树关联哈希
+	BlockHeadMeta                          interfaces.Block                     // Block head and meta
+	CoinbaseTx                             *transactions.Transaction_0_Coinbase // Coinbase transaction
+	MrklRelatedTreeListForCoinbaseTxModify []fields.Hash                        // Merkel Tree Association hash
 	// cache data
 	mint_successed bool
 }
@@ -56,7 +56,7 @@ func (m MsgPendingMiningBlockStuff) CopyForMiningByRandomSetCoinbaseNonce() inte
 	return newstuff
 }
 
-// 创建 mining stuff
+// Creating mining stuff
 func CreatePendingMiningBlockStuffByBlock(block interfaces.Block) (*MsgPendingMiningBlockStuff, error) {
 	stuff := &MsgPendingMiningBlockStuff{
 		BlockHeadMeta: block.CopyForMining(),
@@ -76,7 +76,7 @@ func CreatePendingMiningBlockStuffByBlock(block interfaces.Block) (*MsgPendingMi
 	return stuff, nil
 }
 
-// 序列化
+// serialize
 func (m MsgPendingMiningBlockStuff) Serialize() []byte {
 	buf := bytes.NewBuffer([]byte{})
 	b1, _ := m.BlockHeadMeta.SerializeExcludeTransactions()
@@ -94,7 +94,7 @@ func (m MsgPendingMiningBlockStuff) Serialize() []byte {
 	return buf.Bytes()
 }
 
-// 反序列化
+// Deserialization
 func (m *MsgPendingMiningBlockStuff) Parse(buf []byte, seek uint32) (uint32, error) {
 	var e error = nil
 	trsptr, seek, e := blocks.ParseExcludeTransactions(buf, seek)
@@ -131,7 +131,7 @@ func (m *MsgPendingMiningBlockStuff) Parse(buf []byte, seek uint32) (uint32, err
 	return seek, nil
 }
 
-// 通过设置nonce值计算 区块哈希
+// Calculate block hash by setting nonce value
 func (m MsgPendingMiningBlockStuff) CalculateBlockHashByBothNonce(headNonce fields.Bytes4, coinbaseNonce fields.Bytes32, retcopy bool) (*MsgPendingMiningBlockStuff, fields.Hash) {
 	//
 	newblock := m.BlockHeadMeta.CopyForMining()
@@ -145,7 +145,7 @@ func (m MsgPendingMiningBlockStuff) CalculateBlockHashByBothNonce(headNonce fiel
 		panic("m.CoinbaseTx must be a *transactions.Transaction_0_Coinbase")
 	}
 	newcbtx.MinerNonce = cbnonce
-	// 计算 mrkl root
+	// Calculate mrkl root
 	cbtxhx := newcbtx.Hash()
 	mrklroot := blocks.CalculateMrklRootByCoinbaseTxModify(cbtxhx, m.MrklRelatedTreeListForCoinbaseTxModify)
 	newblock.SetMrklRoot(mrklroot)
@@ -167,7 +167,7 @@ func (m MsgPendingMiningBlockStuff) CalculateBlockHashByBothNonce(headNonce fiel
 	return copystuff, blkhx
 }
 
-// 通过设置nonce值计算 区块哈希
+// Calculate block hash by setting nonce value
 func (m MsgPendingMiningBlockStuff) CalculateBlockHashByMiningResult(result *MsgReportMiningResult, retcopy bool) (*MsgPendingMiningBlockStuff, fields.Hash) {
 	return m.CalculateBlockHashByBothNonce(result.HeadNonce, result.CoinbaseNonce, retcopy)
 }

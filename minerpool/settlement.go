@@ -60,13 +60,13 @@ func (p *MinerPool) settleOneSuccessPeriod(period *SettlementPeriod) {
 	for key, acc := range period.period.realtimeAccounts {
 		clients := acc.activeClients.ToSlice()
 		for _, cli := range clients {
-			cli.(*Client).conn.Close() // 关闭连接
+			cli.(*Client).conn.Close() // Close connection
 		}
 		//fmt.Println(acc.miningSuccessBlock.Hash().ToHex(), period.successBlockHash.ToHex())
 		if acc.miningSuccessBlock != nil && acc.miningSuccessBlock.Hash().Equal(period.successBlockHash) {
-			minerAccount = acc // 成功挖出区块的用户
+			minerAccount = acc // Users who successfully dig out blocks
 		}
-		// 其他矿工统计算力, 拷贝值，避免运算过程中被修改
+		// Other miners count the calculation force and copy the value to avoid being modified in the calculation process
 		//fmt.Println(acc.address.ToReadable(), acc.realtimePowWorth.String())
 		worth := new(big.Int).Add(big.NewInt(0), acc.realtimePowWorth)
 		divrwdAccounts = append(divrwdAccounts, acc)
@@ -77,7 +77,7 @@ func (p *MinerPool) settleOneSuccessPeriod(period *SettlementPeriod) {
 		//fmt.Println("minerAccount == nil return")
 		return
 	}
-	// 计算收益
+	// Calculate income
 	pernum := big.NewInt(10000 * 10000)
 	rwdcoin := coinbase.BlockCoinBaseRewardNumber(blockHeight)
 	totalReward := int64(rwdcoin) * 10000 * 10000 // 单位：铢
@@ -103,7 +103,7 @@ func (p *MinerPool) settleOneSuccessPeriod(period *SettlementPeriod) {
 		}
 	}
 	//fmt.Println(len(divrwdAccounts), len(rwdAccounts), totalPowWorth.String())
-	// 保存挖出矿工收益
+	// Save the earnings of the digger
 	minerAccount.storeData.findBlocks += 1
 	minerAccount.storeData.findCoins += fields.VarUint4(rwdcoin)
 	// 保存比例矿工收益
@@ -113,7 +113,7 @@ func (p *MinerPool) settleOneSuccessPeriod(period *SettlementPeriod) {
 			fmt.Println(err)
 		}
 	}
-	// ok 结算完成
+	// OK settlement completed
 
 	// store success
 	_ = p.saveFoundBlockHash(period.successBlockHeight, period.successBlockHash)
@@ -122,7 +122,7 @@ func (p *MinerPool) settleOneSuccessPeriod(period *SettlementPeriod) {
 
 /*
 
-// 结算一个周期
+// Settle one cycle
 func (p *MinerPool) settleOnePeriod(period *RealtimePeriod) {
 	//p.periodChange.Lock()
 	//defer p.periodChange.Unlock()
@@ -148,12 +148,12 @@ func (p *MinerPool) settleOnePeriod(period *RealtimePeriod) {
 	for key, acc := range period.realtimeAccounts {
 		clients := acc.activeClients.ToSlice()
 		for _, cli := range clients {
-			cli.(*Client).conn.Close() // 关闭连接
+			cli.(*Client).conn.Close() // Close connection
 		}
 		if acc.miningSuccessBlock != nil {
-			minerAccount = acc // 成功挖出区块的用户
+			minerAccount = acc // Users who successfully dig out blocks
 		}
-		// 其他矿工统计算力, 拷贝值，避免运算过程中修改
+		// Other miners count calculation force and copy values to avoid modification during calculation
 		worth := new(big.Int).Add(big.NewInt(0), acc.realtimePowWorth)
 		otherAccounts = append(otherAccounts, acc)
 		addressPowWorth[key] = worth
@@ -163,7 +163,7 @@ func (p *MinerPool) settleOnePeriod(period *RealtimePeriod) {
 	if minerAccount == nil {
 		return
 	}
-	// 计算收益
+	// Calculate income
 	pernum := big.NewInt(10000 * 10000)
 	rwdcoin := coinbase.BlockCoinBaseRewardNumber(blockHeight)
 	totalReward := int64(rwdcoin) * 10000 * 10000 // 单位：铢
@@ -183,11 +183,11 @@ func (p *MinerPool) settleOnePeriod(period *RealtimePeriod) {
 			acc.storeData.appendUnconfirmedRewards(uint32(blockHeight), uint64(reward))
 		}
 	}
-	// 保存收益
+	// Preservation income
 	minerAccount.storeData.findBlocks += 1
 	minerAccount.storeData.findCoins += fields.VarUint4(rwdcoin)
 	if len(rwdAccounts) == 0 {
-		// 如果只有一个账户挖矿，则拿到全部奖励
+		// If there is only one account for mining, you will get all rewards
 		minerAccount.storeData.appendUnconfirmedRewards(uint32(blockHeight), uint64(totalReward))
 	} else {
 		minerAccount.storeData.appendUnconfirmedRewards(uint32(blockHeight), uint64(part1of3Reward))
@@ -196,7 +196,7 @@ func (p *MinerPool) settleOnePeriod(period *RealtimePeriod) {
 	for _, acc := range rwdAccounts {
 		err = p.saveAccountStoreData(acc)
 	}
-	// ok 结算完成
+	// OK settlement completed
 	if err != nil {
 		fmt.Println(err)
 	}

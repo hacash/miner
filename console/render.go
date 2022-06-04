@@ -26,5 +26,5 @@ func (mc *MinerConsole) renderJsonString(w http.ResponseWriter, jsonstr string) 
 func (mc *MinerConsole) renderJsonByte(w http.ResponseWriter, jsonbyte []byte) {
 	w.Header().Set("Content-Type", "text/json;charset=utf-8")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Write(jsonbyte) // 自定义的 jsondata 数据
+	w.Write(jsonbyte) // Customized jsondata data
 }

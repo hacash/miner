@@ -16,13 +16,13 @@ type DiamondMinerConfig struct {
 	FeeAmount  *fields.Amount
 	FeeAccount *account.Account
 	Rewards    fields.Address
-	Continued  bool // 连续不停的挖矿钻石
-	// 自动竞价
-	AutoBid                bool              // 是否开启
-	AutoCheckInterval      float64           // 竞价检查间隔时间，最低支持0.1秒
-	AutoBidMaxFee          *fields.Amount    // 单枚钻石最高报价
-	AutoBidMarginFee       *fields.Amount    // 单次报价提高幅度
-	AutoBidIgnoreAddresses []*fields.Address // 放弃与之竞争的地址
+	Continued  bool // Continuous diamond mining
+	// Automatic bidding
+	AutoBid                bool              // Open or not
+	AutoCheckInterval      float64           // Bidding check interval, minimum 0.1 seconds
+	AutoBidMaxFee          *fields.Amount    // Highest quotation for a single diamond
+	AutoBidMarginFee       *fields.Amount    // Increase range of single quotation
+	AutoBidIgnoreAddresses []*fields.Address // Give up competing addresses
 }
 
 func NewEmptyDiamondMinerConfig() *DiamondMinerConfig {
@@ -68,13 +68,13 @@ func NewDiamondMinerConfig(cnffile *sys.Inicnf) *DiamondMinerConfig {
 		fmt.Println("[Diamond Miner Config Error] FeeAmount:", err)
 		os.Exit(0)
 	}
-	cnf.Continued = cnfsection.Key("continued").MustBool(false) // 连续挖矿
-	// 自动竞价
+	cnf.Continued = cnfsection.Key("continued").MustBool(false) // Continuous mining
+	// Automatic bidding
 	cnf.AutoBid = cnfsection.Key("autobid").MustBool(false)
 	if cnf.AutoBid {
 		cnf.AutoCheckInterval = cnfsection.Key("autobid_check_interval").MustFloat64(5)
 		if cnf.AutoCheckInterval < 0.1 {
-			cnf.AutoCheckInterval = 0.1 // 最快0.1秒检查一次
+			cnf.AutoCheckInterval = 0.1 // Check once every 0.1 seconds at most
 		}
 		autobidMaxFee, err3 := fields.NewAmountFromFinString(cnfsection.Key("autobid_fee_max").MustString("ㄜ10:250"))
 		if err3 == nil {
@@ -109,7 +109,7 @@ func NewDiamondMinerConfig(cnffile *sys.Inicnf) *DiamondMinerConfig {
 			}
 		}
 	}
-	// 私钥
+	// Private key
 	var privkey []byte = nil
 	if len(password) == 64 {
 		key, err := hex.DecodeString(password)

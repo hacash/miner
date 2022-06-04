@@ -9,20 +9,20 @@ import (
 
 type MinerRelayServiceConfig struct {
 	ServerAddress    *net.TCPAddr
-	IsReportHashrate bool // 是否上报算力统计
-	IsAcceptHashrate bool // 是否接受算力统计
+	IsReportHashrate bool // Whether to report calculation force statistics
+	IsAcceptHashrate bool // Whether to accept calculation force statistics
 
-	ServerTcpListenPort int // TCP server 监听端口
-	MaxWorkerConnect    int // TCP 最大连接数
+	ServerTcpListenPort int // TCP server listening port
+	MaxWorkerConnect    int // TCP Max connections
 
-	HttpApiListenPort int // http api 数据接口服务
+	HttpApiListenPort int // HTTP API data interface service
 
-	// 数据储存
-	StoreEnable          bool   // 储存开启
-	DataDir              string // 目录
-	SaveMiningBlockStuff bool   // 是否保存挖掘区块的信息
-	SaveMiningHash       bool   // 是否保存提交的 block hash 值
-	SaveMiningNonce      bool   // 是否保存提交的 nonce 值
+	// Data storage
+	StoreEnable          bool   // Storage on
+	DataDir              string // catalogue
+	SaveMiningBlockStuff bool   // Save mining block information
+	SaveMiningHash       bool   // Whether to save the submitted block hash value
+	SaveMiningNonce      bool   // Save submitted nonce value
 
 }
 

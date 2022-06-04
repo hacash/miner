@@ -71,7 +71,7 @@ func (mc *MinerConsole) addresses(response http.ResponseWriter, request *http.Re
 		acclist := []*minerpool.Account{}
 		accExtList := []*AccountWithPowerRatio{}
 
-		// 排序
+		// sort
 		if len(accmaps) > 0 {
 			var totalPower uint64 = 0
 

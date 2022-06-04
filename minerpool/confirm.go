@@ -1,6 +1,6 @@
 package minerpool
 
-// 	确认收益
+// Revenue recognition
 func (p *MinerPool) confirmRewards(curblkheight uint64, confirmPeriod *RealtimePeriod) {
 	p.periodChange.Lock()
 	defer p.periodChange.Unlock()

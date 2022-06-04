@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-// 开始
+// start
 func (m *MinerWorker) Start() {
 
 	fmt.Printf("[Start] connect: %s, reward: %s. \n",
@@ -19,7 +19,7 @@ func (m *MinerWorker) Start() {
 		os.Exit(0)
 	}
 
-	// 拨号连接
+	// Dial up connection
 	err = m.startConnect()
 	if err != nil {
 		fmt.Println(err)
@@ -33,7 +33,7 @@ func (m *MinerWorker) Start() {
 		os.Exit(0)
 	}
 
-	// 开始挖矿（投喂）
+	// Start mining (feeding)
 	go m.powWorker.Excavate(m.miningStuffFeedingCh, m.miningResultCh)
 
 }

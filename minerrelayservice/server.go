@@ -10,7 +10,7 @@ func (r *RelayService) startListen() {
 
 	port := int(r.config.ServerTcpListenPort)
 	if port == 0 {
-		// 不启动服务器
+		// Do not start the server
 		fmt.Println("config server_listen_port==0 do not start server.")
 		return
 	}
@@ -39,7 +39,7 @@ func (r *RelayService) acceptConn(conn *net.TCPConn) {
 
 	defer conn.Close()
 
-	// 连接数过多
+	// Too many connections
 	if len(r.allconns) > r.config.MaxWorkerConnect {
 		message.SendServerResponseByRetCode(conn, message.MsgErrorRetCodeTooManyConnects)
 		return
@@ -47,33 +47,33 @@ func (r *RelayService) acceptConn(conn *net.TCPConn) {
 
 	regobj, err := message.HandleConnectToClient(conn, r.config.IsAcceptHashrate)
 	if err != nil {
-		return // 注册错误
+		return // Registration error
 	}
 
 	//fmt.Println("5555")
-	// 发送区块挖掘消息
+	// Send block mining message
 	if r.penddingBlockStuff != nil {
 		msgbody := r.penddingBlockStuff.Serialize()
 		err := message.MsgSendToTcpConn(conn, message.MinerWorkMsgTypeMiningBlock, msgbody)
 		if err != nil {
 			//fmt.Println("MsgSendToTcpConn error", e0)
 			message.SendServerResponseByRetCode(conn, message.MsgErrorRetCodeConnectReadSengErr)
-			return // 解析消息错误
+			return // Parsing message error
 		}
 	}
 	//fmt.Println("6666")
 
-	// 创建 client
+	// Create client
 	client := NewConnClient(r, conn, regobj.RewardAddress)
 
-	// 添加
+	// add to
 	r.addClient(client)
 
 	//fmt.Println("+++++++++++")
 	client.Handle()
 	//fmt.Println("-----------")
 
-	// 失败或关闭
+	// Failed or closed
 	r.dropClient(client)
 
 }

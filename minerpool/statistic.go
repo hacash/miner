@@ -6,7 +6,7 @@ import (
 	"math/big"
 )
 
-// 统计算力
+// Statistical computing power
 func (a *Account) addPowWorth(hash fields.Hash) {
 	a.change.Lock()
 	defer a.change.Unlock()

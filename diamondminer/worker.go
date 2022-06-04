@@ -69,11 +69,11 @@ func (d *DiamondMiner) RunMining(prevDiamond *stores.DiamondSmelt, diamondCreate
 					diamondCreateActionCh <- parsediamondCreateAction(diamondFullStr, prevDiamond, retNonce, d.Config.Rewards, retExtMsg)
 					// set all stop
 					if !d.Config.Continued {
-						// 非连续挖矿
+						// Discontinuous mining
 						*stopMark = 1
 						return
 					}
-					// 连续不停的挖矿
+					// Continuous mining
 				}
 
 				if *stopMark == 1 {

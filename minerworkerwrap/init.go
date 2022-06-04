@@ -7,10 +7,10 @@ import (
 	"github.com/hacash/x16rs/opencl/worker"
 )
 
-// 初始化
+// initialization
 func (g *WorkerWrap) InitStart() error {
 
-	// 初始化设备
+	// Initialize device
 	if g.powdevice == nil {
 		var device interfaces.PowDevice = nil
 		if g.config.GPU_Enable {
@@ -22,16 +22,16 @@ func (g *WorkerWrap) InitStart() error {
 				g.config.GPU_PlatformNameMatch,
 				g.config.GPU_GroupSize,
 				g.config.GPU_GroupConcurrentNum,
-				g.config.GPU_ItemLoopNum,       // 单次执行循环次数
-				g.config.GPU_UseOneDeviceBuild, // 强制重新编译
-				g.config.GPU_ForceRebuild,      // 强制重新编译
-				g.config.GPU_EmptyFuncTest,     // 空函数编译测试
+				g.config.GPU_ItemLoopNum,       // Number of single execution cycles
+				g.config.GPU_UseOneDeviceBuild, // Force recompile
+				g.config.GPU_ForceRebuild,      // Force recompile
+				g.config.GPU_EmptyFuncTest,     // Empty function compilation test
 			)
 			fmt.Printf("startup GPU device...\n")
 
 		} else {
 
-			// CPU 默认
+			// CPU default
 			device = cpumining.NewCPUMining(
 				int(g.config.Supervene),
 			)
@@ -47,10 +47,10 @@ func (g *WorkerWrap) InitStart() error {
 		panic("must call SetPowDevice() first.")
 	}
 
-	return g.powdevice.Init() // 初始化
+	return g.powdevice.Init() // initialization
 }
 
-// 设置挖矿设备端
+// Set mining equipment end
 func (g *WorkerWrap) SetPowDevice(device interfaces.PowDevice) {
 	g.powdevice = device
 }

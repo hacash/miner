@@ -9,8 +9,8 @@ import (
 
 type MinerWorkerConfig struct {
 	PoolAddress      *net.TCPAddr
-	Rewards          fields.Address // 奖励地址
-	IsReportHashrate bool           // 是否上报算力
+	Rewards          fields.Address // Reward address
+	IsReportHashrate bool           // Whether to report the calculation force
 }
 
 func NewEmptyMinerPoolWorkerConfig() *MinerWorkerConfig {

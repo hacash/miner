@@ -22,7 +22,7 @@ type MemTxPool struct {
 
 	////////////////////////////////
 
-	automaticallyCleanInvalidTransactions bool // 是否自动清理失效的交易
+	automaticallyCleanInvalidTransactions bool // Whether to automatically clear invalid transactions
 
 	isBanEventSubscribe bool
 	addTxSuccess        event.Feed
@@ -95,7 +95,7 @@ func (p *MemTxPool) GetDiamondCreateTxs(num int) []interfaces.Transaction {
 		restxs = append(restxs, head.tx.(interfaces.Transaction))
 		if num > 0 {
 			if len(restxs) >= num {
-				break // 控制数量
+				break // Control quantity
 			}
 		}
 		head = head.next

@@ -14,11 +14,11 @@ import (
 const MsgWorkerServerResponseSize = 2 + 1
 
 type MsgServerResponse struct {
-	RetCode                  fields.VarUint2 // 响应码: 0. 正确可连接 1.版本不匹配   2. 连接数过多   等等
-	AcceptHashrateStatistics fields.Bool     // 是否接受算力统计
+	RetCode                  fields.VarUint2 // Response code: 0. 正确可连接 1.版本不匹配   2. 连接数过多   等等
+	AcceptHashrateStatistics fields.Bool     // Whether to accept calculation force statistics
 }
 
-// 序列化
+// serialize
 func (m MsgServerResponse) Serialize() []byte {
 
 	buf := bytes.NewBuffer([]byte{})
@@ -30,7 +30,7 @@ func (m MsgServerResponse) Serialize() []byte {
 	return buf.Bytes()
 }
 
-// 反序列化
+// Deserialization
 func (m *MsgServerResponse) Parse(buf []byte, seek uint32) (uint32, error) {
 	var e error = nil
 	seek, e = m.RetCode.Parse(buf, seek)

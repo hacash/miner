@@ -6,7 +6,7 @@ import (
 
 type LocalCPUPowMasterConfig struct {
 	ReturnPowerHash bool
-	Concurrent      uint32 // 并发挖矿
+	Concurrent      uint32 // Concurrent mining
 }
 
 func NewEmptyLocalCPUPowMasterConfig() *LocalCPUPowMasterConfig {

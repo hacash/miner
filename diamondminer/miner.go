@@ -23,7 +23,7 @@ type DiamondMiner struct {
 	newDiamondBeFoundCh    chan *stores.DiamondSmelt
 	successMiningDiamondCh chan *actions.Action_4_DiamondCreate
 
-	// 当前挖掘成功的钻石交易
+	// Current successful diamond transactions
 	currentSuccessMiningDiamondTx interfacev2.Transaction
 
 	changeLock sync.Mutex

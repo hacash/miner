@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// 历史区块信息
+// Historical block information
 func (api *RelayService) readHistoricalMiningBlockInfo(r *http.Request, w http.ResponseWriter, bodybytes []byte) {
 
 	if api.ldb == nil {
@@ -23,18 +23,18 @@ func (api *RelayService) readHistoricalMiningBlockInfo(r *http.Request, w http.R
 		return
 	}
 
-	// 读取
+	// read
 	stuff := api.readMiningBlockStuffFormStore(blkHeight)
 	if stuff == nil {
 		ResponseError(w, fmt.Errorf("not find height %d", blkHeight))
 		return
 	}
 
-	// 返回
+	// return
 	returnStuff(w, stuff, isUnitMei)
 }
 
-// 当前正在挖掘的区块信息
+// Currently mining block information
 func (api *RelayService) pendingBlockInfo(r *http.Request, w http.ResponseWriter, bodybytes []byte) {
 
 	if api.penddingBlockStuff == nil {
@@ -42,37 +42,37 @@ func (api *RelayService) pendingBlockInfo(r *http.Request, w http.ResponseWriter
 		return
 	}
 
-	// 等待目标区块
+	// Waiting for target block
 	waitTargetHeight := CheckParamUint64(r, "wait_10sec_for_block_height", 0)
 	if waitTargetHeight > 0 {
 		waitSec := 0         // 已经等待秒
 		waitMaxTimeout := 10 // 等待 10 秒// CheckParamUint64(r, "wait_timeout", 3)
-		// 开始等待
+		// Start waiting
 		for {
 			if api.penddingBlockStuff != nil {
 				pendingHeight := api.penddingBlockStuff.BlockHeadMeta.GetHeight()
 				if pendingHeight == waitTargetHeight {
-					break // 等待成功！！！
+					break // Waiting for success!!!
 				}
 				if waitTargetHeight < pendingHeight {
-					// 高度小于目前，不可能等待到了
+					// The height is lower than the current height, so it is impossible to wait
 					ResponseErrorString(w, "wait target block height less than pending height")
 					return
 				}
-				// 继续等待
+				// Keep waiting
 			}
 			if waitSec >= waitMaxTimeout {
-				// 等待结束
+				// Wait for end
 				ResponseErrorString(w, "wait target block timeout")
 				return
 			}
-			// 等待一秒钟
+			// Wait one second
 			waitSec++
 			time.Sleep(time.Second)
 		}
 	}
 
-	// 开始返回全部信息
+	// Start returning all information
 
 	// mei
 	isUnitMei := CheckParamBool(r, "unitmei", false)
@@ -80,22 +80,22 @@ func (api *RelayService) pendingBlockInfo(r *http.Request, w http.ResponseWriter
 
 	cblk := api.penddingBlockStuff.BlockHeadMeta
 
-	// 仅仅返回区块高度
-	// 用于 wait_block_height 判断下一个挖矿区块已经到来
+	// Return block height only
+	// For wait_ block_ Height judges that the next mining block has arrived
 	if isOnlyReturnHeight {
 		blockinfo := make(map[string]interface{})
 		blockinfo["height"] = cblk.GetHeight()
 		data := ResponseCreateData("block", blockinfo)
 		ResponseData(w, data)
-		return // 返回高度
+		return // Return height
 	}
 
-	// 返回
+	// return
 	returnStuff(w, api.penddingBlockStuff, isUnitMei)
 
 }
 
-// 返回所有详细信息
+// Return all details
 func returnStuff(w http.ResponseWriter, stuff *message.MsgPendingMiningBlockStuff, isUnitMei bool) {
 
 	cblk := stuff.BlockHeadMeta
@@ -103,7 +103,7 @@ func returnStuff(w http.ResponseWriter, stuff *message.MsgPendingMiningBlockStuf
 
 	// return
 	blockinfo := make(map[string]interface{})
-	blockinfo["version"] = cblk.Version() // 版本号
+	blockinfo["version"] = cblk.Version() // Version number
 	blockinfo["height"] = cblk.GetHeight()
 	blockinfo["timestamp"] = cblk.GetTimestamp()
 	blockinfo["prevhash"] = cblk.GetPrevHash().ToHex()

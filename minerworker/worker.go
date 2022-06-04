@@ -9,14 +9,14 @@ import (
 type MinerWorker struct {
 	config *MinerWorkerConfig
 
-	conn *net.TCPConn // 连接
+	conn *net.TCPConn // connect
 
 	pendingMiningBlockStuff *message.MsgPendingMiningBlockStuff
 
 	miningStuffFeedingCh chan interfaces.PowWorkerMiningStuffItem
 	miningResultCh       chan interfaces.PowWorkerMiningStuffItem
 
-	powWorker interfaces.PowWorker // 挖掘器
+	powWorker interfaces.PowWorker // Digger
 }
 
 func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
@@ -32,7 +32,7 @@ func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
 
 ///////////////
 
-// 挖矿执行器
+// Mining actuator
 func (m *MinerWorker) SetPowWorker(worker interfaces.PowWorker) {
 	m.powWorker = worker
 }

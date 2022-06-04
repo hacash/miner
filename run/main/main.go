@@ -60,14 +60,14 @@ go build -ldflags '-w -s' -o           hacash_miner_worker_2022_01_25_01  miner/
 */
 
 const (
-	DatabaseLowestVersion  int = 9  // 兼容数据库版本号
-	DatabaseCurrentVersion int = 11 // 当前数据库版本号
+	DatabaseLowestVersion  int = 9  // Compatible database version number
+	DatabaseCurrentVersion int = 11 // Current database version number
 	//
-	NodeVersionSuperMain    uint32 = 0            // 主版本号
-	NodeVersionSupport      uint32 = 1            // 兼容版本号
-	NodeVersionFeature      uint32 = 12           // 特征版本号
-	NodeVersionBuildCompile string = "20220125.1" // 编译版本号
-	// 结合成综合版本号体系：   0.1.12(20220125.1)
+	NodeVersionSuperMain    uint32 = 0            // Major version number
+	NodeVersionSupport      uint32 = 1            // Compatible version number
+	NodeVersionFeature      uint32 = 12           // Feature version number
+	NodeVersionBuildCompile string = "20220125.1" // Build version number
+	// Integrated version number system: 0.1.12 (20220125.1)
 )
 
 /**
@@ -88,17 +88,17 @@ func start() error {
 		fmt.Println("[Config] Load ini config file: \"" + target_ini_file + "\" at time:" + time.Now().Format("01/02 15:04:05"))
 	}
 
-	// 解析并载入配置文件
+	// Parse and load configuration file
 	hinicnf, err := sys.LoadInicnf(target_ini_file)
 	if err != nil {
 		fmt.Println("[Config] ERROR TO LOAD CONFIG FILE: ", err.Error())
 		return err
 	}
 
-	// 设置数据库版本
+	// Set database version
 	hinicnf.SetDatabaseVersion(DatabaseCurrentVersion, DatabaseLowestVersion)
 
-	// 判断数据库版本是否需要升级
+	// Judge whether the database version needs to be upgraded
 	if hinicnf.Section("").Key("UseBlockChainV2").MustBool(false) {
 		err = blockchain.CheckAndUpdateBlockchainDatabaseVersion(hinicnf)
 	} else {
@@ -131,16 +131,16 @@ func start() error {
 		return err
 	}
 
-	// 检查 port 端口占用情况
+	// Check port occupancy
 	p2pcnf := p2pv2.NewP2PConfig(hinicnf)
 	p2port := p2pcnf.TCPListenPort
 	portckconn, err := net.DialTimeout("tcp", fmt.Sprintf("127.0.0.1:%d", p2port), time.Second)
 	if err == nil {
-		portckconn.Close() // 关闭端口检查
+		portckconn.Close() // Turn off port check
 		return fmt.Errorf("Hacash P2P listen port %d already be occupied, is the node instance already started?", p2port)
 	}
 
-	// 正式启动节点
+	// Formal start node
 	hcnf := backend.NewBackendConfig(hinicnf)
 	hnode, err := backend.NewBackend(hcnf)
 	if err != nil {
@@ -180,7 +180,7 @@ func start() error {
 				return err
 			}
 
-			// 设置 pow server
+			// Set up POW server
 			minernode.SetPowServer(miner_server)
 
 		} else if isOpenMinerPool {
@@ -190,7 +190,7 @@ func start() error {
 			miner_pool.SetBlockChain(blockchainobj)
 			miner_pool.SetTxPool(txpool)
 
-			// 设置 pow server
+			// Set up POW server
 			minernode.SetPowServer(miner_pool)
 
 			// check reward address and password
@@ -223,7 +223,7 @@ func start() error {
 			lccnf := localcpu.NewFullNodePowWrapConfig(hinicnf)
 			powwrap := localcpu.NewFullNodePowWrap(lccnf)
 
-			// 设置 pow server
+			// Set up POW server
 			minernode.SetPowServer(powwrap)
 
 		}
@@ -328,7 +328,7 @@ func main() {
 
 func printAllVersion() {
 
-	// 打印版本号
+	// Print version number
 	fmt.Printf("[Version] Hacash node software: %d.%d.%d(%s), ",
 		NodeVersionSuperMain,
 		NodeVersionSupport,
@@ -350,7 +350,7 @@ func debugTestConfigSetHandle(hinicnf *sys.Inicnf) {
 
 	rootsec := hinicnf.Section("")
 
-	// 全局测试标记 TestDebugLocalDevelopmentMark
+	// Global test mark testdebuglocaldevelopmentmark
 	sys.TestDebugLocalDevelopmentMark = rootsec.Key("TestDebugLocalDevelopmentMark").MustBool(false)
 
 	// test set start
@@ -403,7 +403,7 @@ func Test_print_dmdname(state interfacev2.ChainState) {
 	}
 
 	fmt.Println("\n\n\n\n ")
-	// 打印全部
+	// Print all
 	for i, v := range alladdrdmds {
 		fmt.Println(i + ":")
 		for _, d := range v {

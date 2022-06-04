@@ -36,9 +36,9 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 		return fmt.Errorf("Tx pool max size %d and overflow size.", p.maxsize)
 	}
 
-	// 是否为钻石挖矿交易
+	// Whether it is a diamond mining transaction
 	var isDiamondCreateTx *actions.Action_4_DiamondCreate = nil
-	// 是否为全新首次添加
+	// Is it new and added for the first time
 	isTxFirstAdd := true
 
 	// do add is diamond ?
@@ -50,7 +50,7 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 
 	// check exist
 	if isDiamondCreateTx != nil {
-		// 钻石交易
+		// Diamond Trading
 		if havitem := p.diamondCreateTxGroup.Find(txitem.hash); havitem != nil {
 			//fmt.Println(havitem.feepurity, txitem.feepurity)
 			if txitem.feepurity <= havitem.feepurity {
@@ -67,7 +67,7 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 				blastr = febls.Hacash.ToFinString()
 			}
 			if febls == nil || febls.Hacash.LessThan(txfee) {
-				// 余额不足以支付手续费
+				// The balance is insufficient to pay the service charge
 				return fmt.Errorf("fee address balance %s need not less than %s but got %s.", txitem.tx.GetAddress(), txfee.ToFinString(), blastr)
 			}
 			// check ok
@@ -75,7 +75,7 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 			isTxFirstAdd = false
 		}
 	} else {
-		// 普通交易
+		// Ordinary transaction
 		if havitem := p.simpleTxGroup.Find(txitem.hash); havitem != nil {
 			//fmt.Println(havitem.feepurity, txitem.feepurity)
 			if txitem.feepurity <= havitem.feepurity {
@@ -110,7 +110,7 @@ func (p *MemTxPool) AddTx(tx interfaces.Transaction) error {
 		return nil // add successfully !
 	}
 
-	// 普通交易检查和统计
+	// General transaction inspection and statistics
 	// check tx
 	txerr := p.blockchain.ValidateTransactionForTxPool(tx.(interfaces.Transaction))
 	//, func(tmpState interfacev2.ChainState) {

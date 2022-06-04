@@ -14,12 +14,12 @@ import (
 const MsgWorkerRegistrationSize = 2 + 1 + 21
 
 type MsgWorkerRegistration struct {
-	PoolAndWorkerAgreementVersionNumber fields.VarUint2 // 版本号
-	WorkerKind                          fields.VarUint1 // 挖矿端类型
-	RewardAddress                       fields.Address  // 收取奖励地址
+	PoolAndWorkerAgreementVersionNumber fields.VarUint2 // Version number
+	WorkerKind                          fields.VarUint1 // Mining end type
+	RewardAddress                       fields.Address  // Reward collection address
 }
 
-// 序列化
+// serialize
 func (m MsgWorkerRegistration) Serialize() []byte {
 
 	buf := bytes.NewBuffer([]byte{})
@@ -33,7 +33,7 @@ func (m MsgWorkerRegistration) Serialize() []byte {
 	return buf.Bytes()
 }
 
-// 反序列化
+// Deserialization
 func (m *MsgWorkerRegistration) Parse(buf []byte, seek uint32) (uint32, error) {
 	var e error = nil
 	seek, e = m.PoolAndWorkerAgreementVersionNumber.Parse(buf, seek)

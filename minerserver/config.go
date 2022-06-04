@@ -5,8 +5,8 @@ import (
 )
 
 type MinerServerConfig struct {
-	TcpListenPort    int // TCP server 监听端口
-	MaxWorkerConnect int // TCP 最大连接数
+	TcpListenPort    int // TCP server listening port
+	MaxWorkerConnect int // TCP Max connections
 }
 
 func NewEmptyMinerConfig() *MinerServerConfig {

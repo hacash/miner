@@ -8,30 +8,30 @@ import (
 	"github.com/hacash/core/transactions"
 )
 
-// 钻石挖掘自动竞价
+// Automatic bidding for diamond mining
 func (d *DiamondMiner) doAutoBidForMyDiamond() {
 	//fmt.Println("- doAutoBidForMyDiamond")
 
 	firstFeeTxs := d.txpool.GetDiamondCreateTxs(1) // 取出第一枚钻石挖掘交易
 	if firstFeeTxs == nil || len(firstFeeTxs) == 0 {
-		return // 没有钻石
+		return // No diamonds
 	}
 	firstFeeTx := firstFeeTxs[0]
-	// 放弃竞争的地址
+	// Address to give up competition
 	for _, iaddr := range d.Config.AutoBidIgnoreAddresses {
 		if bytes.Compare(firstFeeTx.GetAddress(), *iaddr) == 0 {
 			if !d.Config.Continued {
-				// 非连续挖矿时，停止本机的挖掘
+				// In case of discontinuous mining, stop the mining of this machine
 				//fmt.Println("diamond miner stop all, because fee addr:", iaddr.ToReadable())
 				d.StopAll()
 			}
 			return
 		}
 	}
-	// 我自己排第一位
+	// I came first
 	if bytes.Compare(firstFeeTx.GetAddress(), d.Config.FeeAccount.Address) == 0 {
 		if !d.Config.Continued {
-			// 非连续挖矿时，停止本机的挖掘
+			// In case of discontinuous mining, stop the mining of this machine
 			//fmt.Println("diamond miner stop all, because fee addr:", firstFeeTx.GetAddress().ToReadable())
 			d.StopAll()
 		}
@@ -40,18 +40,18 @@ func (d *DiamondMiner) doAutoBidForMyDiamond() {
 	if d.currentSuccessMiningDiamondTx == nil {
 		return
 	}
-	// 比较钻石序号
+	// Compare diamond serial numbers
 	curact := transactions.CheckoutAction_4_DiamondCreateFromTx(d.currentSuccessMiningDiamondTx)
 	firstact := transactions.CheckoutAction_4_DiamondCreateFromTx(firstFeeTx.(interfacev2.Transaction))
 	if curact == nil || firstact == nil {
 		return
 	}
 	if curact.Number != firstact.Number {
-		d.currentSuccessMiningDiamondTx = nil // 无效的挖掘
+		d.currentSuccessMiningDiamondTx = nil // Invalid mining
 		return
 	}
 
-	// 开始竞价
+	// Start bidding
 	topfee := firstFeeTx.GetFee()
 	myfee, e1 := topfee.Add(d.Config.AutoBidMarginFee)
 	if e1 != nil {
@@ -59,21 +59,21 @@ func (d *DiamondMiner) doAutoBidForMyDiamond() {
 		return
 	}
 	if newmyfee, _, e2 := myfee.CompressForMainNumLen(4, true); e2 == nil && newmyfee != nil {
-		myfee = newmyfee // 向上压缩长度
+		myfee = newmyfee // Up compression length
 	}
-	// 是否高于我设定的最高价
+	// Is it higher than the maximum price I set
 	if d.Config.AutoBidMaxFee.LessThan(topfee) {
 		return
 	}
 	if d.Config.AutoBidMaxFee.LessThan(myfee) {
-		myfee = d.Config.AutoBidMaxFee // 已达到最高价
+		myfee = d.Config.AutoBidMaxFee // The highest price has been reached
 	}
 
-	// 更新交易费用
+	// Update transaction fee
 	newtx := d.currentSuccessMiningDiamondTx
 	newtx.SetFee(myfee)
-	newtx.ClearHash() // 重置哈希缓存
-	// 私钥
+	newtx.ClearHash() // Reset hash cache
+	// Private key
 	allPrivateKeyBytes := make(map[string][]byte, 1)
 	allPrivateKeyBytes[string(d.Config.FeeAccount.Address)] = d.Config.FeeAccount.PrivateKey
 	// do sign
@@ -85,7 +85,7 @@ func (d *DiamondMiner) doAutoBidForMyDiamond() {
 		return
 	}
 
-	// 成功
+	// success
 	fmt.Printf("diamond auto bid name: <%s>, tx: <%s>, fee: %s => %s \n",
 		string(curact.Diamond), newtx.Hash().ToHex(),
 		topfee.ToFinString(), myfee.ToFinString(),

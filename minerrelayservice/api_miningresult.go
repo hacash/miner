@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-// 查询挖矿结果
+// Query mining results
 func (api *RelayService) queryMiningResult(r *http.Request, w http.ResponseWriter, bodybytes []byte) {
 
 	if api.ldb == nil {
@@ -23,17 +23,17 @@ func (api *RelayService) queryMiningResult(r *http.Request, w http.ResponseWrite
 	idxStart := CheckParamUint64(r, "idx_start", 0)
 	idxLimit := CheckParamUint64(r, "idx_limit", 0)
 	if idxLimit > 50 {
-		// 通过索引查找，最多50条
+		// Search by index, up to 50
 		idxLimit = 50
 	}
 
-	// 查询的 key
+	// Query key
 	var queryKeys = make([][]byte, 0)
 	var queryHeis = make([]uint64, 0)
 	var queryAddrs = make([]fields.Address, 0)
 
 	if idxLimit > 0 {
-		// 通过自增索引查询
+		// Query by auto incrementing index
 		max := idxStart + idxLimit
 		for i := idxStart; i < max; i++ {
 			kob1 := fields.VarUint5(i)
@@ -51,7 +51,7 @@ func (api *RelayService) queryMiningResult(r *http.Request, w http.ResponseWrite
 			}
 		}
 	} else {
-		// 通过区块高度和奖励地址组成的可以查询
+		// It can be queried through the block height and reward address
 		addrstr := CheckParamString(r, "reward_address", "")
 		rwdaddr, e1 := fields.CheckReadableAddress(addrstr)
 		if e1 != nil {
@@ -61,7 +61,7 @@ func (api *RelayService) queryMiningResult(r *http.Request, w http.ResponseWrite
 		blkheiStart := CheckParamUint64(r, "block_height_start", 0)
 		blkheiLimit := CheckParamUint64(r, "block_height_limit", 0)
 		if blkheiLimit > 50 {
-			// 通过索引查找，最多50条
+			// Search by index, up to 50
 			blkheiLimit = 50
 		}
 		if blkheiLimit == 0 {
@@ -83,10 +83,10 @@ func (api *RelayService) queryMiningResult(r *http.Request, w http.ResponseWrite
 		}
 	}
 
-	// 返回数组
+	// Return array
 	retlist := make([]interface{}, 0)
 
-	// 返回空
+	// Return null
 	if len(queryKeys) == 0 {
 		//fmt.Println("len(queryKeys) == 0")
 		data := ResponseCreateData("list", retlist)
@@ -94,7 +94,7 @@ func (api *RelayService) queryMiningResult(r *http.Request, w http.ResponseWrite
 		return
 	}
 
-	// 查询数据
+	// Query data
 	queryObjs := make([]*StoreItemUserMiningResult, 0)
 	for i, key := range queryKeys {
 		//fmt.Println(key)
@@ -108,7 +108,7 @@ func (api *RelayService) queryMiningResult(r *http.Request, w http.ResponseWrite
 		}
 	}
 
-	// 返回空
+	// Return null
 	if len(queryObjs) == 0 {
 		//fmt.Println("len(queryObjs) == 0")
 		data := ResponseCreateData("list", retlist)
@@ -116,7 +116,7 @@ func (api *RelayService) queryMiningResult(r *http.Request, w http.ResponseWrite
 		return
 	}
 
-	// 解析数组，并计算 hash worth
+	// Parse the array and calculate hash worth
 	for _, obj := range queryObjs {
 		des := obj.Describe()
 		if onlyWorth {
@@ -136,13 +136,13 @@ func (api *RelayService) queryMiningResult(r *http.Request, w http.ResponseWrite
 	ResponseData(w, data)
 }
 
-// 提交挖矿结果
+// Submit mining results
 func (api *RelayService) submitMiningResult(r *http.Request, w http.ResponseWriter, bodybytes []byte) {
 
-	// 是否挖矿成功
+	// Mining success
 	isMintSuccess := CheckParamBool(r, "mint_success", false)
 
-	// 记录奖励地址
+	// Record reward address
 	addrstr := CheckParamString(r, "reward_address", "")
 	rwdaddr, e1 := fields.CheckReadableAddress(addrstr)
 	if e1 != nil {
@@ -156,7 +156,7 @@ func (api *RelayService) submitMiningResult(r *http.Request, w http.ResponseWrit
 		return
 	}
 
-	// 寻找
+	// seek
 	tarstuff := api.checkoutMiningStuff(blkhei)
 	if tarstuff == nil {
 		ResponseError(w, fmt.Errorf("not find mining stuff of block height %d", blkhei))
@@ -179,15 +179,15 @@ func (api *RelayService) submitMiningResult(r *http.Request, w http.ResponseWrit
 		return
 	}
 
-	// 返回值
+	// Return value
 	var retdata = map[string]interface{}{}
 
-	// 检查挖矿是否成功
+	// Check whether the mining is successful
 	var isRealMintSuccess = false
 	newstuff, newhx := tarstuff.CalculateBlockHashByBothNonce(headNonce, coinbaseNonce, true)
 	if isMintSuccess {
-		// 上报挖掘成功消息
-		// 判断哈希满足要求
+		// Report mining success message
+		// Judge whether the hash meets the requirements
 		newblock := newstuff.GetHeadMetaBlock()
 		if difficulty.CheckHashDifficultySatisfyByBlock(newhx, newblock) {
 			rptmsg := message.MsgReportMiningResult{
@@ -196,14 +196,14 @@ func (api *RelayService) submitMiningResult(r *http.Request, w http.ResponseWrit
 				HeadNonce:     headNonce,
 				CoinbaseNonce: coinbaseNonce,
 			}
-			// 发送消息
+			// send message
 			message.MsgSendToTcpConn(api.service_tcp, message.MinerWorkMsgTypeReportMiningResult, rptmsg.Serialize())
 			isRealMintSuccess = true
 		}
 		// 不满足难度要求，什么都不干，
 	}
 
-	// 统计算力
+	// Statistical computing power
 	go api.saveMiningResultToStore(*rwdaddr, isRealMintSuccess, newstuff)
 
 	// ok

@@ -9,7 +9,7 @@ import (
 
 type MinerWorkerConfig struct {
 	PoolAddress *net.TCPAddr
-	Concurrent  uint32 // 并发挖矿
+	Concurrent  uint32 // Concurrent mining
 	Rewards     fields.Address
 }
 

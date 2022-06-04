@@ -41,11 +41,11 @@ func (a *Account) successFindNewBlock(msg *message.PowMasterMsg) {
 	// insert new block
 	//fmt.Println("a.realtimePeriod.successFindNewBlock MrklRoot:", copyblock.GetMrklRoot().ToHex())
 	a.realtimePeriod.successFindNewBlock(copyblock)
-	// settle 结算
+	// Settlement
 	minerpool.createSettlementPeriod(a, a.realtimePeriod, copyblock)
 	/*
 		go func() {
-			<-time.Tick(time.Second * 33) // 33 秒后去结算 period
+			<-time.Tick(time.Second * 33) // Settle the period in 33 seconds
 			minerpool.settleRealtimePeriodCh <- a.realtimePeriod
 		}()
 	*/
