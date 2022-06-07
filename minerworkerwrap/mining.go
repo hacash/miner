@@ -13,7 +13,7 @@ import (
 // to do next
 func (g *WorkerWrap) DoNextMining(pendingHeight uint64) {
 
-	// 停止之前所有挖款
+	// All excavation before stopping
 	g.StopAllMining()
 	//fmt.Println("g.StopAllMining()")
 
@@ -22,30 +22,30 @@ func (g *WorkerWrap) DoNextMining(pendingHeight uint64) {
 	g.stopMarks.Store(&stopmark, &stopmark)
 	defer g.stopMarks.Delete(&stopmark)
 
-	// 串行同步
+	// Serial synchronization
 	g.stepLock.Lock()
 	defer g.stepLock.Unlock()
 
 	//fmt.Println("STARTDOMINING....")
 
-	// 测试上报
+	// Test report
 	//go func() {
 	//	time.Sleep(time.Second * 10)
 	//	stopmark = 1
 	//}()
 
-	// 时间统计
+	// Time statistics
 	timestart := time.Now()
 	hasshowinfo := false
 
-	// 循环挖矿
+	// Circular mining
 STARTDOMINING:
 
 	if stopmark == 1 {
-		return // 停止当前挖矿
+		return // Stop current mining
 	}
-	// 取出 stuff 直到于挖掘目标一致
-	// 并发数量
+	// Take out the stuff until it is consistent with the mining target
+	// Concurrent quantity
 	supervene := g.powdevice.GetSuperveneWide()
 	stuffitemlist := make([]interfaces.PowWorkerMiningStuffItem, supervene)
 	blockheadmetasary := make([][]byte, supervene)
@@ -53,14 +53,14 @@ STARTDOMINING:
 	var stuffitem interfaces.PowWorkerMiningStuffItem = nil
 	for {
 		if stopmark == 1 {
-			return // 停止当前挖矿
+			return // Stop current mining
 		}
 		stuffitem = <-g.miningStuffCh
 		tarblock := stuffitem.GetHeadMetaBlock()
 		tarheight := tarblock.GetHeight()
 		if tarheight != pendingHeight {
 			time.Sleep(time.Millisecond * 100)
-			continue // 等待下一次获取
+			continue // Waiting for next acquisition
 		}
 		//fmt.Println(tarblock.GetMrklRoot())
 		blockheadmeatastuff := blocks.CalculateBlockHashBaseStuff(tarblock)
@@ -68,49 +68,49 @@ STARTDOMINING:
 		blockheadmetasary[oksuffnum] = blockheadmeatastuff // block mining stuff
 		oksuffnum++
 		if oksuffnum == supervene {
-			break // 开始挖掘
+			break // Start digging
 		}
 	}
 
-	// 打印
+	// Print
 	if hasshowinfo == false {
 		hasshowinfo = true
 		diffhex := hex.EncodeToString(difficulty.Uint32ToHash(pendingHeight, stuffitem.GetHeadMetaBlock().GetDifficulty()))
 		fmt.Print("do mining height:‹", pendingHeight, "›, difficulty: ", strings.TrimRight(diffhex, "0"), "..")
 	}
 
-	// 开始挖掘
+	// Start digging
 	pendingblock := stuffitem.GetHeadMetaBlock()
 	tardiffhash := difficulty.Uint32ToHash(pendingHeight, pendingblock.GetDifficulty())
 	if stopmark == 1 {
-		return // 停止当前挖矿
+		return // Stop current mining
 	}
 	// do mining
 	//fmt.Println(supervene, blockheadmetasary)
 	fmt.Print(".")
 	success, endstuffidx, nonce, endhash := g.powdevice.DoMining(pendingHeight, g.config.IsReportHashrate, &stopmark, tardiffhash, blockheadmetasary)
 
-	// 返回的 stuff
+	// Returned stuff
 	endstuffitem := stuffitemlist[endstuffidx]
 
-	// 判断是否挖矿成功
+	// Judge whether the mining is successful
 	if success {
 		endstuffitem.SetMiningSuccessed(true)
 		endstuffitem.SetHeadNonce(nonce)
-		// 挖矿成功上报
+		// Mining success Report
 		g.resultCh <- endstuffitem
-		// 打印
+		// Print
 		fmt.Printf("found success.\n[⬤◆◆] Successfully mined a block height: %d, hash: %s, nonce: %s. \n",
 			endstuffitem.GetHeadMetaBlock().GetHeight(),
 			hex.EncodeToString(endhash),
 			hex.EncodeToString(nonce))
-		// 成功并返回
+		// Success and return
 		return
 	}
 
-	// 判断是否停止
+	// Judge whether to stop
 	if stopmark == 0 {
-		// 未停止，进行下一次挖款
+		// Not stopped, next excavation
 		goto STARTDOMINING
 	}
 
@@ -118,9 +118,9 @@ STARTDOMINING:
 	if g.config.IsReportHashrate && nonce != nil && len(nonce) == 4 {
 		endstuffitem.SetMiningSuccessed(false)
 		endstuffitem.SetHeadNonce(nonce)
-		// 上报算力
+		// Reported computing power
 		g.resultCh <- endstuffitem
-		// 打印
+		// Print
 		usetimesec := time.Now().Unix() - timestart.Unix()
 		hashrateshow := difficulty.ConvertHashToRateShow(endhash, usetimesec)
 		fmt.Printf("upload power: %s, time: %ds, hashrate: %s.\n",

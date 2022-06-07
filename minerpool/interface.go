@@ -39,7 +39,7 @@ func (p *MinerPool) Excavate(inputBlock interfaces.Block, outputBlockCh chan int
 		}
 	}*/
 
-	// 设置新的挖矿区块，以供客户端请求
+	// Set up new mining blocks for client requests
 	atomic.StoreUint32(&p.currentRealtimePeriod.autoIncrementCoinbaseMsgNum, 0)
 	p.currentRealtimePeriod.targetBlock = inputBlock
 	p.currentRealtimePeriod.outputBlockCh = &outputBlockCh
@@ -52,10 +52,10 @@ func (p *MinerPool) Excavate(inputBlock interfaces.Block, outputBlockCh chan int
 	p.currentRealtimePeriod.sendMiningStuffMsgToAllClient()
 	//}
 
-	// 结束当前的全部挖矿
+	// End all current mining
 	if p.prevRealtimePeriod != nil {
 		p.prevRealtimePeriod.endCurrentMining()
-		// 确认应得的奖励，并开始打币流程
+		// Confirm the deserved reward and start the coining process
 		if p.prevRealtimePeriod != nil {
 			go func() {
 				time.Sleep(time.Second * 1)

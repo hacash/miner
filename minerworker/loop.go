@@ -6,44 +6,44 @@ import (
 	"time"
 )
 
-// 开始
+// start
 func (m *MinerWorker) loop() {
 
 	go func() {
 		for {
-			// 持续不断投喂
+			// Continuous feeding
 			if m.pendingMiningBlockStuff == nil {
 				time.Sleep(time.Millisecond * 50)
 				continue
 			}
-			// 开始投喂
+			// Start feeding
 			m.miningStuffFeedingCh <- m.pendingMiningBlockStuff.CopyForMiningByRandomSetCoinbaseNonce()
 		}
 	}()
 
-	// 10 ～ 60 秒检查一次连接
+	// Check the connection once every 10 ~ 60 seconds
 	checkTcpConnTiker := time.NewTicker(time.Minute * 2)
 
 	for {
 		select {
 
-		// 检查连接
+		// Check connection
 		case <-checkTcpConnTiker.C:
 			//fmt.Println("<-checkTcpConnTiker.C:", m.conn)
 			if m.conn == nil {
 				//fmt.Println("go startConnect()")
-				// 发起重连
+				// Initiate reconnection
 				go m.startConnect()
 			}
 
-		// 等待挖掘成功
+		// Wait for successful mining
 		case result := <-m.miningResultCh:
 			var mintSuccessed = result.GetMiningSuccessed()
 			if mintSuccessed {
-				m.pendingMiningBlockStuff = nil // 重置为空
+				m.pendingMiningBlockStuff = nil // Reset to null
 			}
 			if mintSuccessed || m.config.IsReportHashrate {
-				// 上传挖矿结果
+				// Upload mining results
 				var resupobj = message.MsgReportMiningResult{
 					fields.CreateBool(mintSuccessed),
 					fields.BlockHeight(result.GetHeadMetaBlock().GetHeight()),

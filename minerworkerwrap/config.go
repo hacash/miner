@@ -5,19 +5,19 @@ import (
 )
 
 type WorkerWrapConfig struct {
-	IsReportHashrate bool // 是否上报算力
-	// CPU 配置
-	Supervene uint32 // CPU 并发挖矿
-	// GPU 配置
+	IsReportHashrate bool // Whether to report the calculation force
+	// CPU configuration
+	Supervene uint32 // CPU concurrent mining
+	// GPU configuration
 	GPU_Enable             bool
 	GPU_OpenclPath         string
 	GPU_PlatformNameMatch  string
 	GPU_GroupSize          int
 	GPU_GroupConcurrentNum int
 	GPU_ItemLoopNum        int
-	GPU_UseOneDeviceBuild  bool // 使用单个设备编译
-	GPU_ForceRebuild       bool // 强制重新编译
-	GPU_EmptyFuncTest      bool // 空函数编译测试
+	GPU_UseOneDeviceBuild  bool // Compile using a single device
+	GPU_ForceRebuild       bool // Force recompile
+	GPU_EmptyFuncTest      bool // Empty function compilation test
 }
 
 func NewEmptyWorkerWrapConfig() *WorkerWrapConfig {

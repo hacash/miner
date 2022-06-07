@@ -7,7 +7,7 @@ import (
 	"net"
 )
 
-// 收取消息  mustlen = 消息必须长度
+// Receive message mustlen = message must be long
 func MsgReadFromTcpConn(conn *net.TCPConn, mustlen uint32) (msgty uint16, msgbody []byte, err error) {
 	var rn int = 0
 	err = nil
@@ -23,7 +23,7 @@ func MsgReadFromTcpConn(conn *net.TCPConn, mustlen uint32) (msgty uint16, msgbod
 		return 0, nil, err
 	}
 
-	// 消息体长度
+	// Message body length
 	msgsize := binary.BigEndian.Uint32(msgitemsizebts)
 	if msgsize < 2 || (mustlen > 0 && msgsize != mustlen+2) {
 		return 0, nil, fmt.Errorf("msg len error, msgsize = %d, mustlen = %d", msgsize, mustlen)
@@ -31,7 +31,7 @@ func MsgReadFromTcpConn(conn *net.TCPConn, mustlen uint32) (msgty uint16, msgbod
 
 	//fmt.Println("read msgsize=", msgsize)
 
-	// 读取消息体
+	// Read message body
 	msgbodysizebts := make([]byte, msgsize)
 	rn, err = io.ReadFull(conn, msgbodysizebts)
 	if uint32(rn) != msgsize || err != nil {
@@ -51,7 +51,7 @@ func MsgReadFromTcpConn(conn *net.TCPConn, mustlen uint32) (msgty uint16, msgbod
 	return
 }
 
-// 发送消息
+// send message
 func MsgSendToTcpConn(conn *net.TCPConn, msgty uint16, msgbody []byte) (err error) {
 	err = nil
 	if conn == nil {

@@ -35,7 +35,7 @@ func (m *MinerServer) acceptConn(conn *net.TCPConn) {
 
 	defer conn.Close()
 
-	// 连接数过多
+	// Too many connections
 	if len(m.allconns) > m.config.MaxWorkerConnect {
 		message.SendServerResponseByRetCode(conn, message.MsgErrorRetCodeTooManyConnects)
 		return
@@ -43,26 +43,26 @@ func (m *MinerServer) acceptConn(conn *net.TCPConn) {
 
 	_, err := message.HandleConnectToClient(conn, false)
 	if err != nil {
-		return // 注册错误
+		return // Registration error
 	}
 
 	//fmt.Println("5555")
-	// 发送区块挖掘消息
+	// Send block mining message
 	if m.penddingBlockMsg != nil {
 		msgbody := m.penddingBlockMsg.Serialize()
 		err := message.MsgSendToTcpConn(conn, message.MinerWorkMsgTypeMiningBlock, msgbody)
 		if err != nil {
 			//fmt.Println("MsgSendToTcpConn error", e0)
 			message.SendServerResponseByRetCode(conn, message.MsgErrorRetCodeConnectReadSengErr)
-			return // 解析消息错误
+			return // Parsing message error
 		}
 	}
 	//fmt.Println("6666")
 
-	// 创建 client
+	// Create client
 	client := NewMinerServerClinet(m, conn)
 
-	// 添加
+	// add to
 	m.changelock.Lock()
 	m.allconns[client.id] = client
 	m.changelock.Unlock()
@@ -71,7 +71,7 @@ func (m *MinerServer) acceptConn(conn *net.TCPConn) {
 	client.Handle()
 	//fmt.Println("-----------")
 
-	// 失败或关闭
+	// Failed or closed
 	m.changelock.Lock()
 	delete(m.allconns, client.id)
 	m.changelock.Unlock()

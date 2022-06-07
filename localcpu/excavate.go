@@ -118,7 +118,7 @@ func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 
 		} else {
 
-			// 统计并对比挖矿哈希结果
+			// Statistics and comparison of mining hash results
 			var mostPowerHashNonceBytes []byte = nil
 			var mostPowerHash []byte = nil
 			var mostCoinbaseNum uint32 = 0
@@ -150,7 +150,7 @@ func (l *LocalCPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 				}
 			}
 
-			// 上报最大哈希结果
+			// Report the maximum hash result
 			uppowermsg := message.PowMasterMsg{
 				Status:         message.PowMasterMsgStatusMostPowerHash,
 				CoinbaseMsgNum: fields.VarUint4(mostCoinbaseNum),

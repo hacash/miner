@@ -9,10 +9,10 @@ import (
 type MinerServer struct {
 	config *MinerServerConfig
 
-	allconns map[uint64]*MinerServerClinet // 全部 TCP 连接
+	allconns map[uint64]*MinerServerClinet // All TCP connections
 
-	penddingBlockMsg *message.MsgPendingMiningBlockStuff // 当前正在挖掘的区块消息
-	successMintCh    chan interfaces.Block               // 当前正确挖掘区块的返回
+	penddingBlockMsg *message.MsgPendingMiningBlockStuff // Currently mining block messages
+	successMintCh    chan interfaces.Block               // Return of currently correct mining block
 
 	changelock sync.Mutex
 }
@@ -28,7 +28,7 @@ func NewMinerServer(cnf *MinerServerConfig) *MinerServer {
 	return serv
 }
 
-// 开始
+// start
 func (m *MinerServer) Start() error {
 	return m.startListen()
 }

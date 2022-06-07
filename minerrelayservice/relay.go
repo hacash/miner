@@ -15,10 +15,10 @@ type RelayService struct {
 
 	changelock sync.Mutex
 
-	allconns map[uint64]*ConnClient // 全部 TCP 连接
+	allconns map[uint64]*ConnClient // All TCP connections
 
-	oldprevBlockStuff  *message.MsgPendingMiningBlockStuff // 上一个挖掘的区块消息
-	penddingBlockStuff *message.MsgPendingMiningBlockStuff // 当前正在挖掘的区块消息
+	oldprevBlockStuff  *message.MsgPendingMiningBlockStuff // Last mined block message
+	penddingBlockStuff *message.MsgPendingMiningBlockStuff // Currently mining block messages
 	//successMintCh    chan interfaces.Block               // 当前正确挖掘区块的返回
 
 	// routes
@@ -52,15 +52,15 @@ func NewRelayService(cnf *MinerRelayServiceConfig) *RelayService {
 	}
 }
 
-// 新的挖矿数据到来
+// New mining data coming
 func (r *RelayService) updateNewBlockStuff(newstf *message.MsgPendingMiningBlockStuff) {
-	r.oldprevBlockStuff = r.penddingBlockStuff // 保存上一个
-	r.penddingBlockStuff = newstf              // 更新最新的
-	// 储存至磁盘
+	r.oldprevBlockStuff = r.penddingBlockStuff // Save previous
+	r.penddingBlockStuff = newstf              // Update the latest
+	// Save to disk
 	go r.saveMiningBlockStuffToStore(newstf)
 }
 
-// 找出 stuff 通过 区块高度
+// Find the height of the stuff passing through the block
 func (r *RelayService) checkoutMiningStuff(blkhei uint64) *message.MsgPendingMiningBlockStuff {
 	if r.oldprevBlockStuff != nil {
 		if r.oldprevBlockStuff.BlockHeadMeta.GetHeight() == blkhei {
@@ -72,7 +72,7 @@ func (r *RelayService) checkoutMiningStuff(blkhei uint64) *message.MsgPendingMin
 			return r.penddingBlockStuff
 		}
 	}
-	// 不存在
+	// non-existent
 	return nil
 }
 
@@ -80,12 +80,12 @@ func (r *RelayService) Start() {
 
 	r.initStore()
 
-	r.startListen() // 启动 server 服务端
+	r.startListen() // Start the server
 
-	r.startHttpApiService() // 启动 http api 服务
+	r.startHttpApiService() // Start HTTP API service
 
-	r.connectToService() // 连接至服务器
+	r.connectToService() // Connect to server
 
-	go r.loop() // 启动 loop
+	go r.loop() // Start loop
 
 }

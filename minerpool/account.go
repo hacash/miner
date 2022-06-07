@@ -13,15 +13,15 @@ import (
 type Account struct {
 	miningSuccessBlock interfaces.Block
 
-	realtimePeriod *RealtimePeriod // 所属统计周期
+	realtimePeriod *RealtimePeriod // Statistical period
 
-	address fields.Address // 获得奖励地址
+	address fields.Address // Reward address
 
 	//workBlock interfaces.Block
 
 	activeClients mapset.Set // [*Client] // 正在连接的客户端
 
-	realtimePowWorth *big.Int // 周期内算力统计
+	realtimePowWorth *big.Int // Calculation force statistics in the period
 
 	///////////////////////////////////////////////
 
@@ -75,17 +75,17 @@ func (a *Account) GetRealtimePowWorth() *big.Int {
 
 type AccountStoreData struct {
 	//
-	findBlocks              fields.VarUint4 // 挖出的区块数量
-	findCoins               fields.VarUint4 // 挖出的币数量
-	completeRewards         fields.VarUint8 // 已完成并打币的奖励     单位：铢 ㄜ240  （10^8）
-	deservedRewards         fields.VarUint8 // 应得但还没有打币的奖励  单位：铢 ㄜ240  （10^8）
-	unconfirmedRewards      fields.VarUint8 // 挖出还没经过确认的奖励  单位：铢 ㄜ240  （10^8）
-	prevTransferBlockHeight fields.VarUint4 // 上一次打币时的区块
+	findBlocks              fields.VarUint4 // Number of blocks excavated
+	findCoins               fields.VarUint4 // Number of coins excavated
+	completeRewards         fields.VarUint8 // Reward unit for completed and marked currency: baht ㄜ 240 (10^8)
+	deservedRewards         fields.VarUint8 // Reward unit deserved but not paid: baht ㄜ 240 (10^8)
+	unconfirmedRewards      fields.VarUint8 // Dig out the unconfirmed reward unit: baht ㄜ 240 (10^8)
+	prevTransferBlockHeight fields.VarUint4 // Block at the time of last coin printing
 	//
 	unconfirmedRewardListCount fields.VarUint4
 	unconfirmedRewardList      []fields.Bytes12 // 4 + 8 : blockHeight + reward
 	//
-	others fields.Bytes16 // 备用扩展字段
+	others fields.Bytes16 // Alternate extended fields
 
 	//
 	changeMutex sync.Mutex

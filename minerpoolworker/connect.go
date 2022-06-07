@@ -99,7 +99,7 @@ func (p *MinerPoolWorker) handleConn(conn *net.TCPConn) {
 
 			p.statusMutex.Lock()
 			//fmt.Println( "  -  1  -  p.worker.StopMining() ", p.currentMiningStatusSuccess )
-			// 结束挖矿，等待上报挖矿结果
+			// Finish mining and wait for the mining results to be reported
 			p.worker.StopMining()
 			if p.client != nil {
 				if p.client.setend {
@@ -117,7 +117,7 @@ func (p *MinerPoolWorker) handleConn(conn *net.TCPConn) {
 			powmsg := message.NewPowMasterMsg()
 			_, e := powmsg.Parse(data, 0)
 			if e != nil {
-				// 解析消息发生错误，什么也不做
+				// Error parsing message, do nothing
 				continue
 			}
 			tarBlockHeight := powmsg.BlockHeadMeta.GetHeight()
@@ -126,12 +126,12 @@ func (p *MinerPoolWorker) handleConn(conn *net.TCPConn) {
 				p.currentPowMasterMsg.BlockHeadMeta.GetHeight() == tarBlockHeight &&
 				p.currentPowMasterCreateTime.Add(time.Second*3).After(time.Now()) {
 				//p.currentPowMasterMsg.CoinbaseMsgNum == powmsg.CoinbaseMsgNum {
-				// 5秒内重复挖矿消息，忽略本次消息
+				// Repeat mining messages within 5 seconds, ignoring this message
 				//fmt.Print(" -ignore duplicate mining messages- ")
 				fmt.Print("not ignore yet !!!!")
 				//fmt.Print("idmm... ")
 			} else {
-				// 执行挖矿
+				// Execute mining
 				p.currentPowMasterMsg = powmsg
 				p.currentPowMasterCreateTime = time.Now()
 

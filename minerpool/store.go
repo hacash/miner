@@ -6,7 +6,7 @@ import (
 	"github.com/hacash/core/interfacev2"
 )
 
-// 保存状态
+// Save status
 func (p *MinerPool) saveStatus() error {
 	stokey := []byte("status")
 	value, e1 := p.status.Serialize()
@@ -16,7 +16,7 @@ func (p *MinerPool) saveStatus() error {
 	return p.storedb.Put(stokey, value, nil)
 }
 
-// 读取状态
+// Read status
 func (p *MinerPool) readStatus() *MinerPoolStatus {
 	statusObj := NewEmptyMinerPoolStatus()
 	stokey := []byte("status")
@@ -27,7 +27,7 @@ func (p *MinerPool) readStatus() *MinerPoolStatus {
 	return statusObj
 }
 
-// 通过height为key保存挖出的区块hash
+// Save the excavated block hash for the key through height
 func (p *MinerPool) saveFoundBlockHash(height uint64, hash fields.Hash) error {
 	key := make([]byte, 4)
 	binary.BigEndian.PutUint32(key, uint32(height))
@@ -79,7 +79,7 @@ func (p *MinerPool) readFoundBlockHashByNumber(number uint32) (uint64, fields.Ha
 	return 0, nil // not find
 }
 
-// 保存账户
+// Save account
 func (p *MinerPool) saveAccountStoreData(account *Account) error {
 	valuebts, e := account.storeData.Serialize()
 	if e != nil {
@@ -91,7 +91,7 @@ func (p *MinerPool) saveAccountStoreData(account *Account) error {
 	return err
 }
 
-// 读取账户
+// Read account
 func (p *MinerPool) loadAccountStoreData(curblkhei uint64, address fields.Address) *AccountStoreData {
 	stoobject := NewEmptyAccountStoreData(curblkhei)
 	value, err := p.storedb.Get([]byte("accstodts"+string(address)), nil)

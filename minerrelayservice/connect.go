@@ -32,30 +32,30 @@ func (r *RelayService) handleServerConn(conn *net.TCPConn) {
 		r.service_tcp = nil
 	}()
 
-	// 开始处理消息
+	// Start processing message
 
-	// 已连接上
+	// Connected
 	respmsgobj, err := message.HandleConnectToServer(conn, nil)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	// 是否接受算力统计
+	// Whether to accept calculation force statistics
 	if respmsgobj.AcceptHashrateStatistics.Is(false) {
 		//m.config.IsReportHashrate = false // 不接受统计
 		//m.powWorker.CloseUploadHashrate()    // 关闭统计
 		fmt.Println("note: pool is not accept PoW power statistics.")
 	}
 
-	// 循环收取挖矿消息
+	// Collect mining messages circularly
 	for {
 
 		//fmt.Println("循环收取挖矿消息")
 		msgty, msgbody, err := message.MsgReadFromTcpConn(conn, 0)
 		if err != nil {
 			if strings.Contains(err.Error(), "EOF") {
-				// 服务器关闭
+				// Server shutdown
 				fmt.Println("\n[Miner Relay Service] WARNING: Server close the tcp connect, reconnection will be initiated in two minutes...")
 			} else {
 				fmt.Println(err)
@@ -70,10 +70,10 @@ func (r *RelayService) handleServerConn(conn *net.TCPConn) {
 				fmt.Println("message.MsgPendingMiningBlockStuff.Parse Error", err)
 				continue
 			}
-			// 挖矿 stuff
+			// Mining stuff
 			r.updateNewBlockStuff(stuff)
 
-			// 通知全部的客户端，新区块到来
+			// Notify all clients of the arrival of new blocks
 			fmt.Printf("receive new block <%d> mining stuff forward to [%d] clients at time %s.\n",
 				stuff.BlockHeadMeta.GetHeight(),
 				len(r.allconns),

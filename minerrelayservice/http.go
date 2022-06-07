@@ -9,13 +9,13 @@ func (api *RelayService) initRoutes() {
 
 	// query
 
-	api.queryRoutes["pending_block"] = api.pendingBlockInfo                 // 查询当前正在挖掘的区块信息
-	api.queryRoutes["historical_block"] = api.readHistoricalMiningBlockInfo // 查询历史挖掘的区块信息记录
-	api.queryRoutes["mining_stuff"] = api.miningStuff                       // 请求挖矿数据
-	api.queryRoutes["mining_result"] = api.queryMiningResult                // 查询挖矿统计
+	api.queryRoutes["pending_block"] = api.pendingBlockInfo                 // Query the currently mining block information
+	api.queryRoutes["historical_block"] = api.readHistoricalMiningBlockInfo // Query the block information records of historical mining
+	api.queryRoutes["mining_stuff"] = api.miningStuff                       // Request mining data
+	api.queryRoutes["mining_result"] = api.queryMiningResult                // Query mining statistics
 
 	// submit
-	api.submitRoutes["mining_result"] = api.submitMiningResult // 提交挖矿结果
+	api.submitRoutes["mining_result"] = api.submitMiningResult // Submit mining results
 
 	//// create
 	//api.createRoutes["accounts"] = api.createAccounts

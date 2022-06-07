@@ -9,11 +9,11 @@ import (
 )
 
 type StoreItemUserMiningResult struct {
-	BodyVersion               uint8 // 版本号
-	IsMintSuccessed           uint8 // 是否挖掘成功
-	IsSaveMiningResultHash    uint8 // 是否保存hash
+	BodyVersion               uint8 // Version number
+	IsMintSuccessed           uint8 // Mining success
+	IsSaveMiningResultHash    uint8 // Save hash
 	MiningResultHash          fields.Hash
-	IsSaveMiningResultNonce   uint8 // 是否保存 nonce
+	IsSaveMiningResultNonce   uint8 // Save nonce
 	MiningResultHeadNonce     fields.Bytes4
 	MiningResultCoinbaseNonce fields.Hash
 

@@ -11,7 +11,7 @@ func (api *RelayService) startHttpApiService() {
 
 	port := api.config.HttpApiListenPort
 	if port == 0 {
-		// 不启动服务器
+		// Do not start the server
 		fmt.Println("config http_api_listen_port==0 do not start http api service.")
 		return
 
@@ -25,14 +25,14 @@ func (api *RelayService) startHttpApiService() {
 		ResponseData(w, ResponseCreateData("service", "hacash miner relay service"))
 	})
 
-	// 路由
-	mux.HandleFunc("/query", api.dealQuery)         // 查询
-	mux.HandleFunc("/create", api.dealCreate)       // 创建
-	mux.HandleFunc("/submit", api.dealSubmit)       // 提交
-	mux.HandleFunc("/operate", api.dealOperate)     // 修改
-	mux.HandleFunc("/calculate", api.dealCalculate) // 计算
+	// route
+	mux.HandleFunc("/query", api.dealQuery)         // query
+	mux.HandleFunc("/create", api.dealCreate)       // establish
+	mux.HandleFunc("/submit", api.dealSubmit)       // Submit
+	mux.HandleFunc("/operate", api.dealOperate)     // modify
+	mux.HandleFunc("/calculate", api.dealCalculate) // calculation
 
-	// 设置监听的端口
+	// Set listening port
 	portstr := strconv.Itoa(port)
 	server := &http.Server{
 		Addr:    ":" + portstr,

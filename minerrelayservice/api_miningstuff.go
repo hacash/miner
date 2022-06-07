@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-// 返回可供挖矿使用的数据
+// Return data available for mining
 func (api *RelayService) miningStuff(r *http.Request, w http.ResponseWriter, bodybytes []byte) {
 
 	stfobj := api.penddingBlockStuff
@@ -19,24 +19,24 @@ func (api *RelayService) miningStuff(r *http.Request, w http.ResponseWriter, bod
 		return
 	}
 
-	// 两个nonce
+	// Two nonces
 	headnonce := bytes.Repeat([]byte{0}, 4)
 	coinbasenonce := make([]byte, 32)
 	cmns := CheckParamString(r, "coinbase_nonce", "")
 	cbts, e1 := hex.DecodeString(cmns)
 	if e1 != nil || len(cbts) != 32 {
-		rand.Read(coinbasenonce) // 随机生成nonce
+		rand.Read(coinbasenonce) // Random generation nonce
 	} else {
-		coinbasenonce = cbts // 使用传递的nonce
+		coinbasenonce = cbts // Use passed nonce
 	}
 
-	// 计算填充
+	// Calculate fill
 	newstuff, _ := stfobj.CalculateBlockHashByBothNonce(headnonce, coinbasenonce, true)
 
-	// 计算 挖矿 stuff
+	// Calculation of mining stuff
 	stuffbytes := blocks.CalculateBlockHashBaseStuff(newstuff.BlockHeadMeta)
 
-	// 返回
+	// return
 	height := newstuff.BlockHeadMeta.GetHeight()
 	data := ResponseCreateData("stuff", hex.EncodeToString(stuffbytes))
 	data["coinbase_nonce"] = hex.EncodeToString(coinbasenonce)

@@ -8,7 +8,7 @@ func (p *MemTxPool) SubscribeOnAddTxSuccess(addtxCh chan interfaces.Transaction)
 	p.addTxSuccess.Subscribe(addtxCh)
 }
 
-// 暂停事件订阅
+// Pause event subscription
 func (p *MemTxPool) PauseEventSubscribe() {
 	p.changeLock.Lock()
 	defer p.changeLock.Unlock()
@@ -16,7 +16,7 @@ func (p *MemTxPool) PauseEventSubscribe() {
 	p.isBanEventSubscribe = true
 }
 
-// 重开事件订阅
+// Reopen event subscription
 func (p *MemTxPool) RenewalEventSubscribe() {
 	p.changeLock.Lock()
 	defer p.changeLock.Unlock()

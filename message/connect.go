@@ -7,27 +7,27 @@ import (
 	"time"
 )
 
-// 连接到服务器
+// Connect to server
 func HandleConnectToServer(conn *net.TCPConn, rewardaddr *fields.Address) (*MsgServerResponse, error) {
 
-	// 已连接上
+	// Connected
 	if rewardaddr == nil {
 		rewardaddr, _ = fields.CheckReadableAddress("1AVRuFXNFi3rdMrPH4hdqSgFrEBnWisWaS")
 	}
 
-	// 注册
+	// register
 	var regmsgobj = MsgWorkerRegistration{
 		fields.VarUint2(PoolAndWorkerAgreementVersionNumber),
 		fields.VarUint1(WorkerKindOfBlank),
 		*rewardaddr,
 	}
-	// 发送注册消息
+	// Send registration message
 	err := MsgSendToTcpConn(conn, MinerWorkMsgTypeWorkerRegistration, regmsgobj.Serialize())
 	if err != nil {
 		return nil, err
 	}
 
-	// 读取响应
+	// Read response
 	//fmt.Println("读取响应")
 	msgty, msgbody, err := MsgReadFromTcpConn(conn, MsgWorkerServerResponseSize)
 	if err != nil {
@@ -38,7 +38,7 @@ func HandleConnectToServer(conn *net.TCPConn, rewardaddr *fields.Address) (*MsgS
 
 	}
 
-	// 响应消息
+	// Response message
 	var respmsgobj = MsgServerResponse{}
 	_, err = respmsgobj.Parse(msgbody, 0)
 	if err != nil {
@@ -50,15 +50,15 @@ func HandleConnectToServer(conn *net.TCPConn, rewardaddr *fields.Address) (*MsgS
 		return nil, fmt.Errorf("ServerResponse RetCode Error", respmsgobj.RetCode)
 	}
 
-	// 通信成功
+	// Communication successful
 	return &respmsgobj, nil
 }
 
-// 服务端响应
+// Server response
 func SendServerResponseByRetCode(conn *net.TCPConn, retcode uint16) {
 
 	//fmt.Println("sendServerResponseByRetCode", retcode)
-	// 响应消息
+	// Response message
 	var sevresMsg = MsgServerResponse{
 		RetCode:                  fields.VarUint2(retcode),
 		AcceptHashrateStatistics: 0, // 不接受算力统计
@@ -66,11 +66,11 @@ func SendServerResponseByRetCode(conn *net.TCPConn, retcode uint16) {
 	SendServerResponse(conn, &sevresMsg)
 }
 
-// 服务端响应
+// Server response
 func SendServerResponse(conn *net.TCPConn, resmsg *MsgServerResponse) {
 
 	//fmt.Println("sendServerResponseByRetCode", retcode)
-	// 响应消息
+	// Response message
 	msgbodybts := resmsg.Serialize()
 	err := MsgSendToTcpConn(conn, MinerWorkMsgTypeServerResponse, msgbodybts)
 	if err != nil {
@@ -78,15 +78,15 @@ func SendServerResponse(conn *net.TCPConn, resmsg *MsgServerResponse) {
 	}
 }
 
-// 连接到客户端
+// Connect to client
 func HandleConnectToClient(conn *net.TCPConn, isAcceptHashrateStatistics bool) (*MsgWorkerRegistration, error) {
 
-	var isreged bool = false // 是否完成报名注册
+	var isreged bool = false // Whether to complete the registration
 	go func() {
 		time.Sleep(time.Second * 10)
 		if isreged == false {
 			//fmt.Println("关闭超时未注册的连接")
-			conn.Close() // 关闭超时未注册的连接
+			conn.Close() // Close unregistered connections for timeout
 		}
 	}()
 
@@ -96,7 +96,7 @@ func HandleConnectToClient(conn *net.TCPConn, isAcceptHashrateStatistics bool) (
 	if e0 != nil {
 		//fmt.Println("e0", e0)
 		SendServerResponseByRetCode(conn, MsgErrorRetCodeConnectReadSengErr)
-		// 第一条消息必须为上报
+		// The first message must be submitted
 		return nil, fmt.Errorf("read msg err")
 	}
 
@@ -111,13 +111,13 @@ func HandleConnectToClient(conn *net.TCPConn, isAcceptHashrateStatistics bool) (
 	if e1 != nil {
 		//fmt.Println("Parse error", e0)
 		SendServerResponseByRetCode(conn, MsgErrorRetCodeConnectReadSengErr)
-		// 解析消息错误
+		// Parsing message error
 		return nil, fmt.Errorf("msg parse err")
 	}
 
 	//fmt.Println("3333")
 
-	// 检查版本
+	// Check version
 	if uint16(workerReg.PoolAndWorkerAgreementVersionNumber) != PoolAndWorkerAgreementVersionNumber {
 		//fmt.Println("Parse error", e0)
 		SendServerResponseByRetCode(conn, MsgErrorRetCodeAgreementVersionNumberErr)
@@ -125,13 +125,13 @@ func HandleConnectToClient(conn *net.TCPConn, isAcceptHashrateStatistics bool) (
 	}
 
 	//fmt.Println("4444")
-	// 发送连接成功消息 SUCCESS CODE
+	// Send connection success message success code
 	SendServerResponse(conn, &MsgServerResponse{
 		RetCode:                  fields.VarUint2(MsgErrorRetCodeSuccess),
 		AcceptHashrateStatistics: fields.CreateBool(isAcceptHashrateStatistics),
 	})
 
-	isreged = true // 注册成功，不关闭
-	// 成功
+	isreged = true // Registration succeeded, do not close
+	// success
 	return &workerReg, nil
 }

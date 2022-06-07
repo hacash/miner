@@ -28,29 +28,29 @@ func NewMinerServerClinet(server *MinerServer, conn *net.TCPConn) *MinerServerCl
 // Handle
 func (m *MinerServerClinet) Handle() error {
 	for {
-		// 读取消息
+		// Read message
 		msgty, msgbody, err := message.MsgReadFromTcpConn(m.conn, 0)
 		if err != nil {
 			return err
 		}
-		// 解析消息
+		// Parse message
 		if msgty == message.MinerWorkMsgTypeReportMiningResult {
 			var result = message.MsgReportMiningResult{}
 			_, err := result.Parse(msgbody, 0)
 			if err != nil {
 				return err
 			}
-			// 处理
+			// handle
 			if result.MintSuccessed != 1 {
-				continue // 没有挖掘成功的话，忽略此消息
+				continue // If mining is not successful, ignore this message
 			}
 
-			// 挖掘完成，开始验证
+			// Excavation completed, start verification
 			newstuff, newhx := m.server.penddingBlockMsg.CalculateBlockHashByMiningResult(&result, true)
-			// 判断哈希满足要求
+			// Judge whether the hash meets the requirements
 			newblock := newstuff.GetHeadMetaBlock()
 			if difficulty.CheckHashDifficultySatisfyByBlock(newhx, newblock) {
-				// 满足难度 写入区块链
+				// Writing blockchain to meet the difficulty
 				//fmt.Println( "GetTransactionCount:", newblock.GetTransactionCount(), )
 				newblock.SetOriginMark("mining") // set origin
 				m.server.successMintCh <- newblock

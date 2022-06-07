@@ -47,7 +47,7 @@ func main() {
 	cnf := minerrelayservice.NewMinerRelayServiceConfig(hinicnf)
 	service := minerrelayservice.NewRelayService(cnf)
 
-	// 启动
+	// start-up
 	service.Start()
 
 	s := <-c

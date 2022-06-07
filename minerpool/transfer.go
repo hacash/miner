@@ -8,7 +8,7 @@ import (
 	"math/big"
 )
 
-// 开始判断后打币
+// Make money after judgment
 func (p *MinerPool) startDoTransfer(curblkheight uint64, period *RealtimePeriod) {
 	p.periodChange.Lock()
 	defer p.periodChange.Unlock()

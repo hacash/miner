@@ -18,7 +18,7 @@ type findBlockMsg struct {
 type MinerPool struct {
 	Config *MinerPoolConfig
 
-	currentTcpConnectingCount int32 // 当前连接tcp数量
+	currentTcpConnectingCount int32 // Current TCP connections
 
 	blockchain interfaces.BlockChain
 	txpool     interfaces.TxPool

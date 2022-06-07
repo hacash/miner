@@ -25,13 +25,13 @@ func (r *RelayService) dropClientById(cid uint64) {
 	}
 }
 
-// 通知所有连接新区块到来
+// Notify all connected new blocks of arrival
 func (r *RelayService) notifyAllClientNewBlockStuff(blkstuff *message.MsgPendingMiningBlockStuff) {
 	bts := blkstuff.Serialize()
 	r.notifyAllClientNewBlockStuffByMsgBytes(bts)
 }
 
-// 通知所有连接新区块到来
+// Notify all connected new blocks of arrival
 func (r *RelayService) notifyAllClientNewBlockStuffByMsgBytes(stuffbts []byte) {
 	r.changelock.Lock()
 	defer r.changelock.Unlock()

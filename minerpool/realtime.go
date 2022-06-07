@@ -80,7 +80,7 @@ func (r *RealtimePeriod) sendMiningStuffMsg(client *Client) {
 func (r *RealtimePeriod) successFindNewBlock(block interfaces.Block) {
 	if r.outputBlockCh != nil {
 		go func() {
-			*r.outputBlockCh <- block // 挖出区块，传递给miner
+			*r.outputBlockCh <- block // Dig out the block and pass it to miner
 		}()
 	}
 }
@@ -91,7 +91,7 @@ func (r *RealtimePeriod) IsOverEndBlock(blkheibts []byte) bool {
 	return uint64(tarhei) != r.targetBlock.GetHeight()
 }
 
-// 结束当前挖矿
+// End current mining
 func (r *RealtimePeriod) endCurrentMining() {
 	//fmt.Println("+++++++++++++++++++++ endCurrentMining ")
 	go func() {
@@ -101,7 +101,7 @@ func (r *RealtimePeriod) endCurrentMining() {
 				client := cli.(*Client)
 				//fmt.Println(" -client.conn.Write([]byte(end_current_mining) ")
 				client.conn.Write([]byte("end_current_mining"))
-				// 不能结束连接，等待上传算力统计
+				// Unable to end the connection, waiting to upload the calculation force statistics
 			}
 		}
 	}()

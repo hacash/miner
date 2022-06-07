@@ -51,7 +51,7 @@ func main() {
 
 	worker.SetPowWorker(wkwrap)
 
-	// 启动
+	// start-up
 	worker.Start()
 
 	s := <-c

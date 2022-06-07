@@ -7,13 +7,13 @@ import (
 )
 
 // find block nonce or change coinbase message
-// 下发
+// Issue
 func (m *MinerServer) Excavate(input interfaces.Block, resCh chan interfaces.Block) {
-	// 开始挖掘新的区块
+	// Start mining new blocks
 	m.changelock.Lock()
 	defer m.changelock.Unlock()
 
-	// 解析挖矿消息
+	// Parsing mining messages
 	var err error = nil
 	m.penddingBlockMsg, err = message.CreatePendingMiningBlockStuffByBlock(input.(interfaces.Block))
 	if err != nil {
@@ -21,12 +21,12 @@ func (m *MinerServer) Excavate(input interfaces.Block, resCh chan interfaces.Blo
 		return
 	}
 
-	// 挖掘成功上报通道
+	// Mining successful reporting channel
 	m.successMintCh = resCh
 
 	// fmt.Printf("send pending mining block stuff to %d worker of connected with server\n", len(m.allconns))
 
-	// 给所有连接发送挖掘信息
+	// Send mining information to all connections
 	for _, v := range m.allconns {
 		stuffbts := m.penddingBlockMsg.Serialize()
 		message.MsgSendToTcpConn(v.conn, message.MinerWorkMsgTypeMiningBlock, stuffbts)

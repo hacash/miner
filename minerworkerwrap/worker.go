@@ -24,7 +24,7 @@ func NewWorkerWrap(config *WorkerWrapConfig) *WorkerWrap {
 	}
 }
 
-// 关闭算力统计
+// Turn off force statistics
 func (g *WorkerWrap) CloseUploadHashrate() {
 	g.powdevice.CloseUploadHashrate()
 }

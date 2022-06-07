@@ -12,13 +12,13 @@ import (
 */
 
 type MsgReportMiningResult struct {
-	MintSuccessed fields.Bool        // 挖掘成功 或者 报告算力
-	BlockHeight   fields.BlockHeight // 挖掘的区块高度
+	MintSuccessed fields.Bool        // Mining success or reporting computing power
+	BlockHeight   fields.BlockHeight // Excavated block height
 	HeadNonce     fields.Bytes4      // block head nonce
 	CoinbaseNonce fields.Bytes32     // coinbase nonce
 }
 
-// 序列化
+// serialize
 func (m MsgReportMiningResult) Serialize() []byte {
 
 	buf := bytes.NewBuffer([]byte{})
@@ -32,7 +32,7 @@ func (m MsgReportMiningResult) Serialize() []byte {
 	return buf.Bytes()
 }
 
-// 反序列化
+// Deserialization
 func (m *MsgReportMiningResult) Parse(buf []byte, seek uint32) (uint32, error) {
 	var e error = nil
 	seek, e = m.MintSuccessed.Parse(buf, seek)

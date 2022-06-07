@@ -63,7 +63,7 @@ func NewMinerWorker(cnf *MinerWorkerConfig) *MinerPoolWorker {
 
 	wkcnf := localcpu.NewEmptyLocalCPUPowMasterConfig()
 	wkcnf.Concurrent = cnf.Concurrent
-	wkcnf.ReturnPowerHash = true // 上报哈希最大值
+	wkcnf.ReturnPowerHash = true // Maximum reported hash
 	pool.worker = localcpu.NewLocalCPUPowMaster(wkcnf)
 
 	return pool
