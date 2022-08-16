@@ -8,11 +8,31 @@ import (
 	"github.com/hacash/core/actions"
 	"github.com/hacash/core/blocks"
 	"github.com/hacash/core/crypto/btcec"
+	"github.com/hacash/core/crypto/sha3"
 	"github.com/hacash/core/fields"
 	"github.com/hacash/core/transactions"
 	"github.com/hacash/x16rs"
 	"testing"
 )
+
+func Test_x16rs(t *testing.T) {
+
+	/*
+		data1 := bytes.Repeat([]byte{0}, 32)
+		for i := 1; i <= 100; i++ {
+			res := x16rs.HashX16RS(i, data1)
+			fmt.Printf(" %d: %s\n", i, hex.EncodeToString(res))
+		}
+	*/
+
+	data1 := bytes.Repeat([]byte{0}, 32)
+	for i := 1; i <= 100; i++ {
+		res := sha3.Sum256(data1)
+		fmt.Printf(" %d: %s\n", i, hex.EncodeToString(res[:]))
+		data1 = res[:]
+	}
+
+}
 
 func Test_taskjhfasjkldf(t *testing.T) {
 
