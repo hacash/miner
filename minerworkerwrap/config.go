@@ -39,7 +39,7 @@ func NewWorkerWrapConfig(cnffile *sys.Inicnf) *WorkerWrapConfig {
 	cnf.GPU_Enable = gpusection.Key("enable").MustBool(false)
 	cnf.GPU_OpenclPath = gpusection.Key("opencl_path").MustString("")
 	cnf.GPU_PlatformNameMatch = gpusection.Key("platform_match").MustString("")
-	cnf.GPU_GroupSize = int(gpusection.Key("group_size").MustInt(0))
+	cnf.GPU_GroupSize = int(gpusection.Key("group_size").MustInt(1))
 	cnf.GPU_GroupConcurrentNum = int(gpusection.Key("group_concurrent").MustInt(1))
 	cnf.GPU_ItemLoopNum = int(gpusection.Key("group_item_loop").MustUint(10))
 	cnf.GPU_UseOneDeviceBuild = gpusection.Key("use_single_device_build").MustBool(false)
