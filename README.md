@@ -1,56 +1,55 @@
 # Golang Hacash Full Node Miner
 
-### Software download & release log (软件下载和版本发布日志)
+### Software download & release log
 
 Release: [software_release_log.md](doc/software_release_log.md)
 
-### Compilation build instructions (编译部署文档)
+### Compilation build instructions 
 
 Compilation build instructions: [build_compilation_en.md](doc/build_compilation_en.md)
 
 ---
 
-### RPC API Doc (区块链数据接口文档)
-
-中文：[rpc_api_doc.cn.md](https://github.com/hacash/service/blob/master/doc/rpc_api_doc.cn.md) 
+### RPC API Doc 
 
 English：[rpc_api_doc.en.md](https://github.com/hacash/service/blob/master/doc/rpc_api_doc.en.md) 
 
+Chinese：[rpc_api_doc.cn.md](https://github.com/hacash/service/blob/master/doc/rpc_api_doc.cn.md) 
+
 ---
 
-### Miner service Doc (挖矿与矿池开发文档)
-
-中文：[miner_service_api.cn.md](https://github.com/hacash/service/blob/master/doc/miner_service_api.cn.md) 
+### Miner service Doc
 
 English： [miner_service_api.en.md](https://github.com/hacash/service/blob/master/doc/miner_service_api.en.md)
 
+Chinese：[miner_service_api.cn.md](https://github.com/hacash/service/blob/master/doc/miner_service_api.cn.md) 
+
 
 ---
 
-### X16RS algorithm design explanation (X16RS 算法设计说明)
-
-
-中文：[x16rs_algorithm_description.cn.md](https://github.com/hacash/x16rs/blob/master/doc/x16rs_algorithm_description.cn.md)
+### X16RS algorithm design explanation 
 
 English： [x16rs_algorithm_description.en.md](https://github.com/hacash/x16rs/blob/master/doc/x16rs_algorithm_description.en.md)
 
+Chinese：[x16rs_algorithm_description.cn.md](https://github.com/hacash/x16rs/blob/master/doc/x16rs_algorithm_description.cn.md)
+
 
 
 ---
 
-### Project code engineering architecture (项目代码工程基础架构)
+### Project code engineering architecture
 
-Hacash 全节点代码的架构从底至上分为 7 个层级：
+The architecture of Hacash full node code is divided into 7 levels from bottom to top:
 
 X16RS -> Core -> Chain -> Mint -> Node -> Service -> Miner
 
-架构的每一层各自具备独立的功能和职责以供上层调用，而下层对上层的实现未知。其各层的职责大略如下：
+Each layer of the architecture has independent functions and responsibilities for the upper layer to call, and the implementation of the lower layer to the upper layer is unknown. The responsibilities of each layer are roughly as follows:
 
-1. [X16RS] 基础算法 - 包含HAC挖掘、区块钻石挖掘、GPU版本算法等
-2. [Core] 核心 - 区块结构定义、Interface定义、数据序列化及反序列化、储存对象、各字段格式、创世区块定义等
-3. [Chain] 链 - 底层数据库、区块和交易储存器、区块链状态储存、日志等
-4. [Mint] 造币厂 - 区块挖掘难度调整算法、coinbase定义、区块构建及交易执行和状态更新等
-5. [Node] 节点 - P2P底层模块、Backend区块链同步端、点对点网络消息定义及处理等
-6. [Service] 服务 - RPC API 接口服务、区块和交易和账户数据等查询、其它服务等
-7. [Miner] 矿工 - 区块构建及挖掘、钻石挖掘、交易内存池、矿池服务端、矿池worker等
+1. [X16RS] Basic algorithm - including HAC mining, block diamond mining, GPU version algorithm, etc.
+2. [Core] Core - block structure definition, interface definition, data serialization and deserialization, storage object, field format, genesis block definition, etc.
+3. [Chain] Chain - underlying database, block and transaction storage, blockchain state storage, logs, etc.
+4. [Mint] Mint - block mining difficulty adjustment algorithm, coinbase definition, block construction, transaction execution and status update, etc.
+5. [Node] Node - P2P underlying module, Backend blockchain synchronization terminal, point-to-point network message definition and processing, etc.
+6. [Service] Service - RPC API interface service, block and transaction and account data query, other services, etc.
+7. [Miner] Miner - block construction and mining, diamond mining, transaction memory pool, mining pool server, mining pool worker, etc.
 
