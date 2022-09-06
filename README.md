@@ -27,11 +27,20 @@ Chinese：[miner_service_api.cn.md](https://github.com/hacash/service/blob/maste
 
 ---
 
-### X16RS algorithm design explanation 
+### X16RS algorithm design explanation
 
 English： [x16rs_algorithm_description.en.md](https://github.com/hacash/x16rs/blob/master/doc/x16rs_algorithm_description.en.md)
 
 Chinese：[x16rs_algorithm_description.cn.md](https://github.com/hacash/x16rs/blob/master/doc/x16rs_algorithm_description.cn.md)
+
+
+---
+
+### HAC & HACD mining fairness description
+
+English： [HAC_HACD_mining_fairness_description.en.md](https://github.com/hacash/x16rs/blob/master/doc/HAC_HACD_mining_fairness_description.en.md)
+
+Chinese：[HAC_HACD_mining_fairness_description.cn.md](https://github.com/hacash/x16rs/blob/master/doc/HAC_HACD_mining_fairness_description.cn.md)
 
 
 
