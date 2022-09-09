@@ -75,20 +75,26 @@ Hacash Software Download link and Release log
 ### Lastest release log:
 
 
+#### Version: 0.1.13  (2022.09.09.01)
+
+update log:
+
+> [1] new: Accurate version of hashrates statistics.
+
 #### Version: 0.1.12  (2022.01.25.01)
 
 update log:
 
 > [1] add: Diamond miner automatic bidding supports custom inspection time, the minimum support is 0.1 seconds, config field is `autobid_check_interval`, unit is seconds.<br>
-> [1] fix bug: Some blocks packaged by miner cannot contain any transactions.
+> [2] fix bug: Some blocks packaged by miner cannot contain any transactions.
 
 #### Version: 0.1.11  (2022.01.18.01)
 
 update log:
 
 > [1] add: MacOS support!<br>
-> [1] fix bug: isChangeCurrentForkHead cannot change refer height.<br>
-> [2] new: add action support 'Action_29_SubmitTimeLimit'.
+> [2] fix bug: isChangeCurrentForkHead cannot change refer height.<br>
+> [3] new: add action support 'Action_29_SubmitTimeLimit'.
 
 #### Version: 0.1.10  (2021.12.10.01)
 
