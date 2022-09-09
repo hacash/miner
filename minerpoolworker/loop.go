@@ -89,7 +89,7 @@ func (p *MinerPoolWorker) loop() {
 						usetimesec = 1
 					}
 					//fmt.Println( usetimesec )
-					hashrateshow = difficulty.ConvertHashToRateShow(block_hash, usetimesec)
+					hashrateshow = difficulty.ConvertHashToRateShow(msg.BlockHeadMeta.GetHeight(), block_hash, usetimesec)
 					//hashrateshow += ", " + p.addPowerLogReturnShow(hashrate)
 					//hashrateshow = p.addPowerLogReturnShow(hashrate)
 				}

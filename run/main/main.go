@@ -44,8 +44,8 @@ go build -o test/poolworkertest1 miner/run/minerpoolworker/main.go  && ./test/po
 
 编译发布版本：
 
-go build -ldflags '-w -s' -o                   hacash_node_2022_01_25_01  miner/run/main/main.go
-go build -ldflags '-w -s' -o      hacash_miner_pool_worker_2022_01_25_01  miner/run/minerpoolworker/main.go
+go build -ldflags '-w -s' -o                   hacash_node_2022_09_09_01  miner/run/main/main.go
+go build -ldflags '-w -s' -o      hacash_miner_pool_worker_2022_09_09_01  miner/run/minerpoolworker/main.go
 go build -ldflags '-w -s' -o    hacash_miner_relay_service_2022_01_25_01  miner/run/minerrelayservice/main.go
 go build -ldflags '-w -s' -o hacash_desktop_offline_wallet_2022_01_25_01  pcwallet/main/main.go
 go build -ldflags '-w -s' -o              hacash_cmdwallet_2022_01_25_01  cmdwallet/run/main/main.go
@@ -66,7 +66,7 @@ const (
 	NodeVersionSuperMain    uint32 = 0            // Major version number
 	NodeVersionSupport      uint32 = 1            // Compatible version number
 	NodeVersionFeature      uint32 = 12           // Feature version number
-	NodeVersionBuildCompile string = "20220125.1" // Build version number
+	NodeVersionBuildCompile string = "20220909.1" // Build version number
 	// Integrated version number system: 0.1.12 (20220125.1)
 )
 

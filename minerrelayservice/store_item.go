@@ -39,7 +39,7 @@ func (s *StoreItemUserMiningResult) Describe() map[string]interface{} {
 	data["mint_success"] = s.IsMintSuccessed
 	if s.IsSaveMiningResultHash == 1 {
 		data["result_hash"] = s.MiningResultHash.ToHex()
-		data["result_hash_worth"] = difficulty.CalculateHashWorth(s.MiningResultHash).String()
+		data["result_hash_worth"] = difficulty.CalculateHashWorthForTest(s.MiningResultHash).String()
 	}
 	if s.IsSaveMiningResultNonce == 1 {
 		hdnc, _ := s.MiningResultHeadNonce.Serialize()
