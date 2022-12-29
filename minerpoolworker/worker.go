@@ -3,7 +3,7 @@ package minerpoolworker
 import (
 	"fmt"
 	"github.com/hacash/chain/mapset"
-	"github.com/hacash/miner/localcpu"
+	"github.com/hacash/miner/localgpu"
 	"github.com/hacash/miner/message"
 	"net"
 	"sync"
@@ -60,11 +60,11 @@ func NewMinerWorker(cnf *MinerWorkerConfig) *MinerPoolWorker {
 		powerTotalCmx:           mapset.NewSet(),
 		isInConnecting:          false,
 	}
-
-	wkcnf := localcpu.NewEmptyLocalCPUPowMasterConfig()
+	// here change to GPU
+	wkcnf := localgpu.NewEmptyLocalGPUPowMasterConfig()
 	wkcnf.Concurrent = cnf.Concurrent
 	wkcnf.ReturnPowerHash = true // Maximum reported hash
-	pool.worker = localcpu.NewLocalCPUPowMaster(wkcnf)
+	pool.worker = localgpu.NewLocalGPUPowMaster(wkcnf)
 
 	return pool
 

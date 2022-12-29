@@ -4,12 +4,14 @@ import (
 	"github.com/hacash/core/interfaces"
 	"github.com/hacash/miner/message"
 	"net"
+	"sync"
 )
 
 type MinerWorker struct {
 	config *MinerWorkerConfig
 
-	conn *net.TCPConn // connect
+	conn        *net.TCPConn // connect
+	statusMutex sync.Mutex
 
 	pendingMiningBlockStuff *message.MsgPendingMiningBlockStuff
 
