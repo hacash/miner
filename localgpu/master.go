@@ -1,6 +1,7 @@
 package localgpu
 
 import (
+	"github.com/hacash/core/interfaces"
 	"sync"
 )
 
@@ -13,6 +14,9 @@ type LocalGPUPowMaster struct {
 	stopMarks sync.Map
 
 	stepLock sync.RWMutex
+
+	miningStuffCh chan interfaces.PowWorkerMiningStuffItem
+	resultCh      chan interfaces.PowWorkerMiningStuffItem
 }
 
 func NewLocalGPUPowMaster(cnf *LocalGPUPowMasterConfig) *LocalGPUPowMaster {

@@ -17,13 +17,11 @@ func (l *LocalGPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 
 	l.StopMining() // stop old all
 
-	maxuint32 := uint32(4294967295)
 	supervene := uint32(l.config.Concurrent) // 并发线程
 	// -------- test start --------
 	//maxuint32 = uint32(2294900)
 	//supervene := uint32(6)
 	// -------- test end   --------
-	nonceSpace := maxuint32 / supervene
 
 	// new run
 	var nextstop byte = 0
@@ -50,29 +48,30 @@ func (l *LocalGPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 		var syncWait = sync.WaitGroup{}
 		syncWait.Add(int(supervene))
 
-		for i := uint32(0); i < supervene; i++ {
-			//fmt.Println("worker := NewCPUWorker ", i)
-			worker := NewGPUWorker(&successMiningMark, miningBlockCh, 0, stopmark, config)
-			if l.config.ReturnPowerHash {
-				worker.returnPowerHash = true
-			}
-
-			l.stepLock.RLock()
-			worker.coinbaseMsgNum = l.coinbaseMsgNum
-			l.stepLock.RUnlock()
-
-			//l.currentWorkers.Add( worker )
-			go func(startNonce, endNonce uint32) {
-				//fmt.Println( "start worker.RunMining" )
-				success := worker.RunMining(inputblockheadmeta, startNonce, endNonce)
-				//fmt.Println( "end worker.RunMining", success )
-				if success {
-					successFindBlock = true
-				}
-				syncWait.Done()
-				//fmt.Println( "end syncWait.Done()" )
-			}(nonceSpace*i, nonceSpace*i+nonceSpace)
+		//fmt.Println("worker := NewCPUWorker ", i)
+		worker := NewGPUWorker(&successMiningMark, miningBlockCh, 0, stopmark, l.config)
+		if l.config.ReturnPowerHash {
+			worker.returnPowerHash = true
 		}
+		l.StopMining()
+		//fmt.Println("g.StopAllMining()")
+
+		// Serial synchronization
+		l.stepLock.Lock()
+		defer l.stepLock.Unlock()
+
+		// stop mark
+		var stopmark1 byte = 0
+		l.stopMarks.Store(&stopmark1, &stopmark1)
+		defer l.stopMarks.Delete(&stopmark1) //l.currentWorkers.Add( worker )
+
+		//fmt.Println( "start worker.RunMining" )
+		success := worker.RunMining(inputblockheadmeta, &stopmark1)
+		//fmt.Println( "end worker.RunMining", success )
+		if success {
+			successFindBlock = true
+		}
+		syncWait.Done()
 
 		//fmt.Println("syncWait.Wait()  start ", supervene)
 		// wait
