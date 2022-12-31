@@ -37,7 +37,7 @@ func (w *GpuMinerDeviceWorkerContext) ReInit(stuff_buf []byte, target_buf []byte
 }
 
 // chua
-func (mr *GPUWorker) createWorkContext(devidx int) *GpuMinerDeviceWorkerContext {
+func (mr *LocalGPUPowMaster) createWorkContext(devidx int) *GpuMinerDeviceWorkerContext {
 
 	// 运行创建执行单元
 	//input_target_buf := make([]byte, 32)
@@ -89,16 +89,16 @@ func (mr *GPUWorker) createWorkContext(devidx int) *GpuMinerDeviceWorkerContext 
 	return ctx
 
 }
-func (mr *GPUWorker) buildOrLoadProgram() *cl.Program {
+func (mr *LocalGPUPowMaster) buildOrLoadProgram() *cl.Program {
 
 	var program *cl.Program
 
 	binfilestuff := mr.platform.Name() // + "_" + mr.devices[0].Name()
 	binfilename := strings.Replace(binfilestuff, " ", "_", -1)
-	binfilepath := mr.openclPath + "/" + binfilename + ".objcache"
+	binfilepath := mr.config.OpenclPath + "/" + binfilename + ".objcache"
 	binstat, staterr := os.Stat(binfilepath)
-	if mr.rebuild || staterr != nil {
-		fmt.Print("Create opencl program with source: " + mr.openclPath + ", Please wait...")
+	if staterr != nil {
+		fmt.Print("Create opencl program with source: " + mr.config.OpenclPath + ", Please wait...")
 		buildok := false
 		go func() { // 打印
 			for {
@@ -110,13 +110,13 @@ func (mr *GPUWorker) buildOrLoadProgram() *cl.Program {
 			}
 		}()
 		emptyFuncTest := ""
-		if mr.emptyFuncTest {
+		if mr.config.EmptyFuncTest {
 			emptyFuncTest = `_empty_test` // 空函数快速编译测试
 		}
 		codeString := ` #include "x16rs_main` + emptyFuncTest + `.cl" `
 		codeString += fmt.Sprintf("\n#define updateforbuild %d", rand.Uint64()) // 避免某些平台编译缓存
 		program, _ = mr.context.CreateProgramWithSource([]string{codeString})
-		bderr := program.BuildProgram(mr.devices, "-I "+mr.openclPath) // -I /media/yangjie/500GB/Hacash/src/github.com/hacash/x16rs/opencl
+		bderr := program.BuildProgram(mr.devices, "-I "+mr.config.OpenclPath)
 		if bderr != nil {
 			panic(bderr)
 		}

@@ -69,8 +69,9 @@ func (p *MinerPoolWorker) loop() {
 			client := p.pickTargetClient(block_height)
 			//fmt.Println("pickTargetClient", client)
 			if client != nil {
-
-				msg.BlockHeadMeta.SetNonce(binary.BigEndian.Uint32(msg.NonceBytes))
+				if msg.NonceBytes != nil {
+					msg.BlockHeadMeta.SetNonce(binary.BigEndian.Uint32(msg.NonceBytes))
+				}
 				msg.BlockHeadMeta.Fresh()
 
 				var hashrateshow string = "-"

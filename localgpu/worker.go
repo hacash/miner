@@ -9,10 +9,7 @@ import (
 	"github.com/hacash/core/interfaces"
 	"github.com/hacash/mint/difficulty"
 	"github.com/hacash/x16rs"
-	wr "github.com/hacash/x16rs/opencl/worker"
 	"github.com/xfong/go2opencl/cl"
-	"os"
-	"strings"
 	"sync"
 
 	"sync/atomic"
@@ -56,8 +53,13 @@ type GPUWorker struct {
 	successBlockCh chan miningBlockReturn
 }
 
-func NewGPUWorker(successMiningMark *uint32, successBlockCh chan miningBlockReturn, coinbaseMsgNum uint32, stopMark *byte, config *LocalGPUPowMasterConfig) *GPUWorker {
+func NewGPUWorker(successMiningMark *uint32, successBlockCh chan miningBlockReturn, coinbaseMsgNum uint32, stopMark *byte, config *LocalGPUPowMasterConfig, platform *cl.Platform, context *cl.Context, program *cl.Program, devices []*cl.Device, deviceworkers []*GpuMinerDeviceWorkerContext) *GPUWorker {
 	mr := &GPUWorker{
+		platform:          platform,
+		context:           context,
+		program:           program,
+		devices:           devices,
+		deviceworkers:     deviceworkers,
 		openclPath:        config.OpenclPath,
 		platName:          config.PlatName,
 		rebuild:           false,
@@ -71,66 +73,6 @@ func NewGPUWorker(successMiningMark *uint32, successBlockCh chan miningBlockRetu
 		successBlockCh:    successBlockCh,
 		coinbaseMsgNum:    coinbaseMsgNum,
 		stopMark:          stopMark,
-	}
-
-	var e error = nil
-
-	// opencl file prepare
-	if strings.Compare(mr.openclPath, "") == 0 {
-		tardir := wr.GetCurrentDirectory() + "/opencl/"
-		if _, err := os.Stat(tardir); err != nil {
-			fmt.Println("Create opencl dir and render files...")
-			files := wr.GetRenderCreateAllOpenclFiles() // 输出所有文件
-			err := wr.WriteClFiles(tardir, files)
-			if err != nil {
-				fmt.Println(e)
-				os.Exit(0) // 致命错误
-			}
-			fmt.Println("all file ok.")
-		} else {
-			fmt.Println("Opencl dir already here.")
-		}
-		mr.openclPath = tardir
-	}
-
-	// start
-	platforms, e := cl.GetPlatforms()
-
-	chooseplatids := 0
-	for i, pt := range platforms {
-		fmt.Printf("  - platform %d: %s\n", i, pt.Name())
-		if strings.Compare(mr.platName, "") != 0 && strings.Contains(pt.Name(), mr.platName) {
-			chooseplatids = i
-		}
-	}
-
-	mr.platform = platforms[chooseplatids]
-	fmt.Printf("current use platform: %s\n", mr.platform.Name())
-
-	devices, _ := mr.platform.GetDevices(cl.DeviceTypeAll)
-
-	for i, dv := range devices {
-		fmt.Printf("  - device %d: %s, (max_work_group_size: %d)\n", i, dv.Name(), dv.MaxWorkGroupSize())
-	}
-
-	// 是否单设备编译
-	if mr.useOneDeviceBuild {
-		fmt.Println("Only use single device to build and run.")
-		mr.devices = []*cl.Device{devices[0]} // 使用单台设备
-	} else {
-		mr.devices = devices
-	}
-
-	mr.context, _ = cl.CreateContext(mr.devices)
-
-	// 编译源码
-	mr.program = mr.buildOrLoadProgram()
-
-	// 初始化执行环境
-	devlen := len(mr.devices)
-	mr.deviceworkers = make([]*GpuMinerDeviceWorkerContext, devlen)
-	for i := 0; i < devlen; i++ {
-		mr.deviceworkers[i] = mr.createWorkContext(i)
 	}
 
 	return mr
@@ -169,14 +111,14 @@ STARTDOMINING:
 	}
 	// ========= test end   =========DoMining
 	//stopkind, issuccess, noncebytes, powerhash := x16rs.MinerNonceHashX16RS(newblockheadmeta.GetHeight(), c.returnPowerHash, c.stopMark, startNonce, endNonce, targethashdiff, workStuff)
-	issuccess, stopkind, noncebytes, powerhash := c.DoMining(newblockheadmeta.GetHeight(), stopmark, targethashdiff, blockheadmetasary)
+	issuccess, _, noncebytes, powerhash := c.DoMining(newblockheadmeta.GetHeight(), stopmark, targethashdiff, blockheadmetasary)
 	//fmt.Println("x16rs.MinerNonceHashX16RS finish ", issuccess,  binary.LittleEndian.Uint32(noncebytes[0:4]), startNonce, endNonce)
 	if issuccess && atomic.CompareAndSwapUint32(c.successMiningMark, 0, 1) {
 		// return success block
-		*c.stopMark = 1 // set stop mark for all cpu worker
+		*c.stopMark = 1 // set stop mark for all gpu worker
 		//fmt.Println("start c.successBlockCh <- newblock")
 		c.successBlockCh <- miningBlockReturn{
-			stopkind,
+			0,
 			true,
 			c.coinbaseMsgNum,
 			noncebytes,
@@ -187,7 +129,7 @@ STARTDOMINING:
 		return true
 	} else if c.returnPowerHash {
 		c.successBlockCh <- miningBlockReturn{
-			stopkind,
+			0,
 			false,
 			c.coinbaseMsgNum,
 			noncebytes,

@@ -49,7 +49,8 @@ func (l *LocalGPUPowMaster) Excavate(inputblockheadmeta interfaces.Block, output
 		syncWait.Add(int(supervene))
 
 		//fmt.Println("worker := NewCPUWorker ", i)
-		worker := NewGPUWorker(&successMiningMark, miningBlockCh, 0, stopmark, l.config)
+		worker := NewGPUWorker(&successMiningMark, miningBlockCh, 0, stopmark, l.config, l.platform, l.context, l.program, l.devices, l.deviceworkers)
+		l.config.UseOneDeviceBuild = false
 		if l.config.ReturnPowerHash {
 			worker.returnPowerHash = true
 		}
