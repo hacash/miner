@@ -119,7 +119,7 @@ func start() error {
 
 	isOpenMiner := hinicnf.Section("miner").Key("enable").MustBool(false)
 	isOpenMinerServer := hinicnf.Section("minerserver").Key("enable").MustBool(false)
-	isOpenMinerPool := hinicnf.Section("minerpool").Key("enable").MustBool(true)
+	isOpenMinerPool := hinicnf.Section("minerpool").Key("enable").MustBool(false)
 	isOpenService := hinicnf.Section("service").Key("enable").MustBool(false)
 	isOpenDiamondMiner := hinicnf.Section("diamondminer").Key("enable").MustBool(false)
 
