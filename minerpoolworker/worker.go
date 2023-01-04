@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/hacash/chain/mapset"
 	"github.com/hacash/miner/localcpu"
+	"github.com/hacash/miner/localgpu"
 	"github.com/hacash/miner/message"
 	"net"
 	"sync"
@@ -60,11 +61,25 @@ func NewMinerWorker(cnf *MinerWorkerConfig) *MinerPoolWorker {
 		powerTotalCmx:           mapset.NewSet(),
 		isInConnecting:          false,
 	}
-
-	wkcnf := localcpu.NewEmptyLocalCPUPowMasterConfig()
-	wkcnf.Concurrent = cnf.Concurrent
-	wkcnf.ReturnPowerHash = true // Maximum reported hash
-	pool.worker = localcpu.NewLocalCPUPowMaster(wkcnf)
+	// here change to GPU
+	if cnf.GPU_Enable == true {
+		wkcnf := localgpu.NewEmptyLocalGPUPowMasterConfig()
+		wkcnf.Concurrent = cnf.Concurrent
+		wkcnf.ReturnPowerHash = true // Maximum reported hash
+		wkcnf.OpenclPath = cnf.GPU_OpenclPath
+		wkcnf.PlatName = cnf.GPU_PlatformNameMatch
+		wkcnf.GroupNum = cnf.GPU_GroupConcurrentNum
+		wkcnf.GroupSize = cnf.GPU_GroupSize
+		wkcnf.ItemLoop = cnf.GPU_ItemLoopNum
+		wkcnf.EmptyFuncTest = cnf.GPU_EmptyFuncTest
+		wkcnf.UseOneDeviceBuild = cnf.GPU_UseOneDeviceBuild
+		pool.worker = localgpu.NewLocalGPUPowMaster(wkcnf)
+	} else {
+		wkcnf := localcpu.NewEmptyLocalCPUPowMasterConfig()
+		wkcnf.Concurrent = cnf.Concurrent
+		wkcnf.ReturnPowerHash = true // Maximum reported hash
+		pool.worker = localcpu.NewLocalCPUPowMaster(wkcnf)
+	}
 
 	return pool
 

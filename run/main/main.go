@@ -119,7 +119,7 @@ func start() error {
 
 	isOpenMiner := hinicnf.Section("miner").Key("enable").MustBool(false)
 	isOpenMinerServer := hinicnf.Section("minerserver").Key("enable").MustBool(false)
-	isOpenMinerPool := hinicnf.Section("minerpool").Key("enable").MustBool(false)
+	isOpenMinerPool := hinicnf.Section("minerpool").Key("enable").MustBool(true)
 	isOpenService := hinicnf.Section("service").Key("enable").MustBool(false)
 	isOpenDiamondMiner := hinicnf.Section("diamondminer").Key("enable").MustBool(false)
 
@@ -185,10 +185,8 @@ func start() error {
 			// Set up POW server
 			minernode.SetPowServer(miner_server)
 
-		} else if isOpenMinerPool {
-
-			mpcnf := minerpool.NewMinerPoolConfig(hinicnf)
-			miner_pool := minerpool.NewMinerPool(mpcnf)
+			mpcnf1 := minerpool.NewMinerPoolConfig(hinicnf)
+			miner_pool := minerpool.NewMinerPool(mpcnf1)
 			miner_pool.SetBlockChain(blockchainobj)
 			miner_pool.SetTxPool(txpool)
 
@@ -196,10 +194,10 @@ func start() error {
 			minernode.SetPowServer(miner_pool)
 
 			// check reward address and password
-			if !mcnf.Rewards.Equal(mpcnf.RewardAccount.Address) {
+			if !mcnf.Rewards.Equal(mpcnf1.RewardAccount.Address) {
 				err = fmt.Errorf("[Config Error] miner rewards address must equal to miner pool rewards passward address.")
 				fmt.Printf(err.Error())
-				fmt.Printf("[配置错误] 矿池自动发送奖励的地址的密码应该是地址 %s 而不是地址 %s 的密码。\n", mcnf.Rewards.ToReadable(), mpcnf.RewardAccount.AddressReadable)
+				fmt.Printf("[配置错误] 矿池自动发送奖励的地址的密码应该是地址 %s 而不是地址 %s 的密码。\n", mcnf.Rewards.ToReadable(), mpcnf1.RewardAccount.AddressReadable)
 				return err
 			}
 
