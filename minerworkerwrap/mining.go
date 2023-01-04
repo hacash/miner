@@ -122,7 +122,7 @@ STARTDOMINING:
 		g.resultCh <- endstuffitem
 		// Print
 		usetimesec := time.Now().Unix() - timestart.Unix()
-		hashrateshow := difficulty.ConvertHashToRateShow(endhash, usetimesec)
+		hashrateshow := difficulty.ConvertHashToRateShow(pendingHeight, endhash, usetimesec)
 		fmt.Printf("upload power: %s, time: %ds, hashrate: %s.\n",
 			hex.EncodeToString(endhash[0:16]),
 			usetimesec, hashrateshow,
