@@ -62,3 +62,8 @@ Each layer of the architecture has independent functions and responsibilities fo
 6. [Service] Service - RPC API interface service, block and transaction and account data query, other services, etc.
 7. [Miner] Miner - block construction and mining, diamond mining, transaction memory pool, mining pool server, mining pool worker, etc.
 
+
+```cgo
+// compile NOTE: set go module env config
+GO111MODULE="auto"
+```

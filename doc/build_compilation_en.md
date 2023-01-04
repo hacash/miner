@@ -87,6 +87,16 @@ Behaviour of each executable is configured by a simple config file in ini format
 normally the executables are started with config file as argument.
 
 ## Compile the go executables
+
+Note to set the GO111MODULE="auto" environment variable at compile time:
+
+```cgo
+// compile NOTE: set go module env config
+GO111MODULE="auto"
+```
+
+Start to compile:
+
 ```
 cd ~/go/src/github.com/hacash
 
