@@ -56,6 +56,8 @@ go build -ldflags '-w -s' -o      hacash_channelpay_client_2022_01_25_01  channe
 cd ./x16rs/opencl && node pkgclfilego.js && cd ../../
 go build -ldflags '-w -s' -o           hacash_miner_worker_2022_01_25_01  miner/run/minerworker/main.go
 
+go build -ldflags '-w -s' -o                hacash_ranking_2022_12_09_01  github.com/hacash/service/ranking/
+
 
 */
 
