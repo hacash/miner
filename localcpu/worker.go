@@ -1,8 +1,6 @@
 package localcpu
 
 import (
-	"encoding/hex"
-	"fmt"
 	"github.com/hacash/core/blocks"
 	"github.com/hacash/core/interfaces"
 	"github.com/hacash/mint/difficulty"
@@ -51,7 +49,7 @@ func (c *CPUWorker) RunMining(newblockheadmeta interfaces.Block, startNonce uint
 	//time.Sleep(time.Second)
 	// ========= test end   =========
 	stopkind, issuccess, noncebytes, powerhash := x16rs.MinerNonceHashX16RS(newblockheadmeta.GetHeight(), c.returnPowerHash, c.stopMark, startNonce, endNonce, targethashdiff, workStuff)
-	fmt.Println("mined:", hex.EncodeToString(targethashdiff))
+	//fmt.Println("mined:", hex.EncodeToString(targethashdiff))
 
 	//fmt.Println("x16rs.MinerNonceHashX16RS finish ", issuccess,  binary.LittleEndian.Uint32(noncebytes[0:4]), startNonce, endNonce)
 	if issuccess && atomic.CompareAndSwapUint32(c.successMiningMark, 0, 1) {
