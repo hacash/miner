@@ -75,6 +75,12 @@ Hacash Software Download link and Release log
 ### Lastest release log:
 
 
+#### Version: 0.1.15  (2023.03.09.01)
+
+update log:
+
+> [1] fix bug: miner pool open bug.
+
 #### Version: 0.1.13  (2022.09.09.01)
 
 update log:
