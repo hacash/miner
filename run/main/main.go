@@ -44,19 +44,19 @@ go build -o test/poolworkertest1 miner/run/minerpoolworker/main.go  && ./test/po
 
 编译发布版本：
 
-go build -ldflags '-w -s -extldflags "-static"' -o                   hacash_node_2023_03_09_01  miner/run/main/main.go
-go build -ldflags '-w -s -extldflags "-static"' -o      hacash_miner_pool_worker_2023_03_09_01  miner/run/minerpoolworker/main.go
-go build -ldflags '-w -s -extldflags "-static"' -o    hacash_miner_relay_service_2023_03_09_01  miner/run/minerrelayservice/main.go
-go build -ldflags '-w -s -extldflags "-static"' -o hacash_desktop_offline_wallet_2023_03_09_01  pcwallet/main/main.go
-go build -ldflags '-w -s -extldflags "-static"' -o              hacash_cmdwallet_2023_03_09_01  cmdwallet/run/main/main.go
+go build -ldflags '-w -s -extldflags "-static"' -o                   hacash_node_2023_04_20_01  miner/run/main/main.go
+go build -ldflags '-w -s -extldflags "-static"' -o      hacash_miner_pool_worker_2023_04_20_01  miner/run/minerpoolworker/main.go
+go build -ldflags '-w -s -extldflags "-static"' -o    hacash_miner_relay_service_2023_04_20_01  miner/run/minerrelayservice/main.go
+go build -ldflags '-w -s -extldflags "-static"' -o hacash_desktop_offline_wallet_2023_04_20_01  pcwallet/main/main.go
+go build -ldflags '-w -s -extldflags "-static"' -o              hacash_cmdwallet_2023_04_20_01  cmdwallet/run/main/main.go
 
-go build -ldflags '-w -s -extldflags "-static"' -o    hacash_channelpay_servicer_2023_03_09_01  channelpay/run/servicer/main.go
-go build -ldflags '-w -s -extldflags "-static"' -o      hacash_channelpay_client_2023_03_09_01  channelpay/run/client/main.go
+go build -ldflags '-w -s -extldflags "-static"' -o    hacash_channelpay_servicer_2023_04_20_01  channelpay/run/servicer/main.go
+go build -ldflags '-w -s -extldflags "-static"' -o      hacash_channelpay_client_2023_04_20_01  channelpay/run/client/main.go
 
 cd ./x16rs/opencl && node pkgclfilego.js && cd ../../
-go build -ldflags '-w -s -extldflags "-static"' -o           hacash_miner_worker_2023_03_09_01  miner/run/minerworker/main.go
+go build -ldflags '-w -s -extldflags "-static"' -o           hacash_miner_worker_2023_04_20_01  miner/run/minerworker/main.go
 
-go build -ldflags '-w -s -extldflags "-static"' -o                hacash_ranking_2023_03_09_01  github.com/hacash/service/ranking/
+go build -ldflags '-w -s -extldflags "-static"' -o                hacash_ranking_2023_04_20_01  github.com/hacash/service/ranking/
 
 
 */
@@ -67,9 +67,9 @@ const (
 	//
 	NodeVersionSuperMain    uint32 = 0            // Major version number
 	NodeVersionSupport      uint32 = 1            // Compatible version number
-	NodeVersionFeature      uint32 = 15           // Feature version number
-	NodeVersionBuildCompile string = "20230309.1" // Build version number
-	// Integrated version number system: 0.1.15 (20230309.1)
+	NodeVersionFeature      uint32 = 16           // Feature version number
+	NodeVersionBuildCompile string = "20230420.1" // Build version number
+	// Integrated version number system: 0.1.16 (20230420.1)
 )
 
 /**
