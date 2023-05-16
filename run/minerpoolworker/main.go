@@ -11,8 +11,8 @@ import (
 
 /**
 
-go build -o poolworker github.com/hacash/miner/run/minerworker
-go build -ldflags '-w -s' -o poolworker_2020_6_24 github.com/hacash/miner/run/minerworker
+go build -o poolworker github.com/hacash/miner/run/minerpoolworker
+go build -ldflags '-w -s' -o poolworker_2020_6_24 github.com/hacash/miner/run/minerpoolworker
 
 */
 

@@ -83,7 +83,7 @@ STARTDOMINING:
 	if *stopmark == 1 {
 		return false
 	}
-	supervene := 1
+	supervene := len(c.devices)
 	blockheadmetasary := make([][]byte, supervene)
 	oksuffnum := 0
 	for {
@@ -231,7 +231,7 @@ func (g *GPUWorker) DoMining(blockHeight uint64, stopmark *byte, tarhashvalue []
 	for i := 0; i < deviceNum; i++ {
 		go func(did int) {
 			defer syncWait.Done()
-			fmt.Println("mr.deviceworkers[i]", did, len(g.deviceworkers), g.deviceworkers)
+			//fmt.Println("mr.deviceworkers[i]", did, len(g.deviceworkers), g.deviceworkers)
 			//devideCtx := g.deviceworkers[did]
 			stuffbts := blockheadmeta[did]
 			// 执行
