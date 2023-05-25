@@ -42,8 +42,8 @@ func NewLocalGPUPowMaster(cnf *LocalGPUPowMasterConfig) *LocalGPUPowMaster {
 		tardir := wr.GetCurrentDirectory() + "/opencl/"
 		if _, err := os.Stat(tardir); err != nil {
 			fmt.Println("Create opencl dir and render files...")
-			files := wr.GetRenderCreateAllOpenclFiles() // 输出所有文件
-			err := wr.WriteClFiles(tardir, files)
+			//files := wr.GetRenderCreateAllOpenclFiles() // 输出所有文件
+			//err := wr.WriteClFiles(tardir, files)
 			if err != nil {
 				fmt.Println(e)
 				os.Exit(0) // 致命错误
