@@ -7,6 +7,7 @@ import (
 	"github.com/hacash/chain/leveldb"
 	"github.com/hacash/core/fields"
 	"github.com/hacash/core/sys"
+	interfaces2 "github.com/hacash/miner/interfaces"
 	"github.com/hacash/miner/message"
 	"os"
 )
@@ -141,7 +142,7 @@ func (api *RelayService) saveMiningBlockStuffToStore(stuff *message.MsgPendingMi
 }
 
 // Read and store mining stuff
-func (api *RelayService) readMiningBlockStuffFormStore(blkhei uint64) *message.MsgPendingMiningBlockStuff {
+func (api *RelayService) readMiningBlockStuffFormStore(blkhei uint64) *interfaces2.PoWStuffOverallData {
 
 	if api.ldb == nil || api.config.StoreEnable == false || api.config.SaveMiningBlockStuff == false {
 		return nil
@@ -158,7 +159,7 @@ func (api *RelayService) readMiningBlockStuffFormStore(blkhei uint64) *message.M
 		fmt.Println(err)
 	}
 
-	var stuff = message.MsgPendingMiningBlockStuff{}
+	var stuff = interfaces2.PoWStuffOverallData{}
 	_, e2 := stuff.Parse(stodatas, 0)
 	if e2 != nil {
 		fmt.Println("[Miner Relay Service] MsgPendingMiningBlockStuff.Parse ERROR:")

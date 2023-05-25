@@ -1,8 +1,7 @@
 package minerworker
 
 import (
-	"github.com/hacash/core/interfaces"
-	"github.com/hacash/miner/message"
+	interfaces2 "github.com/hacash/miner/interfaces"
 	"net"
 	"sync"
 )
@@ -13,20 +12,20 @@ type MinerWorker struct {
 	conn        *net.TCPConn // connect
 	statusMutex sync.Mutex
 
-	pendingMiningBlockStuff *message.MsgPendingMiningBlockStuff
+	//pendingMiningBlockStuff *interfaces2.PoWStuffOverallData
 
-	miningStuffFeedingCh chan interfaces.PowWorkerMiningStuffItem
-	miningResultCh       chan interfaces.PowWorkerMiningStuffItem
+	//miningStuffFeedingCh chan *interfaces2.PoWStuffOverallData
+	//miningResultCh       chan *interfaces2.PoWResultData
 
-	powWorker interfaces.PowWorker // Digger
+	powWorker interfaces2.PoWWorker // Digger
 }
 
 func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
 
 	worker := &MinerWorker{
-		config:               cnf,
-		miningStuffFeedingCh: make(chan interfaces.PowWorkerMiningStuffItem, 1),
-		miningResultCh:       make(chan interfaces.PowWorkerMiningStuffItem, 1),
+		config: cnf,
+		//miningStuffFeedingCh: make(chan *interfaces2.PoWStuffOverallData, 1),
+		//miningResultCh:       make(chan *interfaces2.PoWResultData, 1),
 	}
 
 	return worker
@@ -35,6 +34,6 @@ func NewMinerWorker(cnf *MinerWorkerConfig) *MinerWorker {
 ///////////////
 
 // Mining actuator
-func (m *MinerWorker) SetPowWorker(worker interfaces.PowWorker) {
+func (m *MinerWorker) SetPoWWorker(worker interfaces2.PoWWorker) {
 	m.powWorker = worker
 }

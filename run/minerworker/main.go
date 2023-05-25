@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"github.com/hacash/core/sys"
+	"github.com/hacash/miner/device"
+	"github.com/hacash/miner/gpuexec"
+	"github.com/hacash/miner/interfaces"
 	"github.com/hacash/miner/minerworker"
-	"github.com/hacash/miner/minerworkerwrap"
 	"os"
 	"os/signal"
 	"time"
@@ -40,16 +42,33 @@ func main() {
 	}
 
 	hinicnf, _ := sys.LoadInicnf(target_ini_file)
+	cnfsec := hinicnf.Section("")
+	isOpenMinerGPU := cnfsec.Key("gpu_enable").MustBool(false)
 
 	// miner worker
 	cnf := minerworker.NewMinerWorkerConfig(hinicnf)
 	worker := minerworker.NewMinerWorker(cnf)
 
-	// worker wrap
-	wrapcnf := minerworkerwrap.NewWorkerWrapConfig(hinicnf)
-	wkwrap := minerworkerwrap.NewWorkerWrap(wrapcnf)
+	// full node local cpu & GPU
+	mnrcnf := device.NewConfig(cnfsec)
+	var mining_exec interfaces.PoWExecute = nil
+	if isOpenMinerGPU {
+		powexec := gpuexec.NewGPUExecute(mnrcnf)
+		powexec.StartAllocate()
+		mining_exec = powexec
+	} else {
+		powexec := device.NewCPUExecute(mnrcnf)
+		powexec.StartAllocate()
+		mining_exec = powexec
+	}
+	powworker := device.NewPoWWorkerMng(mining_exec)
+	powworker.Init()
 
-	worker.SetPowWorker(wkwrap)
+	// worker wrap
+	//wrapcnf := minerworkerwrap.NewWorkerWrapConfig(hinicnf)
+	//wkwrap := minerworkerwrap.NewWorkerWrap(wrapcnf)
+
+	worker.SetPoWWorker(powworker)
 
 	// start-up
 	worker.Start()

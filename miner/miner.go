@@ -3,6 +3,7 @@ package miner
 import (
 	"fmt"
 	"github.com/hacash/core/interfaces"
+	itfcs "github.com/hacash/miner/interfaces"
 	"sync/atomic"
 )
 
@@ -13,7 +14,7 @@ type Miner struct {
 
 	txpool interfaces.TxPool
 
-	powserver interfaces.PowServer
+	powmaster itfcs.PoWMaster
 
 	isMiningStatus     *uint32
 	stopSignCh         chan bool
@@ -37,8 +38,8 @@ func (m *Miner) Start() error {
 }
 
 func (m *Miner) StartMining() error {
-	if m.powserver == nil {
-		return fmt.Errorf("[Miner] powserver is not be set.")
+	if m.powmaster == nil {
+		return fmt.Errorf("[Miner] powmaster is not be set.")
 	}
 	if atomic.CompareAndSwapUint32(m.isMiningStatus, 0, 1) {
 		go m.doStartMining()
@@ -49,7 +50,7 @@ func (m *Miner) StartMining() error {
 func (m *Miner) StopMining() {
 	if atomic.CompareAndSwapUint32(m.isMiningStatus, 1, 0) {
 		go m.doStopMining()
-		m.powserver.StopMining()
+		m.powmaster.StopMining()
 	}
 }
 
@@ -58,8 +59,8 @@ func (m *Miner) SetBlockChain(bc interfaces.BlockChain) {
 	bc.GetChainEngineKernel().SubscribeValidatedBlockOnInsert(m.newBlockOnInsertCh)
 }
 
-func (m *Miner) SetPowServer(pm interfaces.PowServer) {
-	m.powserver = pm
+func (m *Miner) SetPowServer(pm itfcs.PoWMaster) {
+	m.powmaster = pm
 }
 
 func (m *Miner) SetTxPool(tp interfaces.TxPool) {

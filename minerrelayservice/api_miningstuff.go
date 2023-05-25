@@ -1,7 +1,6 @@
 package minerrelayservice
 
 import (
-	"bytes"
 	"crypto/rand"
 	"encoding/hex"
 	"github.com/hacash/core/blocks"
@@ -20,7 +19,7 @@ func (api *RelayService) miningStuff(r *http.Request, w http.ResponseWriter, bod
 	}
 
 	// Two nonces
-	headnonce := bytes.Repeat([]byte{0}, 4)
+	//headnonce := bytes.Repeat([]byte{0}, 4)
 	coinbasenonce := make([]byte, 32)
 	cmns := CheckParamString(r, "coinbase_nonce", "")
 	cbts, e1 := hex.DecodeString(cmns)
@@ -30,20 +29,29 @@ func (api *RelayService) miningStuff(r *http.Request, w http.ResponseWriter, bod
 		coinbasenonce = cbts // Use passed nonce
 	}
 
-	// Calculate fill
-	newstuff, _ := stfobj.CalculateBlockHashByBothNonce(headnonce, coinbasenonce, true)
+	// replace
+	cbtx := stfobj.CoinbaseTx.CopyForMining()
+	cbtx.MinerNonce = coinbasenonce
+	var cb_hash = cbtx.Hash()
+	// mklrRoot
+	var useblk = stfobj.BlockHeadMeta.CopyHeadMetaForMining()
+	mklr_root := blocks.CalculateMrklRootByCoinbaseTxModify(cb_hash, stfobj.MrklCheckTreeList)
+	useblk.SetMrklRoot(mklr_root)
+
+	//// Calculate fill
+	//newblk, _ := stfobj.CalculateBlockHashByBothNonce(headnonce, coinbasenonce, true)
 
 	// Calculation of mining stuff
-	stuffbytes := blocks.CalculateBlockHashBaseStuff(newstuff.BlockHeadMeta)
+	stuffbytes := blocks.CalculateBlockHashBaseStuff(useblk)
 
 	// return
-	height := newstuff.BlockHeadMeta.GetHeight()
+	height := useblk.GetHeight()
 	data := ResponseCreateData("stuff", hex.EncodeToString(stuffbytes))
 	data["coinbase_nonce"] = hex.EncodeToString(coinbasenonce)
 	data["head_nonce_start"] = 79
 	data["head_nonce_len"] = 4
 	data["height"] = height
-	data["target_difficulty_hash"] = hex.EncodeToString(difficulty.Uint32ToHash(height, newstuff.BlockHeadMeta.GetDifficulty()))
+	data["target_difficulty_hash"] = hex.EncodeToString(difficulty.Uint32ToHash(height, useblk.GetDifficulty()))
 
 	// ok
 	ResponseData(w, data)

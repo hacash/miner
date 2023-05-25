@@ -1,24 +1,23 @@
 package minerserver
 
 import (
-	"encoding/hex"
 	"fmt"
-	"github.com/hacash/core/blocks"
+	"github.com/hacash/miner/interfaces"
 	"github.com/hacash/miner/message"
 	"github.com/hacash/mint/difficulty"
 	"math/rand"
 	"net"
 )
 
-type MinerServerClinet struct {
+type MinerServerClient struct {
 	server *MinerServer
 	id     uint64
 	conn   *net.TCPConn
 }
 
-func NewMinerServerClinet(server *MinerServer, conn *net.TCPConn) *MinerServerClinet {
+func NewMinerServerClinet(server *MinerServer, conn *net.TCPConn) *MinerServerClient {
 	cid := rand.Uint64()
-	return &MinerServerClinet{
+	return &MinerServerClient{
 		server: server,
 		id:     cid,
 		conn:   conn,
@@ -26,43 +25,55 @@ func NewMinerServerClinet(server *MinerServer, conn *net.TCPConn) *MinerServerCl
 }
 
 // Handle
-func (m *MinerServerClinet) Handle() error {
+func (m *MinerServerClient) Handle() error {
 	for {
 		// Read message
 		msgty, msgbody, err := message.MsgReadFromTcpConn(m.conn, 0)
 		if err != nil {
 			return err
 		}
+		//fmt.Println(msgty, msgbody)
 		// Parse message
 		if msgty == message.MinerWorkMsgTypeReportMiningResult {
-			var result = message.MsgReportMiningResult{}
+
+			var result = interfaces.PoWResultShortData{}
 			_, err := result.Parse(msgbody, 0)
 			if err != nil {
 				return err
 			}
+			if m.server.penddingBlockMsg == nil {
+				continue
+			}
 			// handle
-			if result.MintSuccessed != 1 {
+			if !result.FindSuccess.Check() {
 				continue // If mining is not successful, ignore this message
 			}
 
 			// Excavation completed, start verification
-			newstuff, newhx := m.server.penddingBlockMsg.CalculateBlockHashByMiningResult(&result, true)
-			// Judge whether the hash meets the requirements
-			newblock := newstuff.GetHeadMetaBlock()
-			if difficulty.CheckHashDifficultySatisfyByBlock(newhx, newblock) {
-				// Writing blockchain to meet the difficulty
-				//fmt.Println( "GetTransactionCount:", newblock.GetTransactionCount(), )
-				newblock.SetOriginMark("mining") // set origin
-				m.server.successMintCh <- newblock
-			} else {
-				// 不满足难度， 什么都不做
-
-				fmt.Println("不满足难度， 什么都不做")
-				diffhash := difficulty.Uint32ToHash(newblock.GetHeight(), newblock.GetDifficulty())
-				diffhex := hex.EncodeToString(diffhash)
-				fmt.Println(newblock.GetHeight(), newhx.ToHex(), diffhex, hex.EncodeToString(newblock.GetNonceByte()), newblock.GetNonceByte())
-				fmt.Println(hex.EncodeToString(blocks.CalculateBlockHashBaseStuff(newblock)))
+			newhx, newblock, err := m.server.penddingBlockMsg.CalculateBlockHashByMiningResult(&result)
+			//fmt.Println("get:::::", result.BlockNonce, result.CoinbaseNonce.ToHex(),
+			//	newblock.GetHeight(),
+			//	newblock.GetMrklRoot().ToHex())
+			if err != nil {
+				return err
 			}
+			// Judge whether the hash meets the requirements
+			if !difficulty.CheckHashDifficultySatisfyByBlock(newhx, newblock) {
+				/*
+					// 不满足难度， 什么都不做
+					fmt.Println("不满足难度， 什么都不做")
+					diffhash := difficulty.Uint32ToHash(newblock.GetHeight(), newblock.GetDifficulty())
+					diffhex := hex.EncodeToString(diffhash)
+					fmt.Println(newblock.GetHeight(), newhx.ToHex(), diffhex, hex.EncodeToString(newblock.GetNonceByte()), newblock.GetNonceByte())
+					fmt.Println(hex.EncodeToString(blocks.CalculateBlockHashBaseStuff(newblock)))
+				*/
+				continue
+			}
+			// FIND SUCCESS !!!!!!!!
+			// Writing blockchain to meet the difficulty
+			//fmt.Println( "GetTransactionCount:", newblock.GetTransactionCount(), )
+			newblock.SetOriginMark("mining") // set origin
+			m.server.successMintCh <- newblock
 
 		} else {
 			return fmt.Errorf("Not supported msg type")

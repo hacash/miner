@@ -2,6 +2,7 @@ package minerworker
 
 import (
 	"fmt"
+	interfaces2 "github.com/hacash/miner/interfaces"
 	"github.com/hacash/miner/message"
 	"net"
 	"strings"
@@ -28,8 +29,8 @@ func (m *MinerWorker) handleConn(conn *net.TCPConn) {
 
 	//fmt.Println("handleConn start", m.conn)
 	defer func() {
-		m.powWorker.StopAllMining() // Close mining
-		m.conn = nil                // Indicates disconnection
+		m.powWorker.StopMining() // Close mining
+		m.conn = nil             // Indicates disconnection
 		//fmt.Println("handleConn end", m.conn)
 	}()
 
@@ -43,7 +44,7 @@ func (m *MinerWorker) handleConn(conn *net.TCPConn) {
 	// Whether to accept calculation force statistics
 	if respmsgobj.AcceptHashrateStatistics.Is(false) {
 		m.config.IsReportHashrate = false // Statistics not accepted
-		m.powWorker.CloseUploadHashrate() // Turn off statistics
+		//m.powMaster.CloseUploadHashrate() // Turn off statistics
 		fmt.Print(" (note: pool is not accept PoW power statistics) ")
 	}
 
@@ -65,13 +66,15 @@ func (m *MinerWorker) handleConn(conn *net.TCPConn) {
 		}
 
 		if msgty == message.MinerWorkMsgTypeMiningBlock {
-			var stuff = &message.MsgPendingMiningBlockStuff{}
+
+			var stuff = &interfaces2.PoWStuffOverallData{}
 			_, err := stuff.Parse(msgbody, 0)
 			if err != nil {
 				fmt.Println("message.MsgPendingMiningBlockStuff.Parse Error", err)
 				continue
 			}
-			m.pendingMiningBlockStuff = stuff // Mining stuff
+			//fmt.Println(hex.EncodeToString(msgbody), stuff.CoinbaseTx.Address.ToReadable(), stuff.CoinbaseTx.ExtendDataVersion )
+			//m.pendingMiningBlockStuff = stuff // Mining stuff
 
 			if firstshowconnectok {
 				firstshowconnectok = false
@@ -79,7 +82,7 @@ func (m *MinerWorker) handleConn(conn *net.TCPConn) {
 			}
 
 			// Perform next mining
-			go m.powWorker.DoNextMining(stuff.BlockHeadMeta.GetHeight())
+			go m.Excavate(stuff)
 
 		} else {
 			fmt.Printf("message type [%d] not supported\n", msgty)
@@ -87,4 +90,30 @@ func (m *MinerWorker) handleConn(conn *net.TCPConn) {
 		}
 	}
 
+}
+
+func (m *MinerWorker) Excavate(stuff *interfaces2.PoWStuffOverallData) {
+	m.powWorker.StopMining()
+
+	var result, err = m.powWorker.DoMining(stuff)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	if result == nil {
+		return
+	}
+	if !result.FindSuccess.Check() && !m.config.IsReportHashrate {
+		return
+	}
+	// upload hashrate
+	upretdts, err := result.GetShortData().Serialize()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// report to server
+	go message.MsgSendToTcpConn(m.conn, message.MinerWorkMsgTypeReportMiningResult, upretdts)
+	//fmt.Println(hex.EncodeToString(upretdts))
 }

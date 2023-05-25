@@ -4,7 +4,7 @@ import "time"
 
 func (r *RelayService) loop() {
 
-	reconnectserver := time.NewTicker(time.Minute * 2) // 两分钟检查一次重连
+	reconnectserver := time.NewTicker(time.Minute * 3) // 两分钟检查一次重连
 
 	for {
 		select {

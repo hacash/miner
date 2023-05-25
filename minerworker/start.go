@@ -13,14 +13,14 @@ func (m *MinerWorker) Start() {
 		m.config.Rewards.ToReadable(),
 	)
 
-	err := m.powWorker.InitStart() // 初始化
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(0)
-	}
+	//err := m.powMaster.Init() // 初始化
+	//if err != nil {
+	//	fmt.Println(err)
+	//	os.Exit(0)
+	//}
 
 	// Dial up connection
-	err = m.startConnect()
+	err := m.startConnect()
 	if err != nil {
 		fmt.Println(err)
 		fmt.Println("[Miner Worker] Reconnection will be initiated in two minutes...")
@@ -34,6 +34,6 @@ func (m *MinerWorker) Start() {
 	}
 
 	// Start mining (feeding)
-	go m.powWorker.Excavate(m.miningStuffFeedingCh, m.miningResultCh)
+	//go m.Excavate(m.miningStuffFeedingCh, m.miningResultCh)
 
 }

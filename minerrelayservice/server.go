@@ -53,7 +53,7 @@ func (r *RelayService) acceptConn(conn *net.TCPConn) {
 	//fmt.Println("5555")
 	// Send block mining message
 	if r.penddingBlockStuff != nil {
-		msgbody := r.penddingBlockStuff.Serialize()
+		msgbody, _ := r.penddingBlockStuff.Serialize()
 		err := message.MsgSendToTcpConn(conn, message.MinerWorkMsgTypeMiningBlock, msgbody)
 		if err != nil {
 			//fmt.Println("MsgSendToTcpConn error", e0)

@@ -2,11 +2,7 @@ package minerrelayservice
 
 import (
 	"bytes"
-	"encoding/hex"
-	"fmt"
 	"github.com/hacash/core/fields"
-	"github.com/hacash/miner/message"
-	"github.com/hacash/mint/difficulty"
 	"net/http"
 )
 
@@ -140,11 +136,12 @@ func (api *RelayService) queryMiningResult(r *http.Request, w http.ResponseWrite
 func (api *RelayService) submitMiningResult(r *http.Request, w http.ResponseWriter, bodybytes []byte) {
 
 	// Mining success
-	isMintSuccess := CheckParamBool(r, "mint_success", false)
+	//isMintSuccess := CheckParamBool(r, "mint_success", false)
 
 	// Record reward address
-	addrstr := CheckParamString(r, "reward_address", "")
-	rwdaddr, e1 := fields.CheckReadableAddress(addrstr)
+	var e1 error
+	//addrstr := CheckParamString(r, "reward_address", "")
+	//rwdaddr, e1 := fields.CheckReadableAddress(addrstr)
 	if e1 != nil {
 		ResponseErrorString(w, "reward address format error")
 		return
@@ -156,56 +153,59 @@ func (api *RelayService) submitMiningResult(r *http.Request, w http.ResponseWrit
 		return
 	}
 
-	// seek
-	tarstuff := api.checkoutMiningStuff(blkhei)
-	if tarstuff == nil {
-		ResponseError(w, fmt.Errorf("not find mining stuff of block height %d", blkhei))
-		return
-	}
-
-	// head nonce
-	bts1 := CheckParamString(r, "head_nonce", "")
-	headNonce, ehn := hex.DecodeString(bts1)
-	if ehn != nil || len(headNonce) != 4 {
-		ResponseErrorString(w, "head_nonce format error")
-		return
-	}
-
-	// coinbase nonce
-	bts2 := CheckParamString(r, "coinbase_nonce", "")
-	coinbaseNonce, ecbn := hex.DecodeString(bts2)
-	if ecbn != nil || len(coinbaseNonce) != 32 {
-		ResponseErrorString(w, "coinbase_nonce format error")
-		return
-	}
-
 	// Return value
 	var retdata = map[string]interface{}{}
 
-	// Check whether the mining is successful
-	var isRealMintSuccess = false
-	newstuff, newhx := tarstuff.CalculateBlockHashByBothNonce(headNonce, coinbaseNonce, true)
-	if isMintSuccess {
-		// Report mining success message
-		// Judge whether the hash meets the requirements
-		newblock := newstuff.GetHeadMetaBlock()
-		if difficulty.CheckHashDifficultySatisfyByBlock(newhx, newblock) {
-			rptmsg := message.MsgReportMiningResult{
-				MintSuccessed: 1,
-				BlockHeight:   fields.BlockHeight(blkhei),
-				HeadNonce:     headNonce,
-				CoinbaseNonce: coinbaseNonce,
-			}
-			// send message
-			message.MsgSendToTcpConn(api.service_tcp, message.MinerWorkMsgTypeReportMiningResult, rptmsg.Serialize())
-			isRealMintSuccess = true
+	/*
+		// seek
+		tarstuff := api.checkoutMiningStuff(blkhei)
+		if tarstuff == nil {
+			ResponseError(w, fmt.Errorf("not find mining stuff of block height %d", blkhei))
+			return
 		}
-		// 不满足难度要求，什么都不干，
-	}
 
-	// Statistical computing power
-	go api.saveMiningResultToStore(*rwdaddr, isRealMintSuccess, newstuff)
+		// head nonce
+		bts1 := CheckParamString(r, "head_nonce", "")
+		headNonce, ehn := hex.DecodeString(bts1)
+		if ehn != nil || len(headNonce) != 4 {
+			ResponseErrorString(w, "head_nonce format error")
+			return
+		}
 
+		// coinbase nonce
+		bts2 := CheckParamString(r, "coinbase_nonce", "")
+		coinbaseNonce, ecbn := hex.DecodeString(bts2)
+		if ecbn != nil || len(coinbaseNonce) != 32 {
+			ResponseErrorString(w, "coinbase_nonce format error")
+			return
+		}
+
+		// Check whether the mining is successful
+		var isRealMintSuccess = false
+		newstuff, newhx := tarstuff.CalculateBlockHashByBothNonce(headNonce, coinbaseNonce, true)
+		if isMintSuccess {
+			// Report mining success message
+			// Judge whether the hash meets the requirements
+			newblock := newstuff.GetHeadMetaBlock()
+			if difficulty.CheckHashDifficultySatisfyByBlock(newhx, newblock) {
+				rptmsg := message.MsgReportMiningResult{
+					MintSuccessed: 1,
+					BlockHeight:   fields.BlockHeight(blkhei),
+					HeadNonce:     headNonce,
+					CoinbaseNonce: coinbaseNonce,
+				}
+				// send message
+				message.MsgSendToTcpConn(api.service_tcp, message.MinerWorkMsgTypeReportMiningResult, rptmsg.Serialize())
+				isRealMintSuccess = true
+			}
+			// 不满足难度要求，什么都不干，
+		}
+
+		// Statistical computing power
+		go api.saveMiningResultToStore(*rwdaddr, isRealMintSuccess, newstuff)
+
+
+	*/
 	// ok
 	retdata["stat"] = "ok"
 	ResponseData(w, retdata)

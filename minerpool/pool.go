@@ -120,3 +120,12 @@ func (p *MinerPool) GetCurrentTcpConnectingCount() int {
 func (p *MinerPool) GetCurrentRealtimePeriod() *RealtimePeriod {
 	return p.currentRealtimePeriod
 }
+
+func (m *MinerPool) Init() error {
+	return nil
+}
+
+func (m *MinerPool) DoMining(input interfaces.Block, resCh chan interfaces.Block) error {
+	m.Excavate(input, resCh)
+	return nil
+}

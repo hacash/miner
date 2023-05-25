@@ -6,8 +6,12 @@ import (
 	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/core/sys"
 	"github.com/hacash/miner/console"
+	"github.com/hacash/miner/device"
 	"github.com/hacash/miner/diamondminer"
-	"github.com/hacash/miner/localcpu"
+	"github.com/hacash/miner/gpuexec"
+	"github.com/hacash/miner/interfaces"
+
+	//"github.com/hacash/miner/localcpu"
 	"github.com/hacash/miner/memtxpool"
 	"github.com/hacash/miner/miner"
 	"github.com/hacash/miner/minerpool"
@@ -37,6 +41,7 @@ go build -o test/test2    miner/run/main/main.go && ./test/test2    test2.ini
 go build -o test/test3    miner/run/main/main.go && ./test/test3    test3.ini
 go build -o test/pcwallet pcwallet/main/main.go  && ./test/pcwallet
 go build -o test/poolworkertest1 miner/run/minerpoolworker/main.go  && ./test/poolworkertest1 poolworkertest1.ini
+go build -o test/minerworkertest1 miner/run/minerworker/main.go  && ./test/minerworkertest1 minerworkertest1.ini
 
 */
 
@@ -118,6 +123,7 @@ func start() error {
 	//hinicnf.SetMustDataDir(test_data_dir)
 
 	isOpenMiner := hinicnf.Section("miner").Key("enable").MustBool(false)
+	isOpenMinerGPU := hinicnf.Section("miner").Key("gpu_enable").MustBool(false)
 	isOpenMinerServer := hinicnf.Section("minerserver").Key("enable").MustBool(false)
 	isOpenMinerPool := hinicnf.Section("minerpool").Key("enable").MustBool(false)
 	isOpenService := hinicnf.Section("service").Key("enable").MustBool(false)
@@ -221,13 +227,24 @@ func start() error {
 
 		} else {
 
-			// full node local cpu
-			lccnf := localcpu.NewFullNodePowWrapConfig(hinicnf)
-			powwrap := localcpu.NewFullNodePowWrap(lccnf)
-
+			// full node local cpu & GPU
+			mnrcnf := device.NewConfig(hinicnf.Section("miner"))
+			var mining_exec interfaces.PoWExecute = nil
+			if isOpenMinerGPU {
+				powexec := gpuexec.NewGPUExecute(mnrcnf)
+				powexec.StartAllocate()
+				mining_exec = powexec
+			} else {
+				powexec := device.NewCPUExecute(mnrcnf)
+				powexec.StartAllocate()
+				mining_exec = powexec
+			}
+			powmaster := device.NewPoWMasterMng(mining_exec)
+			powmaster.Init()
+			//lccnf := localcpu.NewFullNodePowWrapConfig(hinicnf)
+			//powwrap := localcpu.NewFullNodePowWrap(lccnf)
 			// Set up POW server
-			minernode.SetPowServer(powwrap)
-
+			minernode.SetPowServer(powmaster)
 		}
 
 		// do mining

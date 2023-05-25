@@ -2,7 +2,7 @@ package minerrelayservice
 
 import (
 	"fmt"
-	"github.com/hacash/miner/message"
+	interfaces2 "github.com/hacash/miner/interfaces"
 	"net/http"
 	"time"
 )
@@ -96,7 +96,7 @@ func (api *RelayService) pendingBlockInfo(r *http.Request, w http.ResponseWriter
 }
 
 // Return all details
-func returnStuff(w http.ResponseWriter, stuff *message.MsgPendingMiningBlockStuff, isUnitMei bool) {
+func returnStuff(w http.ResponseWriter, stuff *interfaces2.PoWStuffOverallData, isUnitMei bool) {
 
 	cblk := stuff.BlockHeadMeta
 	cbtx := stuff.CoinbaseTx
@@ -119,7 +119,7 @@ func returnStuff(w http.ResponseWriter, stuff *message.MsgPendingMiningBlockStuf
 	data["coinbase"] = cbtx.Describe(isUnitMei, true)
 
 	// Mrkl hash
-	mrklhashs := stuff.MrklRelatedTreeListForCoinbaseTxModify
+	mrklhashs := stuff.MrklCheckTreeList
 	mrklshows := make([]string, len(mrklhashs))
 	for i, v := range mrklhashs {
 		mrklshows[i] = v.ToHex()

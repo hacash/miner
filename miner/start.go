@@ -81,12 +81,12 @@ func (m *Miner) doStartMining() {
 		time.Sleep(time.Second * time.Duration(mint.EachBlockRequiredTargetTime))
 	}
 
-	//fmt.Println("m.powserver.Excavate(nextblock, backBlockCh) MrklRoot:", nextblock.GetMrklRoot().ToHex())
+	//fmt.Println("m.powmaster.Excavate(nextblock, backBlockCh) MrklRoot:", nextblock.GetMrklRoot().ToHex())
 	// excavate block
 	backBlockCh := make(chan interfaces.Block, 1)
-	m.powserver.Excavate(nextblock, backBlockCh)
+	m.powmaster.DoMining(nextblock, backBlockCh)
 
-	//fmt.Println("finifsh m.powserver.Excavate nextblock")
+	//fmt.Println("finifsh m.powmaster.Excavate nextblock")
 
 	var miningSuccessBlock interfaces.Block = nil
 	select {

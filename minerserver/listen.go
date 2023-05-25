@@ -49,8 +49,8 @@ func (m *MinerServer) acceptConn(conn *net.TCPConn) {
 	//fmt.Println("5555")
 	// Send block mining message
 	if m.penddingBlockMsg != nil {
-		msgbody := m.penddingBlockMsg.Serialize()
-		err := message.MsgSendToTcpConn(conn, message.MinerWorkMsgTypeMiningBlock, msgbody)
+		msgbody, err := m.penddingBlockMsg.Serialize()
+		err = message.MsgSendToTcpConn(conn, message.MinerWorkMsgTypeMiningBlock, msgbody)
 		if err != nil {
 			//fmt.Println("MsgSendToTcpConn error", e0)
 			message.SendServerResponseByRetCode(conn, message.MsgErrorRetCodeConnectReadSengErr)

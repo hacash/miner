@@ -2,7 +2,7 @@ package minerrelayservice
 
 import (
 	"github.com/hacash/chain/leveldb"
-	"github.com/hacash/miner/message"
+	interfaces2 "github.com/hacash/miner/interfaces"
 	"net"
 	"net/http"
 	"sync"
@@ -17,8 +17,8 @@ type RelayService struct {
 
 	allconns map[uint64]*ConnClient // All TCP connections
 
-	oldprevBlockStuff  *message.MsgPendingMiningBlockStuff // Last mined block message
-	penddingBlockStuff *message.MsgPendingMiningBlockStuff // Currently mining block messages
+	//oldprevBlockStuff  *interfaces2.PoWStuffOverallData // Last mined block message
+	penddingBlockStuff *interfaces2.PoWStuffOverallData // Currently mining block messages
 	//successMintCh    chan interfaces.Block               // 当前正确挖掘区块的返回
 
 	// routes
@@ -37,11 +37,11 @@ type RelayService struct {
 
 func NewRelayService(cnf *MinerRelayServiceConfig) *RelayService {
 	return &RelayService{
-		config:                       cnf,
-		service_tcp:                  nil,
-		allconns:                     make(map[uint64]*ConnClient),
-		oldprevBlockStuff:            nil,
-		penddingBlockStuff:           nil,
+		config:      cnf,
+		service_tcp: nil,
+		allconns:    make(map[uint64]*ConnClient),
+		//oldprevBlockStuff:            nil,
+		//penddingBlockStuff:           nil,
 		queryRoutes:                  make(map[string]func(*http.Request, http.ResponseWriter, []byte)),
 		createRoutes:                 make(map[string]func(*http.Request, http.ResponseWriter, []byte)),
 		submitRoutes:                 make(map[string]func(*http.Request, http.ResponseWriter, []byte)),
@@ -52,8 +52,9 @@ func NewRelayService(cnf *MinerRelayServiceConfig) *RelayService {
 	}
 }
 
+/*
 // New mining data coming
-func (r *RelayService) updateNewBlockStuff(newstf *message.MsgPendingMiningBlockStuff) {
+func (r *RelayService) updateNewBlockStuff(newstf *interfaces2.PoWStuffOverallData) {
 	r.oldprevBlockStuff = r.penddingBlockStuff // Save previous
 	r.penddingBlockStuff = newstf              // Update the latest
 	// Save to disk
@@ -75,6 +76,7 @@ func (r *RelayService) checkoutMiningStuff(blkhei uint64) *message.MsgPendingMin
 	// non-existent
 	return nil
 }
+*/
 
 func (r *RelayService) Start() {
 

@@ -2,6 +2,7 @@ package minerrelayservice
 
 import (
 	"fmt"
+	interfaces2 "github.com/hacash/miner/interfaces"
 	"github.com/hacash/miner/message"
 	"net"
 	"strings"
@@ -64,15 +65,17 @@ func (r *RelayService) handleServerConn(conn *net.TCPConn) {
 		}
 
 		if msgty == message.MinerWorkMsgTypeMiningBlock {
-			var stuff = &message.MsgPendingMiningBlockStuff{}
+
+			var stuff = &interfaces2.PoWStuffOverallData{}
 			_, err := stuff.Parse(msgbody, 0)
 			if err != nil {
 				fmt.Println("message.MsgPendingMiningBlockStuff.Parse Error", err)
 				continue
 			}
-			// Mining stuff
-			r.updateNewBlockStuff(stuff)
-
+			/*
+				// Mining stuff
+				r.updateNewBlockStuff(stuff)
+			*/
 			// Notify all clients of the arrival of new blocks
 			fmt.Printf("receive new block <%d> mining stuff forward to [%d] clients at time %s.\n",
 				stuff.BlockHeadMeta.GetHeight(),
