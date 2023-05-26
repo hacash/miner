@@ -50,13 +50,13 @@ func (r *RelayService) acceptConn(conn *net.TCPConn) {
 		return // Registration error
 	}
 
-	//fmt.Println("5555")
+	//fmt.Println("5555", regobj.RewardAddress.ToReadable())
 	// Send block mining message
 	if r.penddingBlockStuff != nil {
 		msgbody, _ := r.penddingBlockStuff.Serialize()
 		err := message.MsgSendToTcpConn(conn, message.MinerWorkMsgTypeMiningBlock, msgbody)
 		if err != nil {
-			//fmt.Println("MsgSendToTcpConn error", e0)
+			//fmt.Println("MsgSendToTcpConn error", err)
 			message.SendServerResponseByRetCode(conn, message.MsgErrorRetCodeConnectReadSengErr)
 			return // Parsing message error
 		}

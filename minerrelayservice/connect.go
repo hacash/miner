@@ -44,8 +44,7 @@ func (r *RelayService) handleServerConn(conn *net.TCPConn) {
 
 	// Whether to accept calculation force statistics
 	if respmsgobj.AcceptHashrateStatistics.Is(false) {
-		//m.config.IsReportHashrate = false // 不接受统计
-		//m.powWorker.CloseUploadHashrate()    // 关闭统计
+		r.config.IsReportHashrate = false // not report hashrate
 		fmt.Println("note: pool is not accept PoW power statistics.")
 	}
 
@@ -72,10 +71,14 @@ func (r *RelayService) handleServerConn(conn *net.TCPConn) {
 				fmt.Println("message.MsgPendingMiningBlockStuff.Parse Error", err)
 				continue
 			}
-			/*
-				// Mining stuff
-				r.updateNewBlockStuff(stuff)
-			*/
+
+			if r.hashratepool != nil {
+				go r.hashratepool.NewMiningStuff(stuff) // notify
+			}
+
+			// cache Mining stuff
+			r.updateNewBlockStuff(stuff)
+
 			// Notify all clients of the arrival of new blocks
 			fmt.Printf("receive new block <%d> mining stuff forward to [%d] clients at time %s.\n",
 				stuff.BlockHeadMeta.GetHeight(),

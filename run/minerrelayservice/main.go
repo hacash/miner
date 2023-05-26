@@ -47,6 +47,9 @@ func main() {
 	cnf := minerrelayservice.NewMinerRelayServiceConfig(hinicnf)
 	service := minerrelayservice.NewRelayService(cnf)
 
+	// setup your HashratePool object
+	//service.SetHashratePool(nil)
+
 	// start-up
 	service.Start()
 

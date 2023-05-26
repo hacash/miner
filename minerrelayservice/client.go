@@ -3,6 +3,7 @@ package minerrelayservice
 import (
 	"fmt"
 	"github.com/hacash/core/fields"
+	"github.com/hacash/miner/interfaces"
 	"github.com/hacash/miner/message"
 	"math/rand"
 	"net"
@@ -36,16 +37,27 @@ func (m *ConnClient) Handle() error {
 
 		// Parse message
 		if msgty == message.MinerWorkMsgTypeReportMiningResult {
-			/*
-				var result = interfaces.PoWResultShortData{}
-				_, err := result.Parse(msgbody, 0)
-				if err != nil {
-					fmt.Println(err)
-					continue
-				}
-			*/
+			// parse msg
+			var result = interfaces.PoWResultShortData{}
+			_, err := result.Parse(msgbody, 0)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
+			if !result.FindSuccess.Check() && !m.server.config.IsReportHashrate {
+				// not report hashrate
+				continue
+			}
+			// report to server
+			go message.MsgSendToTcpConn(m.server.service_tcp, message.MinerWorkMsgTypeReportMiningResult, msgbody)
 
-			message.MsgSendToTcpConn(m.server.service_tcp, message.MinerWorkMsgTypeReportMiningResult, msgbody)
+			// hashrate pool call
+			if m.server.hashratepool != nil {
+				var tarstuff = m.server.checkoutMiningStuff(uint64(result.BlockHeight))
+				if tarstuff != nil {
+					go m.server.hashratepool.ReportHashrate(m.rwdaddr, tarstuff, &result) // notify
+				}
+			}
 
 			/*
 				// handle

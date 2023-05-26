@@ -43,8 +43,7 @@ func (m *MinerWorker) handleConn(conn *net.TCPConn) {
 
 	// Whether to accept calculation force statistics
 	if respmsgobj.AcceptHashrateStatistics.Is(false) {
-		m.config.IsReportHashrate = false // Statistics not accepted
-		//m.powMaster.CloseUploadHashrate() // Turn off statistics
+		m.config.IsReportHashrate = false // not report hashrate
 		fmt.Print(" (note: pool is not accept PoW power statistics) ")
 	}
 

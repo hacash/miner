@@ -44,14 +44,14 @@ func NewMinerRelayServiceConfig(cnffile *sys.Inicnf) *MinerRelayServiceConfig {
 	}
 	cnf.ServerAddress = addr
 	// IsReportHashrate  or  IsAcceptHashrate
-	cnf.IsReportHashrate = cnfsection.Key("report_hashrate").MustBool(false)
-	cnf.IsAcceptHashrate = cnfsection.Key("accept_hashrate").MustBool(true)
+	cnf.IsReportHashrate = cnfsection.Key("not_report_hashrate").MustBool(false) == false
+	cnf.IsAcceptHashrate = cnfsection.Key("not_accept_hashrate").MustBool(false) == false
 	// max
 	cnf.MaxWorkerConnect = cnfsection.Key("max_connect").MustInt(200)
 	cnf.ServerTcpListenPort = cnfsection.Key("server_listen_port").MustInt(19991)
 	if cnf.ServerTcpListenPort == 0 {
-        	panic("Relay service:server listen port is zero")
-      	}
+		panic("Relay service:server listen port is zero")
+	}
 
 	cnf.HttpApiListenPort = cnfsection.Key("http_api_listen_port").MustInt(8080)
 	// store
