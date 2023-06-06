@@ -18,7 +18,7 @@ func MsgReadFromTcpConn(conn *net.TCPConn, mustlen uint32) (msgty uint16, msgbod
 	rn, err = io.ReadFull(conn, msgitemsizebts)
 	if rn != 4 || err != nil {
 		if err != nil {
-			err = fmt.Errorf("read msg size error:", err)
+			err = fmt.Errorf("read msg size error: %s", err.Error())
 		}
 		return 0, nil, err
 	}

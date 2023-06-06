@@ -56,6 +56,7 @@ func (r *RelayService) handleServerConn(conn *net.TCPConn) {
 		if err != nil {
 			if strings.Contains(err.Error(), "EOF") {
 				// Server shutdown
+				fmt.Println(err.Error())
 				fmt.Println("\n[Miner Relay Service] WARNING: Server close the tcp connect, reconnection will be initiated in two minutes...")
 			} else {
 				fmt.Println(err)

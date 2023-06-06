@@ -55,7 +55,10 @@ func (m *MinerServerClient) Handle() error {
 			//	newblock.GetHeight(),
 			//	newblock.GetMrklRoot().ToHex())
 			if err != nil {
-				return err
+				//fmt.Println("m.server.penddingBlockMsg.CalculateBlockHashByMiningResult ERROR:", err.Error())
+				//return err
+				// not match penddingBlock , do nothing
+				continue
 			}
 			// Judge whether the hash meets the requirements
 			if !difficulty.CheckHashDifficultySatisfyByBlock(newhx, newblock) {
@@ -76,6 +79,7 @@ func (m *MinerServerClient) Handle() error {
 			m.server.successMintCh <- newblock
 
 		} else {
+			//fmt.Println("Not supported msg type, close the client conn!")
 			return fmt.Errorf("Not supported msg type")
 		}
 	}
