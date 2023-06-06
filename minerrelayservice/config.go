@@ -63,7 +63,7 @@ func NewMinerRelayServiceConfig(cnffile *sys.Inicnf) *MinerRelayServiceConfig {
 		cnf.SaveMiningHash = storesection.Key("save_mining_hash").MustBool(false)
 		cnf.SaveMiningNonce = storesection.Key("save_mining_nonce").MustBool(false)
 		if !cnf.SaveMiningHash && !cnf.SaveMiningNonce {
-			fmt.Println("[Miner Relay Service Config] Error: SaveMiningHash and SaveMiningNonce cannot be both false!")
+			fmt.Println("[Miner Relay Service Conf] Error: SaveMiningHash and SaveMiningNonce cannot be both false!")
 			os.Exit(0)
 		}
 	}

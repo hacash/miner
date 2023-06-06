@@ -16,11 +16,11 @@ func (mc *MinerConsole) console(response http.ResponseWriter, request *http.Requ
 	if render_cache_console == "" {
 		jsonstring := []string{}
 
-		jsonstring = append(jsonstring, fmt.Sprintf(`"fee_ratio":"%.2f%%"`, mc.pool.Config.FeePercentage*100))
-		jsonstring = append(jsonstring, fmt.Sprintf(`"server_port":%d`, mc.pool.Config.TcpListenPort))
+		jsonstring = append(jsonstring, fmt.Sprintf(`"fee_ratio":"%.2f%%"`, mc.pool.Conf.FeePercentage*100))
+		jsonstring = append(jsonstring, fmt.Sprintf(`"server_port":%d`, mc.pool.Conf.TcpListenPort))
 		jsonstring = append(jsonstring, fmt.Sprintf(`"total_addresses":%d`, mc.pool.GetCurrentAddressCount()))
 		jsonstring = append(jsonstring, fmt.Sprintf(`"total_clients":%d`, mc.pool.GetCurrentTcpConnectingCount()))
-		jsonstring = append(jsonstring, fmt.Sprintf(`"miner_account":"%s"`, mc.pool.Config.RewardAccount.AddressReadable))
+		jsonstring = append(jsonstring, fmt.Sprintf(`"miner_account":"%s"`, mc.pool.Conf.RewardAccount.AddressReadable))
 		render_cache_console = "{" + strings.Join(jsonstring, ",") + "}"
 
 		go func() {

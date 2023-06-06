@@ -46,7 +46,7 @@ func (p *PoWStuffOverallData) Parse(buf []byte, seek uint32) (uint32, error) {
 	return seek, nil
 }
 
-func (p *PoWStuffOverallData) CalculateBlockHashByMiningResult(result *PoWResultShortData) (fields.Hash, interfaces.Block, error) {
+func (p *PoWStuffOverallData) CalculateBlockHashByMiningResult(result *PoWResultShortData, if_block bool) (fields.Hash, interfaces.Block, error) {
 	var curhei = p.BlockHeadMeta.GetHeight()
 	var reshei = uint64(result.BlockHeight)
 	if reshei != curhei {
@@ -57,10 +57,15 @@ func (p *PoWStuffOverallData) CalculateBlockHashByMiningResult(result *PoWResult
 	cbtx.MinerNonce = result.CoinbaseNonce
 	var cb_hash = cbtx.Hash()
 	// mklrRoot
-	var useblk = p.BlockHeadMeta.CopyForMining()
-	trslist := useblk.GetTrsList()
-	trslist[0] = cbtx
-	useblk.SetTrsList(trslist)
+	var useblk interfaces.Block
+	if if_block {
+		useblk = p.BlockHeadMeta.CopyForMining()
+		trslist := useblk.GetTrsList()
+		trslist[0] = cbtx
+		useblk.SetTrsList(trslist)
+	} else {
+		useblk = p.BlockHeadMeta.CopyHeadMetaForMining()
+	}
 	mklr_root := blocks.CalculateMrklRootByCoinbaseTxModify(cb_hash, p.MrklCheckTreeList)
 	useblk.SetMrklRoot(mklr_root)
 	useblk.SetNonce(uint32(result.BlockNonce))
@@ -112,13 +117,21 @@ func (p *PoWResultData) GetShortData() *PoWResultShortData {
 	}
 }
 
+////////////////////////////////
+
+type PoWConfig interface {
+	IsDetailLog() bool
+}
+
 type PoWMaster interface {
+	Config() PoWConfig
 	Init() error
 	DoMining(input interfaces.Block, resCh chan interfaces.Block) error // find a block
 	StopMining()                                                        // stop all
 }
 
 type PoWWorker interface {
+	Config() PoWConfig
 	CloseUploadHashrate()
 	Init() error
 	DoMining(input *PoWStuffOverallData) (*PoWResultData, error) // find a block
@@ -126,18 +139,21 @@ type PoWWorker interface {
 }
 
 type PoWDevice interface {
+	Config() PoWConfig
 	Init() error
 	DoMining(stopmark *byte, inputCh chan *PoWStuffBriefData) (*PoWResultData, error) // find a block
 	StopMining()                                                                      // stop all
 }
 
 type PoWThread interface {
+	Config() PoWConfig
 	Init() error
 	DoMining(stopmark *byte, target_hash fields.Hash, input PoWStuffBriefData, resCh chan *PoWResultData) error // find a block
 	StopMining()                                                                                                // stop all
 }
 
 type PoWExecute interface {
+	Config() PoWConfig
 	Init() error
 	DoMining(stopmark *byte, input interfaces.Block, nonce_offset uint32) (*PoWResultData, error) // find a block
 

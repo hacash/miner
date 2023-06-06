@@ -44,13 +44,6 @@ func (m *ConnClient) Handle() error {
 				fmt.Println(err)
 				continue
 			}
-			if !result.FindSuccess.Check() && !m.server.config.IsReportHashrate {
-				// not report hashrate
-				continue
-			}
-			// report to server
-			go message.MsgSendToTcpConn(m.server.service_tcp, message.MinerWorkMsgTypeReportMiningResult, msgbody)
-
 			// hashrate pool call
 			if m.server.hashratepool != nil {
 				var tarstuff = m.server.checkoutMiningStuff(uint64(result.BlockHeight))
@@ -58,6 +51,13 @@ func (m *ConnClient) Handle() error {
 					go m.server.hashratepool.ReportHashrate(m.rwdaddr, tarstuff, &result) // notify
 				}
 			}
+			// if upload to server ?
+			if !result.FindSuccess.Check() && !m.server.config.IsReportHashrate {
+				// not report hashrate
+				continue
+			}
+			// report to server
+			go message.MsgSendToTcpConn(m.server.service_tcp, message.MinerWorkMsgTypeReportMiningResult, msgbody)
 
 			/*
 				// handle

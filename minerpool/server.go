@@ -12,7 +12,7 @@ import (
 
 // Listening port
 func (p *MinerPool) startServerListen() error {
-	port := p.Config.TcpListenPort
+	port := p.Conf.TcpListenPort
 	listen := net.TCPAddr{IP: net.IPv4zero, Port: port, Zone: ""}
 	server, err := net.ListenTCP("tcp", &listen)
 	if err != nil {
@@ -39,7 +39,7 @@ func (p *MinerPool) acceptConn(conn *net.TCPConn) {
 
 	defer conn.Close()
 
-	if p.currentTcpConnectingCount > int32(p.Config.TcpConnectMaxSize) {
+	if p.currentTcpConnectingCount > int32(p.Conf.TcpConnectMaxSize) {
 		conn.Write([]byte("too_many_connect"))
 		return
 	}

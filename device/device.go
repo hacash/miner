@@ -11,15 +11,21 @@ import (
 )
 
 type PoWDeviceMng struct {
+	config  itfcs.PoWConfig
 	alloter itfcs.PoWExecute
 	threads []itfcs.PoWThread
 }
 
 func NewPoWDeviceMng(alloter itfcs.PoWExecute) *PoWDeviceMng {
 	return &PoWDeviceMng{
+		config:  alloter.Config(),
 		alloter: alloter,
 		threads: make([]itfcs.PoWThread, 0),
 	}
+}
+
+func (c *PoWDeviceMng) Config() itfcs.PoWConfig {
+	return c.config
 }
 
 func (c *PoWDeviceMng) Init() error {

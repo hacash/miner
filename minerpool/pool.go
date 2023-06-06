@@ -6,6 +6,7 @@ import (
 	"github.com/hacash/chain/mapset"
 	"github.com/hacash/core/fields"
 	"github.com/hacash/core/interfaces"
+	interfaces2 "github.com/hacash/miner/interfaces"
 	"github.com/hacash/miner/message"
 	"sync"
 )
@@ -16,7 +17,7 @@ type findBlockMsg struct {
 }
 
 type MinerPool struct {
-	Config *MinerPoolConfig
+	Conf *MinerPoolConfig
 
 	currentTcpConnectingCount int32 // Current TCP connections
 
@@ -45,6 +46,10 @@ type MinerPool struct {
 	periodChange sync.Mutex
 }
 
+func (m *MinerPool) Config() interfaces2.PoWConfig {
+	return m.Conf
+}
+
 func NewMinerPool(cnf *MinerPoolConfig) *MinerPool {
 
 	db, err := leveldb.OpenFile(cnf.Datadir, nil)
@@ -54,7 +59,7 @@ func NewMinerPool(cnf *MinerPoolConfig) *MinerPool {
 	}
 
 	pool := &MinerPool{
-		Config:                      cnf,
+		Conf:                        cnf,
 		currentTcpConnectingCount:   0,
 		checkBlockHeightMiningDict:  make(map[uint64]bool),
 		successFindNewBlockHashOnce: nil,

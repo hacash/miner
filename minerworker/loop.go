@@ -8,7 +8,7 @@ import (
 func (m *MinerWorker) loop() {
 
 	// Check the connection once every 10 ~ 60 seconds
-	checkTcpConnTiker := time.NewTicker(time.Minute * 6)
+	checkTcpConnTiker := time.NewTicker(time.Minute * 2)
 
 	for {
 		select {

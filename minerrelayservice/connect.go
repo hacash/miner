@@ -45,7 +45,7 @@ func (r *RelayService) handleServerConn(conn *net.TCPConn) {
 	// Whether to accept calculation force statistics
 	if respmsgobj.AcceptHashrateStatistics.Is(false) {
 		r.config.IsReportHashrate = false // not report hashrate
-		fmt.Println("note: pool is not accept PoW power statistics.")
+		fmt.Println("note: server is not accept PoW power statistics.")
 	}
 
 	// Collect mining messages circularly

@@ -53,19 +53,19 @@ func NewDiamondMinerConfig(cnffile *sys.Inicnf) *DiamondMinerConfig {
 	if err == nil {
 		cnf.Rewards = *addr
 	} else {
-		fmt.Println("[Diamond Miner Config Error]", err)
+		fmt.Println("[Diamond Miner Conf Error]", err)
 		os.Exit(0)
 	}
 	password := cnfsection.Key("fee_password").MustString("")
 	if password == "" {
-		log.Fatal("[Diamond Miner Config Error] fee password cannot be empty.")
+		log.Fatal("[Diamond Miner Conf Error] fee password cannot be empty.")
 		os.Exit(0)
 	}
 	feeamount, err2 := fields.NewAmountFromFinString(cnfsection.Key("fee_amount").MustString("ㄜ4:244"))
 	if err2 == nil {
 		cnf.FeeAmount = feeamount
 	} else {
-		fmt.Println("[Diamond Miner Config Error] FeeAmount:", err)
+		fmt.Println("[Diamond Miner Conf Error] FeeAmount:", err)
 		os.Exit(0)
 	}
 	cnf.Continued = cnfsection.Key("continued").MustBool(false) // Continuous mining
@@ -80,18 +80,18 @@ func NewDiamondMinerConfig(cnffile *sys.Inicnf) *DiamondMinerConfig {
 		if err3 == nil {
 			cnf.AutoBidMaxFee = autobidMaxFee
 		} else {
-			fmt.Println("[Diamond Miner Config Error] AutobidMaxFee:", err)
+			fmt.Println("[Diamond Miner Conf Error] AutobidMaxFee:", err)
 			os.Exit(0)
 		}
 		autobidMarginFee, err4 := fields.NewAmountFromFinString(cnfsection.Key("autobid_fee_margin").MustString("ㄜ1:246"))
 		if err4 == nil {
 			cnf.AutoBidMarginFee = autobidMarginFee
 		} else {
-			fmt.Println("[Diamond Miner Config Error] AutoBidMarginFee:", err)
+			fmt.Println("[Diamond Miner Conf Error] AutoBidMarginFee:", err)
 			os.Exit(0)
 		}
 		if cnf.AutoBidMarginFee.LessThan(fields.NewAmountSmall(1, 244)) {
-			fmt.Println("[Diamond Miner Config Error] AutoBidMarginFee can not less than ㄜ1:244")
+			fmt.Println("[Diamond Miner Conf Error] AutoBidMarginFee can not less than ㄜ1:244")
 			os.Exit(0)
 		}
 		iasstrs := strings.Split(cnfsection.Key("autobid_ignore_addresses").MustString(""), ",")

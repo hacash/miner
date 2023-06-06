@@ -24,6 +24,10 @@ func (c *CPUExecute) Allocate() chan itfcs.PoWExecute {
 	return c.allotr
 }
 
+func (c *CPUExecute) Config() itfcs.PoWConfig {
+	return c.config
+}
+
 func (c *CPUExecute) StartAllocate() {
 	c.allotr = make(chan itfcs.PoWExecute)
 	go func() {

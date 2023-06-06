@@ -10,13 +10,19 @@ import (
 )
 
 type PoWThreadMng struct {
+	config   itfcs.PoWConfig
 	executer itfcs.PoWExecute
 }
 
 func NewPoWThreadMng(exec itfcs.PoWExecute) *PoWThreadMng {
 	return &PoWThreadMng{
+		config:   exec.Config(),
 		executer: exec,
 	}
+}
+
+func (c *PoWThreadMng) Config() itfcs.PoWConfig {
+	return c.config
 }
 
 func (c *PoWThreadMng) Init() error {
@@ -64,8 +70,12 @@ func (c *PoWThreadMng) DoMining(stopmark *byte, target_hash fields.Hash, input i
 		var exec_time = time.Since(start_time).Seconds()
 
 		// fmt.Println("exec_time----", exec_time, "----nonce_span----", nonce_span, "----result_hash----", restep.ResultHash.ToHex()[0:16])
-		fmt.Printf("%.2fs %d,%d %s... %s\n", exec_time, nonce_start, nonce_span, restep.ResultHash.ToHex()[0:16],
-			difficulty.ConvertHashToRateShow(uint64(restep.BlockHeight), restep.ResultHash, int64(exec_time)))
+		if c.config.IsDetailLog() {
+			fmt.Printf("%.2fs %d,%d %s... %s\n", exec_time, nonce_start, nonce_span, restep.ResultHash.ToHex()[0:16],
+				difficulty.ConvertHashToRateShow(uint64(restep.BlockHeight), restep.ResultHash, int64(exec_time)))
+		} else {
+			fmt.Printf(".")
+		}
 
 		c.executer.ReportSpanTime(exec_time) // report exec time
 		// diff hash

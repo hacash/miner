@@ -11,6 +11,7 @@ import (
 )
 
 type PoWWokerMng struct {
+	config           itfcs.PoWConfig
 	device           itfcs.PoWDevice
 	execLock         sync.Mutex
 	stopMarks        sync.Map
@@ -20,11 +21,16 @@ type PoWWokerMng struct {
 func NewPoWWorkerMng(alloter itfcs.PoWExecute) *PoWWokerMng {
 	var dvs = NewPoWDeviceMng(alloter)
 	return &PoWWokerMng{
+		config:           alloter.Config(),
 		device:           dvs,
 		execLock:         sync.Mutex{},
 		stopMarks:        sync.Map{},
 		isUploadHashrate: true,
 	}
+}
+
+func (c *PoWWokerMng) Config() itfcs.PoWConfig {
+	return c.config
 }
 
 func (w *PoWWokerMng) CloseUploadHashrate() {

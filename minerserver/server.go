@@ -7,7 +7,7 @@ import (
 )
 
 type MinerServer struct {
-	config *MinerServerConfig
+	Conf *MinerServerConfig
 
 	allconns map[uint64]*MinerServerClient // All TCP connections
 
@@ -21,11 +21,15 @@ type MinerServer struct {
 func NewMinerServer(cnf *MinerServerConfig) *MinerServer {
 
 	serv := &MinerServer{
-		config:   cnf,
+		Conf:     cnf,
 		allconns: make(map[uint64]*MinerServerClient),
 	}
 
 	return serv
+}
+
+func (m *MinerServer) Config() interfaces2.PoWConfig {
+	return m.Conf
 }
 
 // start

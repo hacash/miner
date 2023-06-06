@@ -14,6 +14,10 @@ func NewEmptyMinerConfig() *MinerServerConfig {
 	return cnf
 }
 
+func (m *MinerServerConfig) IsDetailLog() bool {
+	return false
+}
+
 //////////////////////////////////////////////////
 
 func NewMinerConfig(cnffile *sys.Inicnf) *MinerServerConfig {

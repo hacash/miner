@@ -13,7 +13,7 @@ func (p *MinerPool) startDoTransfer(curblkheight uint64, period *RealtimePeriod)
 	p.periodChange.Lock()
 	defer p.periodChange.Unlock()
 
-	if curblkheight%uint64(p.Config.DoTransferRewardPeriodHeight) != 0 {
+	if curblkheight%uint64(p.Conf.DoTransferRewardPeriodHeight) != 0 {
 		return
 	}
 
@@ -22,7 +22,7 @@ func (p *MinerPool) startDoTransfer(curblkheight uint64, period *RealtimePeriod)
 		return // empty
 	}
 	// create tx
-	tx, err := transactions.NewEmptyTransaction_2_Simple(p.Config.RewardAccount.Address)
+	tx, err := transactions.NewEmptyTransaction_2_Simple(p.Conf.RewardAccount.Address)
 	if err != nil {
 		return // error
 	}
@@ -40,7 +40,7 @@ func (p *MinerPool) startDoTransfer(curblkheight uint64, period *RealtimePeriod)
 	}
 	// check balance
 	checkAmt, _ := totalAmount.Add(totalFee)
-	balance, _ := p.blockchain.GetChainEngineKernel().StateRead().Balance(p.Config.RewardAccount.Address)
+	balance, _ := p.blockchain.GetChainEngineKernel().StateRead().Balance(p.Conf.RewardAccount.Address)
 	if balance == nil {
 		fmt.Printf("[Miner Pool Transfer Error] Balance not is empty.")
 		return
@@ -52,7 +52,7 @@ func (p *MinerPool) startDoTransfer(curblkheight uint64, period *RealtimePeriod)
 	tx.Fee = *totalFee // set fee
 	// fill sign
 	signprivkey := make(map[string][]byte, 0)
-	signprivkey[string(p.Config.RewardAccount.Address)] = p.Config.RewardAccount.PrivateKey
+	signprivkey[string(p.Conf.RewardAccount.Address)] = p.Conf.RewardAccount.PrivateKey
 	err = tx.FillNeedSigns(signprivkey, nil)
 	if err != nil {
 		return // error end

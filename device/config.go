@@ -8,8 +8,9 @@ type Config struct {
 	//PoolAddress            *net.TCPAddr
 	//Rewards                fields.Address
 
-	Concurrent            uint32 // Concurrent mining
-	Detail_Log            bool
+	Concurrent uint32 // Concurrent mining
+	Detail_Log bool
+
 	GPU_Enable            bool
 	GPU_OpenclPath        string
 	GPU_PlatformNameMatch string
@@ -19,6 +20,10 @@ type Config struct {
 	GPU_UseOneDeviceBuild bool // Compile using a single device
 	GPU_ForceRebuild      bool // Force recompile
 	GPU_EmptyFuncTest     bool // Empty function compilation test
+}
+
+func (c *Config) IsDetailLog() bool {
+	return c.Detail_Log
 }
 
 func NewEmptyMinerPoolWorkerConfig() *Config {

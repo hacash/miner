@@ -17,9 +17,9 @@ func (mc *MinerConsole) home(response http.ResponseWriter, request *http.Request
 			<p>Port: %d</p>
 			<p>TotalClients: %d</p>
 			</div>`,
-		mc.pool.Config.FeePercentage*100,
-		mc.pool.Config.RewardAccount.AddressReadable,
-		mc.pool.Config.TcpListenPort,
+		mc.pool.Conf.FeePercentage*100,
+		mc.pool.Conf.RewardAccount.AddressReadable,
+		mc.pool.Conf.TcpListenPort,
 		mc.pool.GetCurrentTcpConnectingCount(),
 	)
 

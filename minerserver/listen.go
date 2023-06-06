@@ -8,7 +8,7 @@ import (
 
 func (m *MinerServer) startListen() error {
 
-	port := int(m.config.TcpListenPort)
+	port := int(m.Conf.TcpListenPort)
 	listen := net.TCPAddr{IP: net.IPv4zero, Port: port, Zone: ""}
 	server, err := net.ListenTCP("tcp", &listen)
 	if err != nil {
@@ -36,7 +36,7 @@ func (m *MinerServer) acceptConn(conn *net.TCPConn) {
 	defer conn.Close()
 
 	// Too many connections
-	if len(m.allconns) > m.config.MaxWorkerConnect {
+	if len(m.allconns) > m.Conf.MaxWorkerConnect {
 		message.SendServerResponseByRetCode(conn, message.MsgErrorRetCodeTooManyConnects)
 		return
 	}

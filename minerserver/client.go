@@ -50,7 +50,7 @@ func (m *MinerServerClient) Handle() error {
 			}
 
 			// Excavation completed, start verification
-			newhx, newblock, err := m.server.penddingBlockMsg.CalculateBlockHashByMiningResult(&result)
+			newhx, newblock, err := m.server.penddingBlockMsg.CalculateBlockHashByMiningResult(&result, true)
 			//fmt.Println("get:::::", result.BlockNonce, result.CoinbaseNonce.ToHex(),
 			//	newblock.GetHeight(),
 			//	newblock.GetMrklRoot().ToHex())

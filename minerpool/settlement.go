@@ -81,7 +81,7 @@ func (p *MinerPool) settleOneSuccessPeriod(period *SettlementPeriod) {
 	pernum := big.NewInt(10000 * 10000)
 	rwdcoin := coinbase.BlockCoinBaseRewardNumber(blockHeight)
 	totalReward := int64(rwdcoin) * 10000 * 10000 // 单位：铢
-	totalReward = totalReward * int64((1-p.Config.FeePercentage)*10000) / 10000
+	totalReward = totalReward * int64((1-p.Conf.FeePercentage)*10000) / 10000
 	part1of3Reward := totalReward / 3
 	part2of3Reward := part1of3Reward * 2
 	var rwdAccounts = make([]*Account, 0)
@@ -167,7 +167,7 @@ func (p *MinerPool) settleOnePeriod(period *RealtimePeriod) {
 	pernum := big.NewInt(10000 * 10000)
 	rwdcoin := coinbase.BlockCoinBaseRewardNumber(blockHeight)
 	totalReward := int64(rwdcoin) * 10000 * 10000 // 单位：铢
-	totalReward = totalReward * int64((1-p.Config.FeePercentage)*10000) / 10000
+	totalReward = totalReward * int64((1-p.Conf.FeePercentage)*10000) / 10000
 	part1of3Reward := totalReward / 3
 	part2of3Reward := part1of3Reward * 2
 	var rwdAccounts = make([]*Account, 0)

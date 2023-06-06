@@ -21,6 +21,10 @@ func NewPoWMasterMng(alloter itfcs.PoWExecute) *PoWMasterMng {
 	}
 }
 
+func (m *PoWMasterMng) Config() itfcs.PoWConfig {
+	return m.worker.Config()
+}
+
 func (m *PoWMasterMng) Init() error {
 	return m.worker.Init()
 }

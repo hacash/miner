@@ -26,6 +26,10 @@ func NewGPUExecute(cnf *device.Config) *GPUExecute {
 	}
 }
 
+func (c *GPUExecute) Config() itfcs.PoWConfig {
+	return c.config
+}
+
 func (c *GPUExecute) CreateContext(gpumng *GPUManage, dvc *cl.Device) {
 	var group_quanity = c.config.GPU_GroupConcurrent
 	c.gpucontext = CreateExecuteContext(gpumng.program,

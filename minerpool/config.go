@@ -31,6 +31,10 @@ func NewEmptyMinerPoolConfig() *MinerPoolConfig {
 	return cnf
 }
 
+func (c *MinerPoolConfig) IsDetailLog() bool {
+	return false
+}
+
 //////////////////////////////////////////////////
 
 func NewMinerPoolConfig(cnffile *sys.Inicnf) *MinerPoolConfig {
@@ -46,7 +50,7 @@ func NewMinerPoolConfig(cnffile *sys.Inicnf) *MinerPoolConfig {
 	}
 	password := cnfsection.Key("rewards_password").MustString("")
 	if password == "" {
-		log.Fatal("[Miner Pool Config Error] rewards password cannot be empty.")
+		log.Fatal("[Miner Pool Conf Error] rewards password cannot be empty.")
 		os.Exit(0)
 	}
 	var privkey []byte = nil

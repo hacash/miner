@@ -8,10 +8,8 @@ import (
 	"github.com/hacash/miner/console"
 	"github.com/hacash/miner/device"
 	"github.com/hacash/miner/diamondminer"
-	"github.com/hacash/miner/gpuexec"
 	"github.com/hacash/miner/interfaces"
 
-	//"github.com/hacash/miner/localcpu"
 	"github.com/hacash/miner/memtxpool"
 	"github.com/hacash/miner/miner"
 	"github.com/hacash/miner/minerpool"
@@ -92,13 +90,13 @@ func start() error {
 	target_ini_file = sys.AbsDir(target_ini_file)
 
 	if target_ini_file != "" {
-		fmt.Println("[Config] Load ini config file: \"" + target_ini_file + "\" at time:" + time.Now().Format("01/02 15:04:05"))
+		fmt.Println("[Conf] Load ini config file: \"" + target_ini_file + "\" at time:" + time.Now().Format("01/02 15:04:05"))
 	}
 
 	// Parse and load configuration file
 	hinicnf, err := sys.LoadInicnf(target_ini_file)
 	if err != nil {
-		fmt.Println("[Config] ERROR TO LOAD CONFIG FILE: ", err.Error())
+		fmt.Println("[Conf] ERROR TO LOAD CONFIG FILE: ", err.Error())
 		return err
 	}
 
@@ -123,19 +121,19 @@ func start() error {
 	//hinicnf.SetMustDataDir(test_data_dir)
 
 	isOpenMiner := hinicnf.Section("miner").Key("enable").MustBool(false)
-	isOpenMinerGPU := hinicnf.Section("miner").Key("gpu_enable").MustBool(false)
+	//isOpenMinerGPU := hinicnf.Section("miner").Key("gpu_enable").MustBool(false)
 	isOpenMinerServer := hinicnf.Section("minerserver").Key("enable").MustBool(false)
 	isOpenMinerPool := hinicnf.Section("minerpool").Key("enable").MustBool(false)
 	isOpenService := hinicnf.Section("service").Key("enable").MustBool(false)
 	isOpenDiamondMiner := hinicnf.Section("diamondminer").Key("enable").MustBool(false)
 
 	if (isOpenMinerServer || isOpenMinerPool) && !isOpenMiner {
-		err := fmt.Errorf("[Error Exit] [Config] open [minerserver] or [minerpool] must open [miner] first.")
+		err := fmt.Errorf("[Error Exit] [Conf] open [minerserver] or [minerpool] must open [miner] first.")
 		return err
 	}
 
 	if isOpenDiamondMiner && isOpenMiner {
-		err = fmt.Errorf("[Error Exit] [Config] Both [diamondminer] and [miner] cannot be turned on at the same time.")
+		err = fmt.Errorf("[Error Exit] [Conf] Both [diamondminer] and [miner] cannot be turned on at the same time.")
 		return err
 	}
 
@@ -203,7 +201,7 @@ func start() error {
 
 			// check reward address and password
 			if !mcnf.Rewards.Equal(mpcnf1.RewardAccount.Address) {
-				err = fmt.Errorf("[Config Error] miner rewards address must equal to miner pool rewards passward address.")
+				err = fmt.Errorf("[Conf Error] miner rewards address must equal to miner pool rewards passward address.")
 				fmt.Printf(err.Error())
 				fmt.Printf("[配置错误] 矿池自动发送奖励的地址的密码应该是地址 %s 而不是地址 %s 的密码。\n", mcnf.Rewards.ToReadable(), mpcnf1.RewardAccount.AddressReadable)
 				return err
@@ -230,15 +228,21 @@ func start() error {
 			// full node local cpu & GPU
 			mnrcnf := device.NewConfig(hinicnf.Section("miner"))
 			var mining_exec interfaces.PoWExecute = nil
-			if isOpenMinerGPU {
-				powexec := gpuexec.NewGPUExecute(mnrcnf)
-				powexec.StartAllocate()
-				mining_exec = powexec
-			} else {
-				powexec := device.NewCPUExecute(mnrcnf)
-				powexec.StartAllocate()
-				mining_exec = powexec
-			}
+			/*
+				if isOpenMinerGPU {
+					powexec := gpuexec.NewGPUExecute(mnrcnf)
+					powexec.StartAllocate()
+					mining_exec = powexec
+				} else {
+					powexec := device.NewCPUExecute(mnrcnf)
+					powexec.StartAllocate()
+					mining_exec = powexec
+				}
+			*/
+			powexec := device.NewCPUExecute(mnrcnf)
+			powexec.StartAllocate()
+			mining_exec = powexec
+
 			powmaster := device.NewPoWMasterMng(mining_exec)
 			powmaster.Init()
 			//lccnf := localcpu.NewFullNodePowWrapConfig(hinicnf)
