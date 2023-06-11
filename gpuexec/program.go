@@ -29,6 +29,9 @@ func BuildProgram(config *device.Config, context *cl.Context, devices []*cl.Devi
 	}
 
 	codeString := ` #include "x16rs_main` + emptyFuncTest + `.cl" `
+	if len(config.GPU_UseMainFileContent) > 0 {
+		codeString = config.GPU_UseMainFileContent // use outside code content
+	}
 	codeString += fmt.Sprintf("\n#define updateforbuild %d", rand.Uint64()) // 避免某些平台编译缓存
 	program, _ = context.CreateProgramWithSource([]string{codeString})
 	bderr := program.BuildProgram(devices, "-I "+config.GPU_OpenclPath)

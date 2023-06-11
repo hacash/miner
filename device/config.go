@@ -11,15 +11,16 @@ type Config struct {
 	Concurrent uint32 // Concurrent mining
 	Detail_Log bool
 
-	GPU_Enable            bool
-	GPU_OpenclPath        string
-	GPU_PlatformNameMatch string
-	GPU_GroupSize         int
-	GPU_GroupConcurrent   int
-	GPU_ItemLoopNum       int
-	GPU_UseOneDeviceBuild bool // Compile using a single device
-	GPU_ForceRebuild      bool // Force recompile
-	GPU_EmptyFuncTest     bool // Empty function compilation test
+	GPU_Enable             bool
+	GPU_OpenclPath         string
+	GPU_UseMainFileContent string
+	GPU_PlatformNameMatch  string
+	GPU_GroupSize          int
+	GPU_GroupConcurrent    int
+	GPU_ItemLoopNum        int
+	GPU_UseOneDeviceBuild  bool // Compile using a single device
+	GPU_ForceRebuild       bool // Force recompile
+	GPU_EmptyFuncTest      bool // Empty function compilation test
 }
 
 func (c *Config) IsDetailLog() bool {
@@ -62,6 +63,7 @@ func NewConfig(cnfsection *inicnf.Section) *Config {
 
 	cnf.GPU_Enable = gpusection.Key("gpu_enable").MustBool(false)
 	cnf.GPU_OpenclPath = gpusection.Key("gpu_opencl_path").MustString("./x16rs_opencl")
+	cnf.GPU_UseMainFileContent = gpusection.Key("gpu_use_main_file_content").MustString("")
 	cnf.GPU_PlatformNameMatch = gpusection.Key("gpu_platform_match").MustString("")
 	cnf.GPU_GroupSize = int(gpusection.Key("gpu_group_size").MustInt(32))
 	cnf.GPU_GroupConcurrent = int(gpusection.Key("gpu_group_concurrent").MustInt(32))
