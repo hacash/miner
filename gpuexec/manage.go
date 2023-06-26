@@ -43,7 +43,8 @@ func (g *GPUManage) Init() error {
 	g.platform = platforms[chooseplatids]
 	fmt.Printf("current use platform: %s\n", g.platform.Name())
 	g.devices, e = g.platform.GetDevices(cl.DeviceTypeAll)
-	if e != nil {
+	if len(g.devices) <= 0 || e != nil {
+		fmt.Printf(fmt.Sprintf("\n--------\n-- GPU Error: %s\n--------\n", "Cannot find any GPU device!!!"))
 		return e
 	}
 	for i, dv := range g.devices {

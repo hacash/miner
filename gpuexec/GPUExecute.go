@@ -44,6 +44,9 @@ func (c *GPUExecute) StartAllocate() {
 	c.gpumng = NewGPUManage(c.config)
 	c.gpumng.Init()
 	var dvs = c.gpumng.GetDevices()
+	if len(dvs) <= 0 {
+		panic("Cannot find any GPU device !")
+	}
 	c.allotr = make(chan itfcs.PoWExecute, len(dvs))
 	go func() {
 		var count = 0
