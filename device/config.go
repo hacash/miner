@@ -1,6 +1,8 @@
 package device
 
 import (
+	"fmt"
+	"github.com/hacash/core/sys"
 	"github.com/hacash/core/sys/inicnf"
 )
 
@@ -63,6 +65,8 @@ func NewConfig(cnfsection *inicnf.Section) *Config {
 
 	cnf.GPU_Enable = gpusection.Key("gpu_enable").MustBool(false)
 	cnf.GPU_OpenclPath = gpusection.Key("gpu_opencl_path").MustString("./x16rs_opencl")
+	cnf.GPU_OpenclPath = sys.AbsDir(cnf.GPU_OpenclPath) // abs path for exe belong path
+	fmt.Printf("[Config] load x16rs opencl dir: %s\n", cnf.GPU_OpenclPath)
 	cnf.GPU_UseMainFileContent = gpusection.Key("gpu_use_main_file_content").MustString("")
 	cnf.GPU_PlatformNameMatch = gpusection.Key("gpu_platform_match").MustString("")
 	cnf.GPU_GroupSize = int(gpusection.Key("gpu_group_size").MustInt(32))
