@@ -6,6 +6,7 @@ import (
 	"github.com/hacash/core/fields"
 	itfcs "github.com/hacash/miner/interfaces"
 	"github.com/hacash/mint/difficulty"
+	"math/big"
 	"time"
 )
 
@@ -13,6 +14,9 @@ type PoWThreadMng struct {
 	config   itfcs.PoWConfig
 	executer itfcs.PoWExecute
 }
+
+var hxrate_show_count int64 = 0
+var hxrate_show_ttvalue *big.Int = nil
 
 func NewPoWThreadMng(exec itfcs.PoWExecute) *PoWThreadMng {
 	return &PoWThreadMng{
@@ -71,8 +75,18 @@ func (c *PoWThreadMng) DoMining(stopmark *byte, target_hash fields.Hash, input i
 
 		// fmt.Println("exec_time----", exec_time, "----nonce_span----", nonce_span, "----result_hash----", restep.ResultHash.ToHex()[0:16])
 		if c.config.IsDetailLog() {
-			fmt.Printf("%.2fs %d,%d %s... %s\n", exec_time, nonce_start, nonce_span, restep.ResultHash.ToHex()[0:16],
-				difficulty.ConvertHashToRateShow(uint64(restep.BlockHeight), restep.ResultHash, int64(exec_time)))
+			hxrate_show_count++
+			var curhrs = difficulty.ConvertHashToRate(uint64(restep.BlockHeight), restep.ResultHash, int64(exec_time))
+			if hxrate_show_ttvalue == nil {
+				hxrate_show_ttvalue = curhrs
+			} else {
+				hxrate_show_ttvalue = hxrate_show_ttvalue.Add(hxrate_show_ttvalue, curhrs)
+			}
+			var curhrshow = difficulty.ConvertPowPowerToShowFormat(curhrs)
+			var tthrsshow = difficulty.ConvertPowPowerToShowFormat(big.NewInt(0).Div(hxrate_show_ttvalue, big.NewInt(hxrate_show_count)))
+			fmt.Printf("%d,%d %.2fs %s... %s, %s\n",
+				nonce_span, nonce_start, exec_time, restep.ResultHash.ToHex()[0:20],
+				curhrshow, tthrsshow)
 		} else {
 			fmt.Printf(".")
 		}

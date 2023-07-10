@@ -122,7 +122,7 @@ func (c *GPUExecute) DoMining(stopmark *byte, input interfaces.Block, nonce_offs
 		float64(c.config.GPU_GroupSize) /
 		float64(c.config.GPU_GroupConcurrent)
 	if c.config.Detail_Log {
-		fmt.Printf("-%d- ", int64(item_loop))
+		fmt.Printf("-%d ", int64(item_loop))
 	}
 	// gpu do
 	var err error = nil

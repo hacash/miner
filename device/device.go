@@ -123,8 +123,9 @@ func (c *PoWDeviceMng) DoMining(stopmark *byte, inputCh chan *itfcs.PoWStuffBrie
 
 	if most_result != nil {
 		digg_time := time.Since(exec_start_time).Seconds()
-		fmt.Printf("power: %s... hashrate: %s\n", most_result.ResultHash.ToHex()[0:16],
-			difficulty.ConvertHashToRateShow(block_height, most_result.ResultHash, int64(digg_time)))
+		fmt.Printf("upload power: %s... hashrate: %s time: %s\n", most_result.ResultHash.ToHex()[0:24],
+			difficulty.ConvertHashToRateShow(block_height, most_result.ResultHash, int64(digg_time)),
+			time.Now().Format("01/02 15:04"))
 	}
 
 	// ok ret
