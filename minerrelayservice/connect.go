@@ -80,12 +80,16 @@ func (r *RelayService) handleServerConn(conn *net.TCPConn) {
 			// cache Mining stuff
 			r.updateNewBlockStuff(stuff)
 
+			var blkhei = stuff.BlockHeadMeta.GetHeight()
 			// Notify all clients of the arrival of new blocks
-			fmt.Printf("receive new block <%d> mining stuff forward to [%d] clients at time %s.\n",
-				stuff.BlockHeadMeta.GetHeight(),
+			var stfwp = fmt.Sprintf("receive new block <%d> mining stuff forward to [%d] clients at time %s.\n",
+				blkhei,
 				len(r.allconns),
 				time.Now().Format("01/02 15:04:05"),
 			)
+			if r.config.StuffForwardPrintEvery == 0 || blkhei%uint64(r.config.StuffForwardPrintEvery) == 0 {
+				fmt.Print(stfwp) // print
+			}
 			go r.notifyAllClientNewBlockStuffByMsgBytes(msgbody)
 
 		} else {

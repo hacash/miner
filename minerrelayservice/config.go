@@ -17,6 +17,9 @@ type MinerRelayServiceConfig struct {
 
 	HttpApiListenPort int // HTTP API data interface service
 
+	// Log
+	StuffForwardPrintEvery int
+
 	// Data storage
 	StoreEnable          bool   // Storage on
 	DataDir              string // catalogue
@@ -54,6 +57,8 @@ func NewMinerRelayServiceConfig(cnffile *sys.Inicnf) *MinerRelayServiceConfig {
 	}
 
 	cnf.HttpApiListenPort = cnfsection.Key("http_api_listen_port").MustInt(8080)
+	// log
+	cnf.StuffForwardPrintEvery = cnfsection.Key("log_stuff_forward_every").MustInt(0)
 	// store
 	storesection := cnffile.Section("store")
 	cnf.StoreEnable = storesection.Key("enable").MustBool(false)
