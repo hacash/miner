@@ -375,6 +375,7 @@ func debugTestConfigSetHandle(hinicnf *sys.Inicnf) {
 
 	// Global test mark testdebuglocaldevelopmentmark
 	sys.TestDebugLocalDevelopmentMark = rootsec.Key("TestDebugLocalDevelopmentMark").MustBool(false)
+	sys.TransactionSystemCheckChainID = rootsec.Key("TransactionSystemCheckChainID").MustUint64(0)
 
 	// test set start
 	if adjustTargetDifficultyNumberOfBlocks := rootsec.Key("AdjustTargetDifficultyNumberOfBlocks").MustUint64(0); adjustTargetDifficultyNumberOfBlocks > 0 {
