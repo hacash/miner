@@ -21,13 +21,11 @@ import (
 
 0. 启动比特币转移日志服务：
 
-	export GOPATH=/media/yangjie/500GB/hacash/go
 	cd mint/run/btcmovelogs
 	go run main.go
 
 1. 删除 test/data1 目录，启动：
 
-	export GOPATH=/media/yangjie/500GB/hacash/go
 	go build -o test/test1    miner/run/main/main.go && ./test/test1    test1.ini
 
 2. 按顺序提交下面的交易，创建基础数据：
@@ -408,7 +406,7 @@ func post_tx_for_action(act1 interfacev2.Action, mainAddress string, accs []acco
 	fmt.Println(string(resp), e3)
 }
 
-//body提交二进制数据
+// body提交二进制数据
 func doBytesPost(url string, data []byte) ([]byte, error) {
 
 	body := bytes.NewReader(data)

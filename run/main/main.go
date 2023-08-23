@@ -31,8 +31,6 @@ import (
 /**
 # window and macOS need to build 'libx16rs_hash.a' by gcc in the first time!
 
-export GOPATH=/media/yangjie/500GB/hacash/go
-
 go build -o test/mainnet  miner/run/main/main.go && ./test/mainnet  mainnet.ini
 go build -o test/test1    miner/run/main/main.go && ./test/test1    test1.ini
 go build -o test/test2    miner/run/main/main.go && ./test/test2    test2.ini
@@ -40,6 +38,7 @@ go build -o test/test3    miner/run/main/main.go && ./test/test3    test3.ini
 go build -o test/pcwallet pcwallet/main/main.go  && ./test/pcwallet
 go build -o test/poolworkertest1 miner/run/minerpoolworker/main.go  && ./test/poolworkertest1 poolworkertest1.ini
 go build -o test/minerworkertest1 miner/run/minerworker/main.go  && ./test/minerworkertest1 minerworkertest1.ini
+go build -o test/ranking1 github.com/hacash/service/ranking/main.go  && ./test/ranking1 rs1.ini
 
 */
 
