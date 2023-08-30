@@ -148,7 +148,7 @@ func (c *PoWDeviceMng) DoMining(stopmark *byte, inputCh chan *itfcs.PoWStuffBrie
 
 		fmt.Printf("upload power: %s... chr: %s hashrate: %s\n",
 			most_result.ResultHash.ToHex()[0:24],
-			lphr_average, lphr_show,
+			lphr_show, lphr_average,
 		)
 	}
 
