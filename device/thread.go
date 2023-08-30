@@ -6,7 +6,6 @@ import (
 	"github.com/hacash/core/fields"
 	itfcs "github.com/hacash/miner/interfaces"
 	"github.com/hacash/mint/difficulty"
-	"math/big"
 	"time"
 )
 
@@ -14,9 +13,6 @@ type PoWThreadMng struct {
 	config   itfcs.PoWConfig
 	executer itfcs.PoWExecute
 }
-
-var hxrate_show_count int64 = 0
-var hxrate_show_ttvalue *big.Int = nil
 
 func NewPoWThreadMng(exec itfcs.PoWExecute) *PoWThreadMng {
 	return &PoWThreadMng{
@@ -48,6 +44,8 @@ func (c *PoWThreadMng) DoMining(stopmark *byte, target_hash fields.Hash, input i
 
 	var res_hash_diff *fields.Hash = nil
 
+	tt_start_time := time.Now()
+
 	for {
 		if *stopmark == 1 {
 			break
@@ -71,25 +69,8 @@ func (c *PoWThreadMng) DoMining(stopmark *byte, target_hash fields.Hash, input i
 			fmt.Printf(" \n--------\n[⬤◆◆] Successfully mined a block <%d, %s>\n--------\n", input.BlockHeadMeta.GetHeight(), restep.ResultHash.ToHex())
 			break
 		}
-		var exec_time = time.Since(start_time).Seconds()
 
-		// fmt.Println("exec_time----", exec_time, "----nonce_span----", nonce_span, "----result_hash----", restep.ResultHash.ToHex()[0:16])
-		if c.config.IsDetailLog() {
-			hxrate_show_count++
-			var curhrs = difficulty.ConvertHashToRate(uint64(restep.BlockHeight), restep.ResultHash, int64(exec_time))
-			if hxrate_show_ttvalue == nil {
-				hxrate_show_ttvalue = curhrs
-			} else {
-				hxrate_show_ttvalue = hxrate_show_ttvalue.Add(hxrate_show_ttvalue, curhrs)
-			}
-			var curhrshow = difficulty.ConvertPowPowerToShowFormat(curhrs)
-			var tthrsshow = difficulty.ConvertPowPowerToShowFormat(big.NewInt(0).Div(hxrate_show_ttvalue, big.NewInt(hxrate_show_count)))
-			fmt.Printf("%d,%d %.2fs %s... %s, %s\n",
-				nonce_span, nonce_start, exec_time, restep.ResultHash.ToHex()[0:20],
-				curhrshow, tthrsshow)
-		} else {
-			fmt.Printf(".")
-		}
+		var exec_time = time.Since(start_time).Seconds()
 
 		c.executer.ReportSpanTime(exec_time) // report exec time
 		// diff hash
@@ -98,6 +79,21 @@ func (c *PoWThreadMng) DoMining(stopmark *byte, target_hash fields.Hash, input i
 			res_hash_diff = &restep.ResultHash
 			result = restep
 		}
+
+		// fmt.Println("exec_time----", exec_time, "----nonce_span----", nonce_span, "----result_hash----", restep.ResultHash.ToHex()[0:16])
+		if c.config.IsDetailLog() {
+			var tt_exec_time = time.Since(tt_start_time).Seconds()
+			var curhrs = difficulty.ConvertHashToRate(uint64(restep.BlockHeight), restep.ResultHash, int64(exec_time))
+			var ttlhrs = difficulty.ConvertHashToRate(uint64(restep.BlockHeight), *res_hash_diff, int64(tt_exec_time))
+			var curhrshow = difficulty.ConvertPowPowerToShowFormat(curhrs)
+			var tthrsshow = difficulty.ConvertPowPowerToShowFormat(ttlhrs)
+			fmt.Printf("%d,%d %.2fs %s... %s, %s\n",
+				nonce_span, nonce_start, exec_time, restep.ResultHash.ToHex()[0:20],
+				curhrshow, tthrsshow)
+		} else {
+			fmt.Printf(".")
+		}
+
 		// check end
 		if uint64(nonce_start)+uint64(nonce_span) > 4294967294 {
 			//if(uint64(nonce_start) + uint64(nonce_span) > 1000000){

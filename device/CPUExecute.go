@@ -47,10 +47,11 @@ func (c *CPUExecute) StartAllocate() {
 
 // second
 func (c *CPUExecute) ReportSpanTime(sec float64) {
+	var span_sec = 10.0
 	var old = float64(c.nonce_span)
-	var nrpt = old / (sec / 5) // base 5 second
-	var min = old / 5
-	var max = old * 5
+	var nrpt = old / (sec / span_sec) // base 10 second
+	var min = old / 4
+	var max = old * 4
 	if nrpt < min {
 		nrpt = min
 	}

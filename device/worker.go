@@ -55,6 +55,7 @@ func (w *PoWWokerMng) createNewBrief(stuff *itfcs.PoWStuffOverallData,
 	if cb_nonce == nil {
 		cb_nonce = make([]byte, 32)
 		rand.Read(cb_nonce)
+		//fmt.Println(" *** createNewBrief cb_nonce = ", hex.EncodeToString(cb_nonce))
 	}
 	// replace
 	cbtx := stuff.CoinbaseTx.CopyForMining()

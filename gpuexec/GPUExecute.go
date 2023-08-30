@@ -72,11 +72,12 @@ func (c *GPUExecute) ReportSpanTime(sec float64) {
 		return
 	}
 	// setting span
+	var span_sec = 10.0
 	var cnfmin = float64(c.config.GPU_GroupSize * c.config.GPU_GroupConcurrent)
 	var old = float64(c.nonce_span)
-	var nrpt = old / (sec / 5) // base 5 second
-	var min = old / 5
-	var max = old * 5
+	var nrpt = old / (sec / span_sec) // base 10 second
+	var min = old / 4
+	var max = old * 4
 	if nrpt < min {
 		nrpt = min
 	}

@@ -1,6 +1,7 @@
 package minerserver
 
 import (
+	"encoding/hex"
 	"fmt"
 	"github.com/hacash/miner/interfaces"
 	"github.com/hacash/miner/message"
@@ -42,10 +43,14 @@ func (m *MinerServerClient) Handle() error {
 				return err
 			}
 			if m.server.penddingBlockMsg == nil {
+				fmt.Printf(" m.server.penddingBlockMsg == nil block <%d> !!!! continue\n",
+					result.BlockHeight)
 				continue
 			}
 			// handle
 			if !result.FindSuccess.Check() {
+				fmt.Printf("!result.FindSuccess.Check() !!!! block <%d> continue\n",
+					result.BlockHeight)
 				continue // If mining is not successful, ignore this message
 			}
 
@@ -55,24 +60,25 @@ func (m *MinerServerClient) Handle() error {
 			//	newblock.GetHeight(),
 			//	newblock.GetMrklRoot().ToHex())
 			if err != nil {
-				//fmt.Println("m.server.penddingBlockMsg.CalculateBlockHashByMiningResult ERROR:", err.Error())
+				fmt.Printf("block %d continue \n", result.BlockHeight)
+				fmt.Println("m.server.penddingBlockMsg.CalculateBlockHashByMiningResult ERROR: ", err.Error())
 				//return err
 				// not match penddingBlock , do nothing
 				continue
 			}
 			// Judge whether the hash meets the requirements
 			if !difficulty.CheckHashDifficultySatisfyByBlock(newhx, newblock) {
-				/*
-					// 不满足难度， 什么都不做
-					fmt.Println("不满足难度， 什么都不做")
-					diffhash := difficulty.Uint32ToHash(newblock.GetHeight(), newblock.GetDifficulty())
-					diffhex := hex.EncodeToString(diffhash)
-					fmt.Println(newblock.GetHeight(), newhx.ToHex(), diffhex, hex.EncodeToString(newblock.GetNonceByte()), newblock.GetNonceByte())
-					fmt.Println(hex.EncodeToString(blocks.CalculateBlockHashBaseStuff(newblock)))
-				*/
+
+				// 不满足难度， 什么都不做
+				fmt.Println("不满足难度， 什么都不做")
+				diffhash := difficulty.Uint32ToHash(newblock.GetHeight(), newblock.GetDifficulty())
+				diffhex := hex.EncodeToString(diffhash)
+				fmt.Println(newblock.GetHeight(), newhx.ToHex(), diffhex, hex.EncodeToString(newblock.GetNonceByte()), newblock.GetNonceByte())
+				//fmt.Println(hex.EncodeToString(blocks.CalculateBlockHashBaseStuff(newblock)))
 				continue
 			}
 			// FIND SUCCESS !!!!!!!!
+			fmt.Printf("FIND SUCCESS !!!!!!!! block <%d> m.server.successMintCh <- newblock\n", result.BlockHeight)
 			// Writing blockchain to meet the difficulty
 			//fmt.Println( "GetTransactionCount:", newblock.GetTransactionCount(), )
 			newblock.SetOriginMark("mining") // set origin
