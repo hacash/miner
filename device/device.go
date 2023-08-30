@@ -79,7 +79,13 @@ func (c *PoWDeviceMng) DoMining(stopmark *byte, inputCh chan *itfcs.PoWStuffBrie
 	// show
 	var block_height = brief_ccl.BlockHeadMeta.GetHeight()
 	exec_start_time := time.Now()
-	fmt.Printf("device mining: ‹%d›...", block_height)
+	fmt.Printf("[%s] do mining: ‹%d›",
+		time.Now().Format("01/02 15:04:03"), block_height)
+	if c.config.IsDetailLog() {
+		fmt.Print("... ")
+	} else {
+		fmt.Print("      ")
+	}
 
 	var target_hash = difficulty.DifficultyUint32ToHash(brief_ccl.BlockHeadMeta.GetDifficulty())
 
@@ -140,8 +146,7 @@ func (c *PoWDeviceMng) DoMining(stopmark *byte, inputCh chan *itfcs.PoWStuffBrie
 		var lphr_average = difficulty.ConvertPowPowerToShowFormat(big.NewInt(0).Div(hxrate_show_ttvalue, big.NewInt(hxrate_show_count)))
 		// end
 
-		fmt.Printf("[%s] upload power: %s... chr: %s hashrate: %s\n",
-			time.Now().Format("01/02 15:04:03"),
+		fmt.Printf("upload power: %s... chr: %s hashrate: %s\n",
 			most_result.ResultHash.ToHex()[0:24],
 			lphr_average, lphr_show,
 		)
