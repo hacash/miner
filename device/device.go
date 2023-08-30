@@ -6,9 +6,13 @@ import (
 	"github.com/hacash/core/fields"
 	itfcs "github.com/hacash/miner/interfaces"
 	"github.com/hacash/mint/difficulty"
+	"math/big"
 	"sync"
 	"time"
 )
+
+var hxrate_show_count int64 = 0
+var hxrate_show_ttvalue *big.Int = nil
 
 type PoWDeviceMng struct {
 	config  itfcs.PoWConfig
@@ -123,9 +127,24 @@ func (c *PoWDeviceMng) DoMining(stopmark *byte, inputCh chan *itfcs.PoWStuffBrie
 
 	if most_result != nil {
 		digg_time := time.Since(exec_start_time).Seconds()
-		fmt.Printf("upload power: %s... hashrate: %s time: %s\n", most_result.ResultHash.ToHex()[0:24],
-			difficulty.ConvertHashToRateShow(block_height, most_result.ResultHash, int64(digg_time)),
-			time.Now().Format("01/02 15:04"))
+		var lphr = difficulty.ConvertHashToRate(block_height, most_result.ResultHash, int64(digg_time))
+		var lphr_show = difficulty.ConvertPowPowerToShowFormat(lphr)
+
+		// count total hr
+		hxrate_show_count++
+		if hxrate_show_ttvalue == nil {
+			hxrate_show_ttvalue = lphr
+		} else {
+			hxrate_show_ttvalue = hxrate_show_ttvalue.Add(hxrate_show_ttvalue, lphr)
+		}
+		var lphr_average = difficulty.ConvertPowPowerToShowFormat(big.NewInt(0).Div(hxrate_show_ttvalue, big.NewInt(hxrate_show_count)))
+		// end
+
+		fmt.Printf("[%s] upload power: %s... chr: %s hashrate: %s\n",
+			time.Now().Format("01/02 15:04:03"),
+			most_result.ResultHash.ToHex()[0:24],
+			lphr_average, lphr_show,
+		)
 	}
 
 	// ok ret
