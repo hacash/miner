@@ -2,11 +2,13 @@ package device
 
 import (
 	"bytes"
+	"encoding/hex"
 	"fmt"
 	"github.com/hacash/core/fields"
 	itfcs "github.com/hacash/miner/interfaces"
 	"github.com/hacash/mint/difficulty"
 	"math/big"
+	"strings"
 	"sync"
 	"time"
 )
@@ -78,9 +80,12 @@ func (c *PoWDeviceMng) DoMining(stopmark *byte, inputCh chan *itfcs.PoWStuffBrie
 
 	// show
 	var block_height = brief_ccl.BlockHeadMeta.GetHeight()
+	var tar_diff_str = hex.EncodeToString(difficulty.DifficultyUint32ToHash(brief_ccl.BlockHeadMeta.GetDifficulty()))
+	tar_diff_str = strings.TrimRight(tar_diff_str, "0")
 	exec_start_time := time.Now()
-	fmt.Printf("[%s] do mining: ‹%d›",
-		time.Now().Format("01/02 15:04:03"), block_height)
+	fmt.Printf("[%s] do mining: ‹%d› thr: %s",
+		time.Now().Format("01/02 15:04:03"),
+		block_height, tar_diff_str)
 	if c.config.IsDetailLog() {
 		fmt.Print("... ")
 	} else {
