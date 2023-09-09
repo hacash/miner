@@ -6,22 +6,22 @@ import (
 	"github.com/hacash/core/fields"
 	"github.com/hacash/core/interfaces"
 	"github.com/hacash/miner/device"
+	cl2 "github.com/hacash/miner/gpuexec/cl"
 	"github.com/hacash/mint/difficulty"
 	"github.com/hacash/x16rs"
-	"github.com/xfong/go2opencl/cl"
 )
 
 type ExecuteContext struct {
-	context *cl.Context
-	device  *cl.Device
-	kernel  *cl.Kernel
-	queue   *cl.CommandQueue
+	context *cl2.Context
+	device  *cl2.Device
+	kernel  *cl2.Kernel
+	queue   *cl2.CommandQueue
 
-	input_stuff  *cl.MemObject
-	input_target *cl.MemObject
+	input_stuff  *cl2.MemObject
+	input_target *cl2.MemObject
 
-	interim_nonce_datas *cl.MemObject
-	interim_hash_datas  *cl.MemObject
+	interim_nonce_datas *cl2.MemObject
+	interim_hash_datas  *cl2.MemObject
 
 	group_quantity int
 	current_height uint64
@@ -49,13 +49,13 @@ func (e *ExecuteContext) DoMining(cnf *device.Config, input interfaces.Block,
 		if err != nil {
 			panic(err)
 		}
-		_, err = e.queue.EnqueueWriteBufferByte(e.input_target, true, 0, target_buf, nil)
+		_, err = e.queue.EnqueueWriteBufferByte(e.input_target, true, 0, target_buf)
 		if err != nil {
 			panic(err)
 		}
 	}
 	stuff_buf, err := input.SerializeExcludeTransactions()
-	_, err = e.queue.EnqueueWriteBufferByte(e.input_stuff, true, 0, stuff_buf, nil)
+	_, err = e.queue.EnqueueWriteBufferByte(e.input_stuff, true, 0, stuff_buf)
 	if err != nil {
 		panic(err)
 	}
@@ -64,6 +64,7 @@ func (e *ExecuteContext) DoMining(cnf *device.Config, input interfaces.Block,
 	//if err != nil {
 	//	panic(err)
 	//}
+	err = e.queue.Finish()
 	// call args
 	err = e.kernel.SetArgs(e.input_target, e.input_stuff, uint32(e.x16rs_repeat), nonce_offset, item_loop,
 		e.interim_nonce_datas, e.interim_hash_datas)
@@ -73,26 +74,28 @@ func (e *ExecuteContext) DoMining(cnf *device.Config, input interfaces.Block,
 	// do call gpu
 	var local = cnf.GPU_GroupSize
 	var global = local * cnf.GPU_GroupConcurrent
-	//fmt.Println(global, local, cnf.GPU_GroupConcurrent, cnf.GPU_GroupSize)
+	//fmt.Println("EnqueueNDRangeKernel do: ", global, local, uint32(e.x16rs_repeat), nonce_offset, item_loop, cnf.GPU_GroupConcurrent, cnf.GPU_GroupSize)
 	_, err = e.queue.EnqueueNDRangeKernel(e.kernel, []int{0}, []int{global}, []int{local}, nil)
 	if err != nil {
 		fmt.Println("EnqueueNDRangeKernel ERROR:")
 		panic(err)
 	}
+	//fmt.Println("EnqueueNDRangeKernel end")
 	// exec
 	err = e.queue.Finish()
+	//fmt.Println("e.queue.Finish end")
 	// results
 	result_nonce := bytes.Repeat([]byte{0}, 4*e.group_quantity)
 	result_hash := make([]byte, 32*e.group_quantity)
 	// copy get output
 	//fmt.Println("EnqueueReadBufferByte output_nonce start")
-	_, err = e.queue.EnqueueReadBufferByte(e.interim_nonce_datas, true, 0, result_nonce, nil)
+	_, err = e.queue.EnqueueReadBufferByte(e.interim_nonce_datas, true, 0, result_nonce)
 	if err != nil {
 		panic(err)
 	}
 	//fmt.Println("EnqueueReadBufferByte output_nonce end")
 	//fmt.Println("EnqueueReadBufferByte output_hash start")
-	_, err = e.queue.EnqueueReadBufferByte(e.interim_hash_datas, true, 0, result_hash, nil)
+	_, err = e.queue.EnqueueReadBufferByte(e.interim_hash_datas, true, 0, result_hash)
 	if err != nil {
 		panic(err)
 	}
@@ -130,9 +133,9 @@ func getMostHashAndNonce(hash_datas []byte, nonce_datas []byte) (fields.Hash, fi
 
 // chua
 func CreateExecuteContext(
-	program *cl.Program,
-	context *cl.Context,
-	device *cl.Device,
+	program *cl2.Program,
+	context *cl2.Context,
+	device *cl2.Device,
 	group_quantity int) *ExecuteContext {
 
 	// 运行创建执行单元
@@ -141,14 +144,15 @@ func CreateExecuteContext(
 	//input_stuff_buf := make([]byte, 89)
 	//copy(input_stuff_buf, work.blkstuff[:])
 	// |cl.MemCopyHostPtr
-	input_target, _ := context.CreateEmptyBuffer(cl.MemReadOnly, 32)
-	input_stuff, _ := context.CreateEmptyBuffer(cl.MemReadOnly, 89)
+	input_target, _ := context.CreateEmptyBuffer(cl2.CL_MEM_READ_ONLY, 32)
+	input_stuff, _ := context.CreateEmptyBuffer(cl2.CL_MEM_READ_ONLY, 89)
 	//defer input_target.Release()
 	//defer input_stuff.Release()
 
 	// |cl.MemAllocHostPtr
-	interim_nonce_datas, _ := context.CreateEmptyBuffer(cl.MemReadWrite|cl.MemAllocHostPtr, 4*group_quantity)
-	interim_hash_datas, _ := context.CreateEmptyBuffer(cl.MemReadWrite|cl.MemAllocHostPtr, 32*group_quantity)
+	var tys = cl2.CL_MEM_READ_WRITE | cl2.CL_MEM_ALLOC_HOST_PTR
+	interim_nonce_datas, _ := context.CreateEmptyBuffer(tys, 4*group_quantity)
+	interim_hash_datas, _ := context.CreateEmptyBuffer(tys, 32*group_quantity)
 
 	kernel, ke1 := program.CreateKernel("miner_do_hash_x16rs_v3")
 	if ke1 != nil {

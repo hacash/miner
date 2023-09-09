@@ -5,8 +5,8 @@ import (
 	"github.com/hacash/core/fields"
 	"github.com/hacash/core/interfaces"
 	"github.com/hacash/miner/device"
+	cl2 "github.com/hacash/miner/gpuexec/cl"
 	itfcs "github.com/hacash/miner/interfaces"
-	"github.com/xfong/go2opencl/cl"
 )
 
 type GPUExecute struct {
@@ -30,7 +30,7 @@ func (c *GPUExecute) Config() itfcs.PoWConfig {
 	return c.config
 }
 
-func (c *GPUExecute) CreateContext(gpumng *GPUManage, dvc *cl.Device) {
+func (c *GPUExecute) CreateContext(gpumng *GPUManage, dvc *cl2.Device) {
 	var group_quanity = c.config.GPU_GroupConcurrent
 	c.gpucontext = CreateExecuteContext(gpumng.program,
 		gpumng.context, dvc, group_quanity)
@@ -61,7 +61,7 @@ func (c *GPUExecute) StartAllocate() {
 				break
 			}
 		}
-		fmt.Printf("GPU Miner Concurrent %d \f", count)
+		//fmt.Printf("GPU Miner Concurrent %d \n", count)
 	}()
 }
 

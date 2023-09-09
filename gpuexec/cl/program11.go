@@ -1,0 +1,13 @@
+package cl
+
+/*
+#include "cl.h"
+*/
+import "C"
+
+// /////////////////////////////////////////////
+// OpenCL 1.1
+// /////////////////////////////////////////////
+func CLUnloadCompiler() CL_int {
+	return CL_int(C.clUnloadCompiler())
+}
