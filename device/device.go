@@ -170,6 +170,9 @@ func (c *PoWDeviceMng) DoMining(stopmark *byte, inputCh chan *itfcs.PoWStuffBrie
 		)
 	}
 
+	// clean
+	close(resChs)
+
 	// ok ret
 	return most_result, nil
 }

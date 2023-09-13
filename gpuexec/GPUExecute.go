@@ -134,15 +134,20 @@ func (c *GPUExecute) DoMining(stopmark *byte, input interfaces.Block, nonce_offs
 	go func() {
 		var e error = nil
 		r1, r2, e := c.gpucontext.DoMining(c.config, input, nonce_offset, uint32(item_loop))
+		if *stopmark == 1 {
+			return
+		}
 		if e != nil {
 			err = e
 			result = nil // nothing
 			mining_end_ch <- -1
 			return
 		}
-		// ok
-		result.ResultHash, result.BlockNonce = r1, r2
-		mining_end_ch <- 1
+		if result != nil {
+			// ok
+			result.ResultHash, result.BlockNonce = r1, r2
+			mining_end_ch <- 1
+		}
 	}()
 
 	// listen stopmark

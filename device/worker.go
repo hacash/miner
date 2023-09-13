@@ -96,6 +96,7 @@ func (w *PoWWokerMng) DoMining(input *itfcs.PoWStuffOverallData) (*itfcs.PoWResu
 		for {
 			select {
 			case <-stopMarkCh:
+				close(stopMarkCh)
 				return // close
 			case briefStuffCh <- w.createNewBrief(input, 0, nil):
 				// next
@@ -152,5 +153,5 @@ STARTMINING:
 	}
 
 	// not upload
-	return nil, nil
+	return nil, err
 }
