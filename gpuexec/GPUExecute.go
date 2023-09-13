@@ -106,7 +106,7 @@ func (c *GPUExecute) Init() error {
 	return nil
 }
 
-func (c *GPUExecute) DoMining(stopmark *byte, input interfaces.Block, nonce_offset uint32) (*itfcs.PoWResultData, error) {
+func (c *GPUExecute) DoMining(stopmark *byte, successmark *byte, input interfaces.Block, nonce_offset uint32) (*itfcs.PoWResultData, error) {
 	var block_height = input.GetHeight()
 	var result = &itfcs.PoWResultData{
 		PoWResultShortData: itfcs.PoWResultShortData{
@@ -127,16 +127,14 @@ func (c *GPUExecute) DoMining(stopmark *byte, input interfaces.Block, nonce_offs
 		fmt.Printf("-%d ", int64(item_loop))
 	}
 
-	var mining_end_ch = make(chan int)
+	var mining_end_ch = make(chan int, 3)
 	var err error = nil
+	var mining_span_end = false
 
 	// gpu do
 	go func() {
 		var e error = nil
 		r1, r2, e := c.gpucontext.DoMining(c.config, input, nonce_offset, uint32(item_loop))
-		if *stopmark == 1 {
-			return
-		}
 		if e != nil {
 			err = e
 			result = nil // nothing
@@ -145,16 +143,20 @@ func (c *GPUExecute) DoMining(stopmark *byte, input interfaces.Block, nonce_offs
 		}
 		if result != nil {
 			// ok
+			mining_span_end = true
 			result.ResultHash, result.BlockNonce = r1, r2
 			mining_end_ch <- 1
 		}
 	}()
 
-	// listen stopmark
+	// listen successmark
 	go func() {
 		for {
 			time.Sleep(time.Millisecond * 250)
-			if *stopmark != 1 {
+			if *stopmark == 1 && mining_span_end {
+				return // end
+			}
+			if *successmark != 1 {
 				continue
 			}
 			result = nil // nothing
@@ -165,6 +167,7 @@ func (c *GPUExecute) DoMining(stopmark *byte, input interfaces.Block, nonce_offs
 
 	// wait finish
 	<-mining_end_ch
+	close(mining_end_ch)
 
 	// end
 	return result, err

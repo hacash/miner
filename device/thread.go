@@ -47,6 +47,8 @@ func (c *PoWThreadMng) DoMining(stopmark *byte, target_hash fields.Hash, input i
 
 	tt_start_time := time.Now()
 
+	var successmark byte = 0
+
 	for {
 		if *stopmark == 1 {
 			break
@@ -54,7 +56,7 @@ func (c *PoWThreadMng) DoMining(stopmark *byte, target_hash fields.Hash, input i
 		// do mining
 		var nonce_span = c.executer.GetNonceSpan()
 		start_time := time.Now()
-		restep, e := c.executer.DoMining(stopmark, input.BlockHeadMeta, nonce_start)
+		restep, e := c.executer.DoMining(stopmark, &successmark, input.BlockHeadMeta, nonce_start)
 		if e != nil {
 			reserr = e
 			break
@@ -67,7 +69,8 @@ func (c *PoWThreadMng) DoMining(stopmark *byte, target_hash fields.Hash, input i
 			// success find a block !
 			restep.FindSuccess = fields.CreateBool(true)
 			result = restep
-			*stopmark = 1 // set stop mark ！
+			*stopmark = 1   // set stop mark ！
+			successmark = 1 // find block success
 			c.StopMining()
 			fmt.Printf(" \n--------\n[⬤⬤⬤] Successfully mined a block <%d, %s> %s \n--------\n\n",
 				input.BlockHeadMeta.GetHeight(), restep.ResultHash.ToHex(),

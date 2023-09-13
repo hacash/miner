@@ -74,7 +74,7 @@ func (c *CPUExecute) Init() error {
 	return nil
 }
 
-func (c *CPUExecute) DoMining(stopmark *byte, input interfaces.Block, nonce_offset uint32) (*itfcs.PoWResultData, error) {
+func (c *CPUExecute) DoMining(stopmark *byte, successmark *byte, input interfaces.Block, nonce_offset uint32) (*itfcs.PoWResultData, error) {
 	var block_height = input.GetHeight()
 	var result = itfcs.PoWResultData{
 		PoWResultShortData: itfcs.PoWResultShortData{

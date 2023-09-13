@@ -130,8 +130,7 @@ func (c *PoWDeviceMng) DoMining(stopmark *byte, inputCh chan *itfcs.PoWStuffBrie
 					res.ResultHash.ToHex(),
 				)
 				most_result = res
-				execWait.Done() // finish
-				return          // down
+				continue
 			}
 			if most_result == nil {
 				most_result = res

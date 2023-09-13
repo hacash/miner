@@ -155,7 +155,7 @@ type PoWThread interface {
 type PoWExecute interface {
 	Config() PoWConfig
 	Init() error
-	DoMining(stopmark *byte, input interfaces.Block, nonce_offset uint32) (*PoWResultData, error) // find a block
+	DoMining(stopmark *byte, successmark *byte, input interfaces.Block, nonce_offset uint32) (*PoWResultData, error) // find a block
 
 	GetNonceSpan() uint32
 	ReportSpanTime(float64) // second
