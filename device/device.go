@@ -67,7 +67,7 @@ func (c *PoWDeviceMng) StopMining() {
 func (c *PoWDeviceMng) DoMining(stopmark *byte, inputCh chan *itfcs.PoWStuffBriefData) (*itfcs.PoWResultData, error) {
 
 	var execNum = len(c.threads)
-	var resChs = make(chan *itfcs.PoWResultData, execNum)
+	var resChs = make(chan *itfcs.PoWResultData, execNum+1)
 	var execWait = sync.WaitGroup{}
 	execWait.Add(1)
 
@@ -120,6 +120,19 @@ func (c *PoWDeviceMng) DoMining(stopmark *byte, inputCh chan *itfcs.PoWStuffBrie
 			if res == nil {
 				continue
 			}
+			if res.FindSuccess.Check() {
+				// find block
+				*stopmark = 1
+				c.StopMining()
+				fmt.Printf("[%s] upload success find block: <%d> hash: %s\n",
+					time.Now().Format("01/02 15:04:05"),
+					res.BlockHeight,
+					res.ResultHash.ToHex(),
+				)
+				most_result = res
+				execWait.Done() // finish
+				return          // down
+			}
 			if most_result == nil {
 				most_result = res
 				continue
@@ -136,36 +149,25 @@ func (c *PoWDeviceMng) DoMining(stopmark *byte, inputCh chan *itfcs.PoWStuffBrie
 	// wait all exec down
 	execWait.Wait()
 
-	if most_result != nil { // end
-		if most_result.FindSuccess.Check() {
-			// find block
-			*stopmark = 1
-			c.StopMining()
-			fmt.Printf("[%s] upload success find block: <%d> hash: %s\n",
-				time.Now().Format("01/02 15:04:05"),
-				most_result.BlockHeight,
-				most_result.ResultHash.ToHex(),
-			)
+	if most_result != nil && !most_result.FindSuccess.Check() {
+		// upload hash
+		digg_time := time.Since(exec_start_time).Seconds()
+		var lphr = difficulty.ConvertHashToRate(block_height, most_result.ResultHash, int64(digg_time))
+		var lphr_show = difficulty.ConvertPowPowerToShowFormat(lphr)
+
+		// count total hr
+		hxrate_show_count++
+		if hxrate_show_ttvalue == nil {
+			hxrate_show_ttvalue = lphr
 		} else {
-			// upload hash
-			digg_time := time.Since(exec_start_time).Seconds()
-			var lphr = difficulty.ConvertHashToRate(block_height, most_result.ResultHash, int64(digg_time))
-			var lphr_show = difficulty.ConvertPowPowerToShowFormat(lphr)
-
-			// count total hr
-			hxrate_show_count++
-			if hxrate_show_ttvalue == nil {
-				hxrate_show_ttvalue = lphr
-			} else {
-				hxrate_show_ttvalue = hxrate_show_ttvalue.Add(hxrate_show_ttvalue, lphr)
-			}
-			var lphr_average = difficulty.ConvertPowPowerToShowFormat(big.NewInt(0).Div(hxrate_show_ttvalue, big.NewInt(hxrate_show_count)))
-
-			fmt.Printf("upload power: %s... chr: %s hashrate: %s\n",
-				most_result.ResultHash.ToHex()[0:24],
-				lphr_show, lphr_average,
-			)
+			hxrate_show_ttvalue = hxrate_show_ttvalue.Add(hxrate_show_ttvalue, lphr)
 		}
+		var lphr_average = difficulty.ConvertPowPowerToShowFormat(big.NewInt(0).Div(hxrate_show_ttvalue, big.NewInt(hxrate_show_count)))
+
+		fmt.Printf("upload power: %s... chr: %s hashrate: %s\n",
+			most_result.ResultHash.ToHex()[0:24],
+			lphr_show, lphr_average,
+		)
 	}
 
 	// ok ret

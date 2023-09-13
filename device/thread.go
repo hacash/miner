@@ -69,7 +69,7 @@ func (c *PoWThreadMng) DoMining(stopmark *byte, target_hash fields.Hash, input i
 			result = restep
 			*stopmark = 1 // set stop mark ！
 			c.StopMining()
-			fmt.Printf(" \n--------\n[⬤⬤⬤] Successfully mined a block <%d, %s> %s \n--------\n",
+			fmt.Printf(" \n--------\n[⬤⬤⬤] Successfully mined a block <%d, %s> %s \n--------\n\n",
 				input.BlockHeadMeta.GetHeight(), restep.ResultHash.ToHex(),
 				time.Now().Format("01/02 15:04:05"),
 			)

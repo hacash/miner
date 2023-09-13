@@ -7,6 +7,7 @@ import (
 	"github.com/hacash/miner/device"
 	cl2 "github.com/hacash/miner/gpuexec/cl"
 	itfcs "github.com/hacash/miner/interfaces"
+	"time"
 )
 
 type GPUExecute struct {
@@ -107,7 +108,7 @@ func (c *GPUExecute) Init() error {
 
 func (c *GPUExecute) DoMining(stopmark *byte, input interfaces.Block, nonce_offset uint32) (*itfcs.PoWResultData, error) {
 	var block_height = input.GetHeight()
-	var result = itfcs.PoWResultData{
+	var result = &itfcs.PoWResultData{
 		PoWResultShortData: itfcs.PoWResultShortData{
 			FindSuccess:   fields.CreateBool(false),
 			BlockHeight:   fields.BlockHeight(block_height),
@@ -125,13 +126,41 @@ func (c *GPUExecute) DoMining(stopmark *byte, input interfaces.Block, nonce_offs
 	if c.config.Detail_Log {
 		fmt.Printf("-%d ", int64(item_loop))
 	}
-	// gpu do
+
+	var mining_end_ch = make(chan int)
 	var err error = nil
-	result.ResultHash, result.BlockNonce, err = c.gpucontext.DoMining(c.config, input, nonce_offset, uint32(item_loop))
-	if err != nil {
-		return nil, err
-	}
+
+	// gpu do
+	go func() {
+		var e error = nil
+		r1, r2, e := c.gpucontext.DoMining(c.config, input, nonce_offset, uint32(item_loop))
+		if e != nil {
+			err = e
+			result = nil // nothing
+			mining_end_ch <- -1
+			return
+		}
+		// ok
+		result.ResultHash, result.BlockNonce = r1, r2
+		mining_end_ch <- 1
+	}()
+
+	// listen stopmark
+	go func() {
+		for {
+			time.Sleep(time.Millisecond * 250)
+			if *stopmark != 1 {
+				continue
+			}
+			result = nil // nothing
+			mining_end_ch <- 0
+			return
+		}
+	}()
+
+	// wait finish
+	<-mining_end_ch
 
 	// end
-	return &result, nil
+	return result, err
 }

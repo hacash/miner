@@ -96,8 +96,8 @@ func (p *MinerPoolWorker) loop() {
 				}
 				if msg.Status == message.PowMasterMsgStatusSuccess {
 					//p.currentMiningStatusSuccess = true // set mining status
-					fmt.Printf("OK.\n[⬤◆◆] %s Successfully mined a block height: %d, hash: %s, time: %ds, hashrate: %s. \n",
-						time.Now().Format("01/02 15:04:05"), block_height, block_hash.ToHex(), usetimesec, hashrateshow)
+					fmt.Printf("OK.\n[⬤◆◆] Successfully mined a block height: %d, hash: %s, time: %ds, hashrate: %s, time: %s. \n",
+						block_height, block_hash.ToHex(), usetimesec, hashrateshow, time.Now().Format("01/02 15:04:05"))
 				}
 				if msg.Status == message.PowMasterMsgStatusMostPowerHash || msg.Status == message.PowMasterMsgStatusMostPowerHashAndRequestNextMining {
 					fmt.Printf("upload:‹%d›%s..., time: %ds, hashrate: %s ok.\n", block_height, hex.EncodeToString(block_hash[0:12]), usetimesec, hashrateshow)
