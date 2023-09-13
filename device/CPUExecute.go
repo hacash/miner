@@ -47,7 +47,7 @@ func (c *CPUExecute) StartAllocate() {
 
 // second
 func (c *CPUExecute) ReportSpanTime(sec float64) {
-	var span_sec = 10.0
+	var span_sec = c.config.GPU_SpanTime // 5.0
 	var old = float64(c.nonce_span)
 	var nrpt = old / (sec / span_sec) // base 10 second
 	var min = old / 4
@@ -103,6 +103,9 @@ func (c *CPUExecute) DoMining(stopmark *byte, input interfaces.Block, nonce_offs
 		nonce_use += 1
 		if nonce_use >= nonce_max {
 			// finish
+			break
+		}
+		if *stopmark == 1 {
 			break
 		}
 	}

@@ -78,7 +78,7 @@ func (m *MinerServerClient) Handle() error {
 				continue
 			}
 			// FIND SUCCESS !!!!!!!!
-			fmt.Printf("FIND SUCCESS !!!!!!!! block <%d> m.server.successMintCh <- newblock\n", result.BlockHeight)
+			// fmt.Printf("FIND SUCCESS !!!!!!!! block <%d> m.server.successMintCh <- newblock\n", result.BlockHeight)
 			// Writing blockchain to meet the difficulty
 			//fmt.Println( "GetTransactionCount:", newblock.GetTransactionCount(), )
 			newblock.SetOriginMark("mining") // set origin

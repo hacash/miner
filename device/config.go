@@ -20,6 +20,7 @@ type Config struct {
 	GPU_GroupSize          int
 	GPU_GroupConcurrent    int
 	GPU_ItemLoopNum        int
+	GPU_SpanTime           float64
 	GPU_UseOneDeviceBuild  bool // Compile using a single device
 	GPU_ForceRebuild       bool // Force recompile
 	GPU_EmptyFuncTest      bool // Empty function compilation test
@@ -75,5 +76,12 @@ func NewConfig(cnfsection *inicnf.Section) *Config {
 	cnf.GPU_UseOneDeviceBuild = gpusection.Key("gpu_use_single_device_build").MustBool(false)
 	cnf.GPU_ForceRebuild = gpusection.Key("gpu_rebuild").MustBool(false)
 	cnf.GPU_EmptyFuncTest = gpusection.Key("gpu_empty_func_test").MustBool(false)
+	cnf.GPU_SpanTime = gpusection.Key("gpu_span_time").MustFloat64(5.0)
+	if cnf.GPU_SpanTime < 1 {
+		cnf.GPU_SpanTime = 1
+	}
+	if cnf.GPU_SpanTime > 60 {
+		cnf.GPU_SpanTime = 60
+	}
 	return cnf
 }

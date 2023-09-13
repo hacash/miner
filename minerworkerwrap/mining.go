@@ -100,7 +100,8 @@ STARTDOMINING:
 		// Mining success Report
 		g.resultCh <- endstuffitem
 		// Print
-		fmt.Printf("found success.\n[⬤◆◆] Successfully mined a block height: %d, hash: %s, nonce: %s. \n",
+		fmt.Printf("found success.\n[⬤◆◆] %s Successfully mined a block height: %d, hash: %s, nonce: %s. \n",
+			time.Now().Format("01/02 15:04:05"),
 			endstuffitem.GetHeadMetaBlock().GetHeight(),
 			hex.EncodeToString(endhash),
 			hex.EncodeToString(nonce))

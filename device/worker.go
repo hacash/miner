@@ -126,6 +126,7 @@ STARTMINING:
 			blkhx := checkobj.BlockHeadMeta.HashFresh()
 			if blkhx.Equal(res.ResultHash) {
 				// SUCCESS
+				stopmark = 1
 				w.StopMining() // stop all
 				// SUCCESS END
 			} else {

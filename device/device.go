@@ -84,7 +84,7 @@ func (c *PoWDeviceMng) DoMining(stopmark *byte, inputCh chan *itfcs.PoWStuffBrie
 	tar_diff_str = strings.TrimRight(tar_diff_str, "0")
 	exec_start_time := time.Now()
 	fmt.Printf("[%s] do mining: ‹%d› thr: %s",
-		time.Now().Format("01/02 15:04:03"),
+		time.Now().Format("01/02 15:04:05"),
 		block_height, tar_diff_str)
 	if c.config.IsDetailLog() {
 		fmt.Print("... ")
@@ -136,25 +136,36 @@ func (c *PoWDeviceMng) DoMining(stopmark *byte, inputCh chan *itfcs.PoWStuffBrie
 	// wait all exec down
 	execWait.Wait()
 
-	if most_result != nil {
-		digg_time := time.Since(exec_start_time).Seconds()
-		var lphr = difficulty.ConvertHashToRate(block_height, most_result.ResultHash, int64(digg_time))
-		var lphr_show = difficulty.ConvertPowPowerToShowFormat(lphr)
-
-		// count total hr
-		hxrate_show_count++
-		if hxrate_show_ttvalue == nil {
-			hxrate_show_ttvalue = lphr
+	if most_result != nil { // end
+		if most_result.FindSuccess.Check() {
+			// find block
+			*stopmark = 1
+			c.StopMining()
+			fmt.Printf("[%s] upload success find block: <%d> hash: %s\n",
+				time.Now().Format("01/02 15:04:05"),
+				most_result.BlockHeight,
+				most_result.ResultHash.ToHex(),
+			)
 		} else {
-			hxrate_show_ttvalue = hxrate_show_ttvalue.Add(hxrate_show_ttvalue, lphr)
-		}
-		var lphr_average = difficulty.ConvertPowPowerToShowFormat(big.NewInt(0).Div(hxrate_show_ttvalue, big.NewInt(hxrate_show_count)))
-		// end
+			// upload hash
+			digg_time := time.Since(exec_start_time).Seconds()
+			var lphr = difficulty.ConvertHashToRate(block_height, most_result.ResultHash, int64(digg_time))
+			var lphr_show = difficulty.ConvertPowPowerToShowFormat(lphr)
 
-		fmt.Printf("upload power: %s... chr: %s hashrate: %s\n",
-			most_result.ResultHash.ToHex()[0:24],
-			lphr_show, lphr_average,
-		)
+			// count total hr
+			hxrate_show_count++
+			if hxrate_show_ttvalue == nil {
+				hxrate_show_ttvalue = lphr
+			} else {
+				hxrate_show_ttvalue = hxrate_show_ttvalue.Add(hxrate_show_ttvalue, lphr)
+			}
+			var lphr_average = difficulty.ConvertPowPowerToShowFormat(big.NewInt(0).Div(hxrate_show_ttvalue, big.NewInt(hxrate_show_count)))
+
+			fmt.Printf("upload power: %s... chr: %s hashrate: %s\n",
+				most_result.ResultHash.ToHex()[0:24],
+				lphr_show, lphr_average,
+			)
+		}
 	}
 
 	// ok ret

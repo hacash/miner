@@ -117,7 +117,8 @@ func (m *Miner) doStartMining() {
 			coinbaseStr += coinbasetx.GetAddress().ToReadable()
 			coinbaseStr += " + " + coinbase.BlockCoinBaseReward(miningSuccessBlock.GetHeight()).ToFinString()
 			// show success
-			fmt.Printf("[⬤◆◆] Successfully mined a block height: %d, txs: %d, hash: %s, coinbase: %s, successfully!\n",
+			fmt.Printf("[⬤◆◆] %s Successfully mined a block height: %d, txs: %d, hash: %s, coinbase: %s, successfully!\n",
+				time.Now().Format("01/02 15:04:05"),
 				miningSuccessBlock.GetHeight(),
 				miningSuccessBlock.GetCustomerTransactionCount(),
 				miningSuccessBlock.Hash().ToHex(),

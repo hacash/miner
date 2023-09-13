@@ -67,8 +67,12 @@ func (c *PoWThreadMng) DoMining(stopmark *byte, target_hash fields.Hash, input i
 			// success find a block !
 			restep.FindSuccess = fields.CreateBool(true)
 			result = restep
-			fmt.Printf(" \n--------\n[⬤⬤⬤] %s Successfully mined a block <%d, %s>\n--------\n",
-				time.Now().Format("01/02 15:04:03"), input.BlockHeadMeta.GetHeight(), restep.ResultHash.ToHex())
+			*stopmark = 1 // set stop mark ！
+			c.StopMining()
+			fmt.Printf(" \n--------\n[⬤⬤⬤] Successfully mined a block <%d, %s> %s \n--------\n",
+				input.BlockHeadMeta.GetHeight(), restep.ResultHash.ToHex(),
+				time.Now().Format("01/02 15:04:05"),
+			)
 			break
 		}
 
@@ -82,18 +86,20 @@ func (c *PoWThreadMng) DoMining(stopmark *byte, target_hash fields.Hash, input i
 			result = restep
 		}
 
-		var tt_exec_time = time.Since(tt_start_time).Seconds()
-		// fmt.Println("exec_time----", exec_time, "----nonce_span----", nonce_span, "----result_hash----", restep.ResultHash.ToHex()[0:16])
-		if c.config.IsDetailLog() {
-			var curhrs = difficulty.ConvertHashToRate(uint64(restep.BlockHeight), restep.ResultHash, int64(exec_time))
-			var ttlhrs = difficulty.ConvertHashToRate(uint64(restep.BlockHeight), *res_hash_diff, int64(tt_exec_time))
-			var curhrshow = difficulty.ConvertPowPowerToShowFormat(curhrs)
-			var tthrsshow = difficulty.ConvertPowPowerToShowFormat(ttlhrs)
-			fmt.Printf("%d,%d %.2fs %s... %s, %s\n",
-				nonce_span, nonce_start, exec_time, restep.ResultHash.ToHex()[0:20],
-				curhrshow, tthrsshow)
-		} else {
-			fmt.Printf("\b\b\b\b\b\b%4ss ", strconv.Itoa(int(tt_exec_time)))
+		if *stopmark == 0 {
+			var tt_exec_time = time.Since(tt_start_time).Seconds()
+			// fmt.Println("exec_time----", exec_time, "----nonce_span----", nonce_span, "----result_hash----", restep.ResultHash.ToHex()[0:16])
+			if c.config.IsDetailLog() {
+				var curhrs = difficulty.ConvertHashToRate(uint64(restep.BlockHeight), restep.ResultHash, int64(exec_time))
+				var ttlhrs = difficulty.ConvertHashToRate(uint64(restep.BlockHeight), *res_hash_diff, int64(tt_exec_time))
+				var curhrshow = difficulty.ConvertPowPowerToShowFormat(curhrs)
+				var tthrsshow = difficulty.ConvertPowPowerToShowFormat(ttlhrs)
+				fmt.Printf("%d,%d %.2fs %s... %s, %s\n",
+					nonce_span, nonce_start, exec_time, restep.ResultHash.ToHex()[0:20],
+					curhrshow, tthrsshow)
+			} else {
+				fmt.Printf("\b\b\b\b\b\b%4ss ", strconv.Itoa(int(tt_exec_time)))
+			}
 		}
 
 		// check end
