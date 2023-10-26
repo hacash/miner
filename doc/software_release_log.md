@@ -75,6 +75,13 @@ Hacash Software Download link and Release log
 ### Lastest release log:
 
 
+#### Version: 0.1.16  (2023.10.26.01)
+
+update log:
+
+> [1] new: RPC API `scan_coin_transfers`.
+> [2] fix: drop DiamondHash X16RS repeat 16 max limit.
+
 #### Version: 0.1.15  (2023.03.09.01)
 
 update log:
