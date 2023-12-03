@@ -44,9 +44,9 @@ go build -o test/ranking1 github.com/hacash/service/ranking/main.go  && ./test/r
 
 /**
 
-编译发布版本：
+Compile the release version:
 
-go build -ldflags '-w -s -extldflags "-static"' -o                   hacash_node_2023_10_26_01  miner/run/main/main.go
+go build -ldflags '-w -s -extldflags "-static"' -o                   hacash_node_2023_12_03_01  miner/run/main/main.go
 go build -ldflags '-w -s -extldflags "-static"' -o      hacash_miner_pool_worker_2023_04_20_01  miner/run/minerpoolworker/main.go
 go build -ldflags '-w -s -extldflags "-static"' -o    hacash_miner_relay_service_2023_04_20_01  miner/run/minerrelayservice/main.go
 go build -ldflags '-w -s -extldflags "-static"' -o hacash_desktop_offline_wallet_2023_04_20_01  pcwallet/main/main.go
@@ -69,9 +69,9 @@ const (
 	//
 	NodeVersionSuperMain    uint32 = 0            // Major version number
 	NodeVersionSupport      uint32 = 1            // Compatible version number
-	NodeVersionFeature      uint32 = 17           // Feature version number
-	NodeVersionBuildCompile string = "20231026.1" // Build version number
-	// Integrated version number system: 0.1.17 (20231026.1)
+	NodeVersionFeature      uint32 = 18           // Feature version number
+	NodeVersionBuildCompile string = "20231203.1" // Build version number
+	// Integrated version number system: 0.1.18 (20231203.1)
 )
 
 /**
