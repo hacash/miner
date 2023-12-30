@@ -351,7 +351,7 @@ func post_diamond_tx(diamond string, number uint32) {
 func post_hactrs_tx(hacnum int64, address string) {
 
 	addr2, _ := fields.CheckReadableAddress(address)
-	amt1 := fields.NewAmountByUnit248(hacnum)
+	amt1 := fields.NewAmountByUnitMei(hacnum)
 	// Create diamond
 	act1 := &actions.Action_1_SimpleToTransfer{
 		ToAddress: *addr2,

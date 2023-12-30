@@ -65,7 +65,7 @@ go build -ldflags '-w -s -extldflags "-static"' -o                hacash_ranking
 
 const (
 	DatabaseLowestVersion  int = 9  // Compatible database version number
-	DatabaseCurrentVersion int = 13 // Current database version number
+	DatabaseCurrentVersion int = 12 // Current database version number
 	//
 	NodeVersionSuperMain    uint32 = 0            // Major version number
 	NodeVersionSupport      uint32 = 1            // Compatible version number
