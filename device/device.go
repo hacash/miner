@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/hacash/core/fields"
+	"github.com/hacash/core/sys"
 	itfcs "github.com/hacash/miner/interfaces"
 	"github.com/hacash/mint/difficulty"
 	"math/big"
@@ -93,6 +94,9 @@ func (c *PoWDeviceMng) DoMining(stopmark *byte, inputCh chan *itfcs.PoWStuffBrie
 	}
 
 	var target_hash = difficulty.DifficultyUint32ToHash(brief_ccl.BlockHeadMeta.GetDifficulty())
+	if sys.NotCheckBlockDifficultyForMiner { // not check diff
+		target_hash, _ = hex.DecodeString("000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")
+	}
 
 	for i := 0; i < execNum; i++ {
 		go func(idx int, target_hash fields.Hash) {

@@ -374,6 +374,7 @@ func debugTestConfigSetHandle(hinicnf *sys.Inicnf) {
 
 	// Global test mark testdebuglocaldevelopmentmark
 	sys.TestDebugLocalDevelopmentMark = rootsec.Key("TestDebugLocalDevelopmentMark").MustBool(false)
+	sys.NotCheckBlockDifficultyForMiner = rootsec.Key("NotCheckBlockDifficultyForMiner").MustBool(false)
 	sys.TransactionSystemCheckChainID = rootsec.Key("TransactionSystemCheckChainID").MustUint64(0)
 
 	// test set start

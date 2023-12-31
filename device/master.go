@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/hacash/core/blocks"
 	"github.com/hacash/core/interfaces"
+	"github.com/hacash/core/sys"
 	"github.com/hacash/core/transactions"
 	itfcs "github.com/hacash/miner/interfaces"
 	"github.com/hacash/mint/difficulty"
@@ -74,7 +75,7 @@ func (m *PoWMasterMng) DoMining(input interfaces.Block, resCh chan interfaces.Bl
 		useblock.SetMrklRoot(mkrlroot)
 		res_block_hash := useblock.HashFresh()
 		target_diff_hash := difficulty.DifficultyUint32ToHashForAntimatter(useblock.GetDifficulty())
-		if bytes.Compare(res_block_hash, target_diff_hash) == 1 {
+		if sys.NotCheckBlockDifficultyForMiner == false && bytes.Compare(res_block_hash, target_diff_hash) == 1 {
 			return // check fail
 		}
 		// SUCCESS find a block !
