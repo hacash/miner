@@ -5,7 +5,6 @@ import (
 	"github.com/hacash/core/actions"
 	"github.com/hacash/core/genesis"
 	"github.com/hacash/core/interfaces"
-	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/core/stores"
 	"sync"
 	"time"
@@ -24,7 +23,7 @@ type DiamondMiner struct {
 	successMiningDiamondCh chan *actions.Action_4_DiamondCreate
 
 	// Current successful diamond transactions
-	currentSuccessMiningDiamondTx interfacev2.Transaction
+	currentSuccessMiningDiamondTx interfaces.Transaction
 
 	changeLock sync.Mutex
 }

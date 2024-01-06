@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/hacash/core/interfaces"
-	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/core/transactions"
 )
 
@@ -12,7 +11,13 @@ import (
 func (d *DiamondMiner) doAutoBidForMyDiamond() {
 	//fmt.Println("- doAutoBidForMyDiamond")
 
-	firstFeeTxs := d.txpool.GetDiamondCreateTxs(1) // 取出第一枚钻石挖掘交易
+	curpdblkhei := d.blockchain.GetChainEngineKernel().StateRead().GetPendingBlockHeight()
+	if curpdblkhei%5 == 0 {
+		// There is no need to bid after the diamond has already been packed
+		return
+	}
+
+	firstFeeTxs := d.txpool.GetDiamondCreateTxs(1) // get first bid
 	if firstFeeTxs == nil || len(firstFeeTxs) == 0 {
 		return // No diamonds
 	}
@@ -42,7 +47,7 @@ func (d *DiamondMiner) doAutoBidForMyDiamond() {
 	}
 	// Compare diamond serial numbers
 	curact := transactions.CheckoutAction_4_DiamondCreateFromTx(d.currentSuccessMiningDiamondTx)
-	firstact := transactions.CheckoutAction_4_DiamondCreateFromTx(firstFeeTx.(interfacev2.Transaction))
+	firstact := transactions.CheckoutAction_4_DiamondCreateFromTx(firstFeeTx)
 	if curact == nil || firstact == nil {
 		return
 	}
@@ -85,7 +90,7 @@ func (d *DiamondMiner) doAutoBidForMyDiamond() {
 		return
 	}
 
-	// success
+	// success do
 	fmt.Printf("diamond auto bid name: <%s>, tx: <%s>, fee: %s => %s \n",
 		string(curact.Diamond), newtx.Hash().ToHex(),
 		topfee.ToFinString(), myfee.ToFinString(),
