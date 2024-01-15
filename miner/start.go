@@ -76,9 +76,9 @@ func (m *Miner) doStartMining() {
 		time.Unix(int64(nextblock.GetTimestamp()), 0).Format("01/02 15:04:05"),
 	)
 
-	if sys.TestDebugLocalDevelopmentMark && (sys.NotCheckBlockDifficultyForMiner || sys.TransactionSystemCheckChainID > 0) {
+	if sys.TestDebugLocalDevelopmentMark || sys.NotCheckBlockDifficultyForMiner {
 		// Mining sleep time during development test
-		time.Sleep(time.Second * time.Duration(mint.EachBlockRequiredTargetTime))
+		time.Sleep(time.Second * (time.Duration(mint.EachBlockRequiredTargetTime + 1)))
 	}
 
 	//fmt.Println("m.powmaster.Excavate(nextblock, backBlockCh) MrklRoot:", nextblock.GetMrklRoot().ToHex())
