@@ -40,8 +40,8 @@ type HashrateLogTable struct {
 func NewHashrateLog() *HashrateLogTable {
 	var log = &HashrateLogTable{
 		wides: []int{8, 9, 16, 10, 11, 12},
-		logts: []string{"*", "*", "*", "*", "*", "Wait..."},
-		httl1: []string{"Mining", "Mainnet", "Upload", "Hashrate", "Estimate", "Native"},
+		logts: []string{"*", "*", "*", "*", "*", "Pending..."},
+		httl1: []string{"Mining", "Mainnet", "Submission", "Hashrate", "Estimate", "Local"},
 		httl2: []string{"Height", "Hashrate", "Power Hash", "Percent", "HAC/Day", "Hashrate"},
 		//
 		linex: "│",
