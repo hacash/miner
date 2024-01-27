@@ -154,7 +154,7 @@ func CreateExecuteContext(
 	interim_nonce_datas, _ := context.CreateEmptyBuffer(tys, 4*group_quantity)
 	interim_hash_datas, _ := context.CreateEmptyBuffer(tys, 32*group_quantity)
 
-	kernel, ke1 := program.CreateKernel("miner_do_hash_x16rs_v2")
+	kernel, ke1 := program.CreateKernel("miner_do_hash_x16rs_v3")
 	if ke1 != nil {
 		panic(ke1)
 	}
