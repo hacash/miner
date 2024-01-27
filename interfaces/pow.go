@@ -148,8 +148,8 @@ type PoWDevice interface {
 type PoWThread interface {
 	Config() PoWConfig
 	Init() error
-	DoMining(stopmark *byte, target_hash fields.Hash, input PoWStuffBriefData, resCh chan *PoWResultData) error // find a block
-	StopMining()                                                                                                // stop all
+	DoMining(stopmark *byte, target_hash fields.Hash, input PoWStuffBriefData, stepHxCh chan fields.Hash, resCh chan *PoWResultData) error // find a block
+	StopMining()                                                                                                                           // stop all
 }
 
 type PoWExecute interface {

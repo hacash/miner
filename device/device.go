@@ -8,26 +8,31 @@ import (
 	"github.com/hacash/core/sys"
 	itfcs "github.com/hacash/miner/interfaces"
 	"github.com/hacash/mint/difficulty"
-	"math/big"
 	"strings"
 	"sync"
 	"time"
 )
 
-var hxrate_show_count int64 = 0
-var hxrate_show_ttvalue *big.Int = nil
+//var blktartimesec = mint.EachBlockRequiredTargetTime
 
 type PoWDeviceMng struct {
 	config  itfcs.PoWConfig
 	alloter itfcs.PoWExecute
 	threads []itfcs.PoWThread
+	// for print hashrate
+	currentblkhei uint64
+	//periodMaxResultHash fields.Hash
+	//hsrttc *time.Ticker
+
+	hashratelog *HashrateLogTable
 }
 
 func NewPoWDeviceMng(alloter itfcs.PoWExecute) *PoWDeviceMng {
 	return &PoWDeviceMng{
-		config:  alloter.Config(),
-		alloter: alloter,
-		threads: make([]itfcs.PoWThread, 0),
+		config:      alloter.Config(),
+		alloter:     alloter,
+		threads:     make([]itfcs.PoWThread, 0),
+		hashratelog: NewHashrateLog(),
 	}
 }
 
@@ -55,6 +60,9 @@ func (c *PoWDeviceMng) Init() error {
 			return e
 		}
 	}
+	// show hashrate tc
+	go func() {
+	}()
 	return nil
 }
 
@@ -81,17 +89,21 @@ func (c *PoWDeviceMng) DoMining(stopmark *byte, inputCh chan *itfcs.PoWStuffBrie
 
 	// show
 	var block_height = brief_ccl.BlockHeadMeta.GetHeight()
+	c.currentblkhei = block_height
 	var tar_diff_str = hex.EncodeToString(difficulty.DifficultyUint32ToHash(brief_ccl.BlockHeadMeta.GetDifficulty()))
 	tar_diff_str = strings.TrimRight(tar_diff_str, "0")
-	exec_start_time := time.Now()
-	fmt.Printf("[%s] do mining: ‹%d› thr: %s",
-		time.Now().Format("01/02 15:04:05"),
-		block_height, tar_diff_str)
-	if c.config.IsDetailLog() {
-		fmt.Print("... ")
-	} else {
-		fmt.Print("      ")
-	}
+	//exec_start_time := time.Now()
+	c.hashratelog.UpdateMiningBlock(brief_ccl.BlockHeadMeta)
+	/*
+		fmt.Printf("\n%s do mining: ‹%d› thr: %s",
+			time.Now().Format("01/02 15:04:05"),
+			block_height, tar_diff_str)
+		if c.config.IsDetailLog() {
+			fmt.Print("... ")
+		} else {
+			fmt.Print("      ")
+		}
+	*/
 
 	var target_hash = difficulty.DifficultyUint32ToHash(brief_ccl.BlockHeadMeta.GetDifficulty())
 	if sys.NotCheckBlockDifficultyForMiner { // not check diff
@@ -108,7 +120,7 @@ func (c *PoWDeviceMng) DoMining(stopmark *byte, inputCh chan *itfcs.PoWStuffBrie
 				fmt.Println("exec.Run cannot read PoWStuffBriefData")
 				return
 			}
-			e := exec.DoMining(stopmark, target_hash, *brief, resChs)
+			e := exec.DoMining(stopmark, target_hash, *brief, c.hashratelog.RecordHashChan(), resChs)
 			if e != nil {
 				resChs <- nil
 				fmt.Println("exec.DoMining error: ", e)
@@ -154,23 +166,26 @@ func (c *PoWDeviceMng) DoMining(stopmark *byte, inputCh chan *itfcs.PoWStuffBrie
 
 	if most_result != nil && !most_result.FindSuccess.Check() {
 		// upload hash
-		digg_time := time.Since(exec_start_time).Seconds()
-		var lphr = difficulty.ConvertHashToRate(block_height, most_result.ResultHash, int64(digg_time))
-		var lphr_show = difficulty.ConvertPowPowerToShowFormat(lphr)
+		/*
+			digg_time := time.Since(exec_start_time).Seconds()
+			var lphr = difficulty.ConvertHashToRate(block_height, most_result.ResultHash, int64(digg_time))
+			var lphr_show = difficulty.ConvertPowPowerToShowFormat(lphr)
 
-		// count total hr
-		hxrate_show_count++
-		if hxrate_show_ttvalue == nil {
-			hxrate_show_ttvalue = lphr
-		} else {
-			hxrate_show_ttvalue = hxrate_show_ttvalue.Add(hxrate_show_ttvalue, lphr)
-		}
-		var lphr_average = difficulty.ConvertPowPowerToShowFormat(big.NewInt(0).Div(hxrate_show_ttvalue, big.NewInt(hxrate_show_count)))
+			// count total hr
+			hxrate_show_count++
+			if hxrate_show_ttvalue == nil {
+				hxrate_show_ttvalue = lphr
+			} else {
+				hxrate_show_ttvalue = hxrate_show_ttvalue.Add(hxrate_show_ttvalue, lphr)
+			}
+			var lphr_average = difficulty.ConvertPowPowerToShowFormat(big.NewInt(0).Div(hxrate_show_ttvalue, big.NewInt(hxrate_show_count)))
 
-		fmt.Printf("upload power: %s... chr: %s hashrate: %s\n",
-			most_result.ResultHash.ToHex()[0:24],
-			lphr_show, lphr_average,
-		)
+			fmt.Printf("upload power: %s... chr: %s hashrate: %s\n",
+				most_result.ResultHash.ToHex()[0:24],
+				//lphr_show, lphr_average,
+			)
+		*/
+		// fmt.Printf("upload power: %s... ", most_result.ResultHash.ToHex()[0:24])
 	}
 
 	// clean

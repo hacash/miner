@@ -1,10 +1,13 @@
 package device
 
 import (
-	"bytes"
+	"encoding/binary"
+	//"bytes"
+	"fmt"
 	"github.com/hacash/core/fields"
 	"github.com/hacash/core/interfaces"
 	itfcs "github.com/hacash/miner/interfaces"
+	"github.com/hacash/x16rs"
 )
 
 type CPUExecute struct {
@@ -47,7 +50,7 @@ func (c *CPUExecute) StartAllocate() {
 
 // second
 func (c *CPUExecute) ReportSpanTime(sec float64) {
-	var span_sec = c.config.GPU_SpanTime // 5.0
+	var span_sec = c.config.DeviceSpanTime // 10.0
 	var old = float64(c.nonce_span)
 	var nrpt = old / (sec / span_sec) // base 10 second
 	var min = old / 4
@@ -92,6 +95,16 @@ func (c *CPUExecute) DoMining(stopmark *byte, successmark *byte, input interface
 	var ret_hash fields.Hash = nil
 	var ret_nonce uint32 = 0
 
+	stuff_buf, err := input.SerializeExcludeTransactions()
+	if err != nil {
+		return nil, fmt.Errorf("SerializeExcludeTransactions error: %s", err.Error())
+	}
+	//fmt.Println("DoMiningX16rsV1 block_height = ", block_height)
+	rtnonce, rthash := x16rs.DoMiningX16rsV1(block_height, nonce_use, nonce_max, stuff_buf)
+	ret_hash = rthash
+	ret_nonce = binary.BigEndian.Uint32(rtnonce)
+
+	/* old version
 	for {
 		input.SetNonce(nonce_use)
 		var reshx = input.HashFresh()
@@ -108,7 +121,7 @@ func (c *CPUExecute) DoMining(stopmark *byte, successmark *byte, input interface
 		if *stopmark == 1 {
 			break
 		}
-	}
+	}*/
 
 	// set data
 	result.ResultHash = ret_hash

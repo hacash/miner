@@ -46,7 +46,8 @@ func (c *GPUExecute) StartAllocate() {
 	c.gpumng.Init()
 	var dvs = c.gpumng.GetDevices()
 	if len(dvs) <= 0 {
-		panic("Cannot find any GPU device !")
+		fmt.Println("Cannot find any GPU device !")
+		return
 	}
 	c.allotr = make(chan itfcs.PoWExecute, len(dvs))
 	go func() {
@@ -73,7 +74,7 @@ func (c *GPUExecute) ReportSpanTime(sec float64) {
 		return
 	}
 	// setting span
-	var span_sec = c.config.GPU_SpanTime // 5.0
+	var span_sec = c.config.DeviceSpanTime // 10.0
 	var cnfmin = float64(c.config.GPU_GroupSize * c.config.GPU_GroupConcurrent)
 	var old = float64(c.nonce_span)
 	var nrpt = old / (sec / span_sec) // base 10 second

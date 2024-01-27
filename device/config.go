@@ -10,8 +10,11 @@ type Config struct {
 	//PoolAddress            *net.TCPAddr
 	//Rewards                fields.Address
 
-	Concurrent uint32 // Concurrent mining
-	Detail_Log bool
+	TEST_DEBUG bool
+
+	Concurrent     uint32 // Concurrent mining
+	DeviceSpanTime float64
+	Detail_Log     bool
 
 	GPU_Enable             bool
 	GPU_OpenclPath         string
@@ -20,7 +23,6 @@ type Config struct {
 	GPU_GroupSize          int
 	GPU_GroupConcurrent    int
 	GPU_ItemLoopNum        int
-	GPU_SpanTime           float64
 	GPU_UseOneDeviceBuild  bool // Compile using a single device
 	GPU_ForceRebuild       bool // Force recompile
 	GPU_EmptyFuncTest      bool // Empty function compilation test
@@ -60,6 +62,7 @@ func NewConfig(cnfsection *inicnf.Section) *Config {
 	// supervene
 	cnf.Concurrent = uint32(cnfsection.Key("supervene").MustUint(1))
 	cnf.Detail_Log = cnfsection.Key("detail_log").MustBool(false)
+	cnf.TEST_DEBUG = cnfsection.Key("TEST_DEBUG").MustBool(false)
 
 	//gpusection := cnffile.Section("GPU")
 	gpusection := cnfsection
@@ -76,12 +79,12 @@ func NewConfig(cnfsection *inicnf.Section) *Config {
 	cnf.GPU_UseOneDeviceBuild = gpusection.Key("gpu_use_single_device_build").MustBool(false)
 	cnf.GPU_ForceRebuild = gpusection.Key("gpu_rebuild").MustBool(false)
 	cnf.GPU_EmptyFuncTest = gpusection.Key("gpu_empty_func_test").MustBool(false)
-	cnf.GPU_SpanTime = gpusection.Key("gpu_span_time").MustFloat64(5.0)
-	if cnf.GPU_SpanTime < 1 {
-		cnf.GPU_SpanTime = 1
+	cnf.DeviceSpanTime = gpusection.Key("gpu_span_time").MustFloat64(10.0)
+	if cnf.DeviceSpanTime < 1 {
+		cnf.DeviceSpanTime = 1
 	}
-	if cnf.GPU_SpanTime > 60 {
-		cnf.GPU_SpanTime = 60
+	if cnf.DeviceSpanTime > 60 {
+		cnf.DeviceSpanTime = 60
 	}
 	return cnf
 }

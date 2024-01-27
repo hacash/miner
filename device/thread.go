@@ -6,7 +6,6 @@ import (
 	"github.com/hacash/core/fields"
 	itfcs "github.com/hacash/miner/interfaces"
 	"github.com/hacash/mint/difficulty"
-	"strconv"
 	"time"
 )
 
@@ -35,7 +34,7 @@ func (c *PoWThreadMng) StopMining() {
 
 }
 
-func (c *PoWThreadMng) DoMining(stopmark *byte, target_hash fields.Hash, input itfcs.PoWStuffBriefData, resCh chan *itfcs.PoWResultData) error {
+func (c *PoWThreadMng) DoMining(stopmark *byte, target_hash fields.Hash, input itfcs.PoWStuffBriefData, stepHxCh chan fields.Hash, resCh chan *itfcs.PoWResultData) error {
 
 	var reserr error = nil
 	var result *itfcs.PoWResultData = nil
@@ -87,6 +86,9 @@ func (c *PoWThreadMng) DoMining(stopmark *byte, target_hash fields.Hash, input i
 			// find small hash
 			res_hash_diff = &restep.ResultHash
 			result = restep
+			if stepHxCh != nil {
+				stepHxCh <- *res_hash_diff
+			}
 		}
 
 		if *stopmark == 0 {
@@ -101,7 +103,7 @@ func (c *PoWThreadMng) DoMining(stopmark *byte, target_hash fields.Hash, input i
 					nonce_span, nonce_start, exec_time, restep.ResultHash.ToHex()[0:20],
 					curhrshow, tthrsshow)
 			} else {
-				fmt.Printf("\b\b\b\b\b\b%4ss ", strconv.Itoa(int(tt_exec_time)))
+				//fmt.Printf("\b\b\b\b\b\b%4ss ", strconv.Itoa(int(tt_exec_time)))
 			}
 		}
 

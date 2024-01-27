@@ -38,6 +38,10 @@ func (g *GPUManage) Init() error {
 			chooseplatids = i
 		}
 	}
+	if len(platforms) == 0 {
+		return fmt.Errorf("Cannot find any GPU platforms")
+	}
+
 	// get platform
 	g.platform = platforms[chooseplatids]
 	fmt.Printf("current use platform: %s\n", g.platform.Name())
