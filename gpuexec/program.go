@@ -137,15 +137,20 @@ func buildFromSource(config *device.Config, platform *cl2.Platform, context *cl2
 
 func saveBinaries(dir string, dvds []*cl2.Device, program *cl2.Program) {
 
-	binbtary, e := program.GetBinaries()
+	binbtary, e := program.GetBinarieByDevices(dvds)
 	if e != nil {
 		panic(e)
 	}
 	// save
 	os.Mkdir(dir, 0777)
 
+	maxlen := len(dvds)
+	if maxlen > len(binbtary) {
+		maxlen = len(binbtary)
+	}
+
 	// save each
-	for i := 0; i < len(dvds); i++ {
+	for i := 0; i < maxlen; i++ {
 		var fname = getBinName(dvds[i])
 		var fn = path.Join(dir, fname)
 		e = os.WriteFile(fn, binbtary[i], 0777)

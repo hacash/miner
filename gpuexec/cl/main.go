@@ -297,8 +297,8 @@ func (p *Program) BuildProgram(dvs []*Device, opts string) error {
 	return nil
 }
 
-func (p *Program) GetBinaries() ([][]byte, error) {
-	var dvdnum = len(p.devices)
+func (p *Program) GetBinarieByDevices(devices []*Device) ([][]byte, error) {
+	var dvdnum = len(devices)
 	// get size
 	var rtsz CL_size_t
 	CLGetProgramInfo(p.clProgram, CL_PROGRAM_BINARY_SIZES, 0, nil, &rtsz)
