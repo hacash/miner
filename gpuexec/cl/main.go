@@ -313,12 +313,12 @@ func (p *Program) GetBinarieByDevices(devices []*Device) ([][]byte, error) {
 	var binsizes = val.([]CL_size_t)
 	var rtsize C.size_t
 	var bins = make([]*C.char, dvdnum)
-	fmt.Println("OpenCL Program GetBinarieByDevices dvdnum:", dvdnum, binsizes)
+	fmt.Print("OpenCL Program GetBinarieByDevices dvdnum: ", dvdnum, " ", binsizes)
 	for i := 0; i < dvdnum; i++ {
 		bins[i] = (*C.char)(C.malloc(C.size_t(binsizes[i])))
 	}
 	var parmsize = dvdnum * int(unsafe.Sizeof(rtsz))
-	fmt.Println("bins[]:", bins, "parmsize:", parmsize)
+	fmt.Println(" bins[]: ", bins, " parmsize: ", parmsize)
 	c_errcode_ret := C.clGetProgramInfo(p.clProgram.cl_program,
 		C.CL_PROGRAM_BINARIES,
 		C.size_t(parmsize),
