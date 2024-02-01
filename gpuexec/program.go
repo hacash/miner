@@ -96,12 +96,14 @@ func buildFromSource(config *device.Config, platform *cl2.Platform, context *cl2
 	fmt.Printf("Create OpenCL program with source for %d devices form %s, please wait...\n", len(devices), config.GPU_OpenclPath)
 	buildok := false
 	go func() { // 打印
+		ct := 0
 		for {
 			time.Sleep(time.Second * 3)
 			if buildok {
 				break
 			}
-			fmt.Print(".")
+			ct += 3
+			fmt.Printf("\rCompilation time: %ds ...         ", ct)
 		}
 	}()
 	emptyFuncTest := ""
