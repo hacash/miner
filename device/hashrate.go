@@ -63,6 +63,9 @@ func NewHashrateLog() *HashrateLogTable {
 func (h *HashrateLogTable) loopPrintHashrate() {
 	for {
 		<-h.hsrtc.C
+		if h.current_blk == nil {
+			continue
+		}
 		var hei = h.current_blk.GetHeight()
 		var lphr = difficulty.ConvertHashToRate(hei, h.period_max_power_hash, h.blktm)
 		h.hxrate_show_count++
@@ -73,6 +76,9 @@ func (h *HashrateLogTable) loopPrintHashrate() {
 		h.logts[5] = average_hashrate
 		var ratio = big.NewFloat(float64(100))
 		ratio = ratio.Mul(ratio, big.NewFloat(0).SetInt(average_lphr))
+		if h.blk_rate.Sign() == 0 {
+			continue
+		}
 		ratio = ratio.Quo(ratio, big.NewFloat(0).SetInt(h.blk_rate))
 		percentf, _ := ratio.Float64()
 		h.logts[3] = fmt.Sprintf("%.6f%%", percentf)

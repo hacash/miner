@@ -10,7 +10,7 @@ type TxItem struct {
 	tx        interfaces.Transaction
 	hash      fields.Hash
 	size      uint32
-	feepurity uint64
+	feepurity uint32
 
 	next *TxItem
 	prev *TxItem

@@ -26,7 +26,7 @@ func (p *MemTxPool) checkDiamondCreate(newtx interfaces.Transaction, act *action
 		return fmt.Errorf("diamond create tx %s timestamp cannot more than now.", txhxhex)
 	}
 	// fee purity
-	if newtx.FeePurity() < mint.MinTransactionFeePurityOfOneByte {
+	if newtx.FeePurity() < mint.MinTransactionFeePurity {
 		return fmt.Errorf("diamond create tx %s handling fee is too low for miners to accept.", txhxhex)
 	}
 	// sign
