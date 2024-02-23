@@ -1,14 +1,16 @@
 package main
 
 import (
+	"encoding/hex"
 	"fmt"
 	"github.com/hacash/core/blocks"
+	"github.com/hacash/core/interfaces"
 	"github.com/hacash/core/interfacev2"
 	"github.com/hacash/core/sys"
 	"github.com/hacash/miner/console"
 	"github.com/hacash/miner/device"
 	"github.com/hacash/miner/diamondminer"
-	"github.com/hacash/miner/interfaces"
+	minerinterfaces "github.com/hacash/miner/interfaces"
 
 	"github.com/hacash/miner/memtxpool"
 	"github.com/hacash/miner/miner"
@@ -161,6 +163,9 @@ func start() error {
 	// hnode set tx pool
 	hnode.SetTxPool(txpool)
 
+	// indexer text
+	// hnode.BlockChain().GetChainEngineKernel().SetConfirmTxIndexer(&TestTxIndexer{})
+
 	// start
 	err = hnode.Start()
 	if err != nil {
@@ -226,7 +231,7 @@ func start() error {
 
 			// full node local cpu & GPU
 			mnrcnf := device.NewConfig(hinicnf.Section("miner"))
-			var mining_exec interfaces.PoWExecute = nil
+			var mining_exec minerinterfaces.PoWExecute = nil
 			/*
 				if isOpenMinerGPU {
 					powexec := gpuexec.NewGPUExecute(mnrcnf)
@@ -437,4 +442,14 @@ func Test_print_dmdname(state interfacev2.ChainState) {
 	}
 	fmt.Println("\n\n\n\n ")
 
+}
+
+/////////////////////////////////////////////////////
+
+type TestTxIndexer struct{}
+
+func (ix *TestTxIndexer) ScanTx(block interfaces.BlockHeadMetaRead, tx interfaces.Transaction) int8 {
+	fmt.Printf("---- tx indexer ScanTx ---- %d ---- %s··· ---- \n",
+		block.GetHeight(), hex.EncodeToString(tx.Hash()[0:4]))
+	return 0
 }
