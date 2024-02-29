@@ -312,7 +312,7 @@ func post_btcmove_tx() {
 	hash32, _ := hex.DecodeString("8deb5180a3388fee4991674c62705041616980e76288a8888b65530e41ccf90d")
 
 	// Create bitcoin transfer
-	act1 := &actions.Action_7_SatoshiGenesis{
+	act1 := &actions.Action_34_SatoshiGenesis{
 		TransferNo:               1,
 		BitcoinBlockHeight:       1001,
 		BitcoinBlockTimestamp:    1596702752,

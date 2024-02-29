@@ -448,6 +448,7 @@ func Test_print_dmdname(state interfacev2.ChainState) {
 
 type TestTxIndexer struct{}
 
+func (ix *TestTxIndexer) Init() {}
 func (ix *TestTxIndexer) ScanTx(block interfaces.BlockHeadMetaRead, tx interfaces.Transaction) int8 {
 	fmt.Printf("---- tx indexer ScanTx ---- %d ---- %s··· ---- \n",
 		block.GetHeight(), hex.EncodeToString(tx.Hash()[0:4]))

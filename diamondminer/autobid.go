@@ -7,13 +7,33 @@ import (
 	"github.com/hacash/core/transactions"
 )
 
+func (d *DiamondMiner) maybeDiamondMinerStop() {
+	if !d.Config.Continued {
+		// In case of discontinuous mining, stop the mining of this machine
+		//fmt.Println("diamond miner stop all, because fee addr:", iaddr.ToReadable())
+		d.StopAll()
+	}
+}
+
 // Automatic bidding for diamond mining
+var diamondalreadypackedtiphei = uint64(0)
+
 func (d *DiamondMiner) doAutoBidForMyDiamond() {
 	//fmt.Println("- doAutoBidForMyDiamond")
 
+	if d.currentSuccessMiningDiamondTx == nil {
+		return // no mining result yet
+	}
+
+	// height check
 	curpdblkhei := d.blockchain.GetChainEngineKernel().StateRead().GetPendingBlockHeight()
 	if curpdblkhei%5 == 0 {
 		// There is no need to bid after the diamond has already been packed
+		if diamondalreadypackedtiphei != curpdblkhei {
+			fmt.Printf("[diamond auto bid tip]: no need to bid after the diamond has already been packed in block height %d\n",
+				curpdblkhei)
+		}
+		diamondalreadypackedtiphei = curpdblkhei
 		return
 	}
 
@@ -25,24 +45,14 @@ func (d *DiamondMiner) doAutoBidForMyDiamond() {
 	// Address to give up competition
 	for _, iaddr := range d.Config.AutoBidIgnoreAddresses {
 		if bytes.Compare(firstFeeTx.GetAddress(), *iaddr) == 0 {
-			if !d.Config.Continued {
-				// In case of discontinuous mining, stop the mining of this machine
-				//fmt.Println("diamond miner stop all, because fee addr:", iaddr.ToReadable())
-				d.StopAll()
-			}
+			d.maybeDiamondMinerStop()
 			return
 		}
 	}
+
 	// I came first
 	if bytes.Compare(firstFeeTx.GetAddress(), d.Config.FeeAccount.Address) == 0 {
-		if !d.Config.Continued {
-			// In case of discontinuous mining, stop the mining of this machine
-			//fmt.Println("diamond miner stop all, because fee addr:", firstFeeTx.GetAddress().ToReadable())
-			d.StopAll()
-		}
-		return
-	}
-	if d.currentSuccessMiningDiamondTx == nil {
+		d.maybeDiamondMinerStop()
 		return
 	}
 	// Compare diamond serial numbers
@@ -91,7 +101,7 @@ func (d *DiamondMiner) doAutoBidForMyDiamond() {
 	}
 
 	// success do
-	fmt.Printf("diamond auto bid name: <%s>, tx: <%s>, fee: %s => %s \n",
+	fmt.Printf("[diamond auto bid exec]: <%s>, tx: <%s>, fee: %s => %s \n",
 		string(curact.Diamond), newtx.Hash().ToHex(),
 		topfee.ToFinString(), myfee.ToFinString(),
 	)
