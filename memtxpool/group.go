@@ -60,7 +60,7 @@ func (g *TxGroup) Add(item *TxItem) bool {
 					break
 				} else if item.feepurity == curitem.feepurity { // insert after
 					if item.tx.GetFee().MoreThan(curitem.tx.GetFee()) {
-						// 手续费值大于，则排在前面// insert before
+						// insert before
 						previtem.next = item
 						curitem.prev = item
 						item.next = curitem
