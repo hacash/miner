@@ -71,9 +71,9 @@ const (
 	//
 	NodeVersionSuperMain    uint32 = 0            // Major version number
 	NodeVersionSupport      uint32 = 1            // Compatible version number
-	NodeVersionFeature      uint32 = 20           // Feature version number
-	NodeVersionBuildCompile string = "2024022901" // Build version number
-	// Integrated version number system: 0.1.20 (2024022901)
+	NodeVersionFeature      uint32 = 22           // Feature version number
+	NodeVersionBuildCompile string = "2025011001" // Build version number
+	// Integrated version number system: 0.1.22 (2025011001)
 )
 
 /**
